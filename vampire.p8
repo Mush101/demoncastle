@@ -683,6 +683,7 @@ function _init()
 	draw_bounding_boxes = false
 
 	blackout_time = 0
+	start_film_reel()
 end
 
 --------------------------------------------------------------------------------
@@ -697,6 +698,17 @@ function _update60()
 		if a.dead then
 			del(actors, a)
 		end
+	end
+	if film_reel then
+		film_offset += film_speed
+		film_speed += film_acc
+		if film_speed<0 then
+			film_speed = 0
+		end
+		if film_speed>128 then
+			film_speed = 128
+		end
+		film_offset = film_offset % 128
 	end
 end
 
@@ -724,19 +736,55 @@ function move_towards(goal, current, speed)
 	end
 end
 
+function start_film_reel()
+	film_reel = true
+	film_offset = 0
+	film_speed = 16
+	film_acc = -0.1
+end
+
 --------------------------------------------------------------------------------
 
 function _draw()
 	cls()
 	if blackout_time<=0 then
+		clip(0,0,128,112)
 		cam:set_position()
 		map(0,0,0,0,128,32)
 		for a in all(actors) do
 			a:draw()
 		end
 		camera()
+		clip()
 	end
-	draw_hud()
+
+	if film_reel then
+
+		-- for i=0, film_offset do
+		-- 	memcpy(0x8000-(1+i)*64, 0x6000+(film_offset-i)*64, 64)
+		-- end
+		--
+		-- --rectfill(0, 112-film_offset, 127, 126-film_offset, 0)
+		--
+		-- for i=0x6000,0x8000-64 * (film_offset+16), 64 do
+		-- 	memcpy(i, i+64*film_offset, 64)
+		-- end
+
+		int_offset = flr(film_offset)
+
+		if int_offset<112 then
+			memcpy(0x4300, 0x6000, int_offset*64)
+			memcpy(0x6000, 0x6000 + int_offset*64, (128-int_offset)*64)
+			memcpy(0x6000 + (128-int_offset)*64, 0x4300, int_offset*64)
+		else
+			val = 128 - int_offset
+			memcpy(0x6000+64*val, 0x6000, (128 - val)*64)
+			rectfill(0,0,127,val-1,0)
+		end
+
+	else
+		draw_hud()
+	end
 end
 
 function draw_hud()
