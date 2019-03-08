@@ -161,7 +161,7 @@ function actor:goto_master()
 end
 
 function actor:offscreen()
-	return self.x<cam.x-self.width-64 or self.x>cam.x+128+64
+	return self.x<cam.x-self.width-32 or self.x>cam.x+128+32
 end
 
 function actor:hitbox_overlaps(a)
@@ -525,6 +525,7 @@ function zombie:init()
 	self.f=true
 end
 
+--This code needs rewriting
 function zombie:update()
 	if self:offscreen() then return end
 	--self.f = self.x>player.x
@@ -627,6 +628,8 @@ function running_zombie:on_edge()
 	end
 end
 
+--------------------------------------------------------------------------------
+
 death_particle = actor:new({size=3})
 
 function death_particle:update()
@@ -639,6 +642,44 @@ end
 
 function death_particle:draw()
 	circfill(self.x,self.y,self.size,7)
+end
+
+--------------------------------------------------------------------------------
+
+bat = actor:new({s=26, enemy=true, invul=0, health=1})
+
+function bat:init()
+	self.f=true
+	self.awake = false
+	self:use_pal()
+	self.wing_timer=0
+end
+
+function bat:update()
+	if self:offscreen() then return end
+	if self.awake then
+		self.wing_timer=(self.wing_timer+0.2)%2
+		self.s = 27+self.wing_timer
+
+		self.f = self.x>player.x
+		self.target_x = player.x
+		self.target_y = player.y+1
+		self.y = self.target_y
+	end
+	if distance_between(self.x,self.y,player.x,player.y)<32 then
+		self.awake = true
+	end
+end
+
+function bat:use_pal()
+	self.pal = enemy_pal_2
+end
+
+function zombie:hit(attacker)
+	if self.invul == 0 then
+		self.health-=1
+		self.invul=8
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -666,7 +707,7 @@ function _init()
 
 	add_actor(cam)
 
-	local zom = zombie:new({x=184, y=16})
+	local zom = bat:new({x=184+8, y=16-8})
 	zom:init()
 	add_actor(zom)
 
@@ -683,7 +724,7 @@ function _init()
 	draw_bounding_boxes = false
 
 	blackout_time = 0
-	start_film_reel()
+	--start_film_reel()
 end
 
 --------------------------------------------------------------------------------
@@ -734,6 +775,13 @@ function move_towards(goal, current, speed)
 	else
 		return goal
 	end
+end
+
+--beware of floating point overflow!
+function distance_between(x1,y1,x2,y2)
+	xd = abs(x1-x2)
+	yd = abs(y1-y2)
+	return sqrt(xd*xd + yd*yd)
 end
 
 function start_film_reel()
