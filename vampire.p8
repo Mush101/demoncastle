@@ -65,16 +65,23 @@ function actor:gravity()
 	if self.grav>terminal_velocity then
 		self.grav = terminal_velocity
 	end
-	self.grav+=grav_acc
-	if self:is_in_wall() then
-		if self.grav>0 then
-			self:clip_above_block()
-		else
-			self:clip_below_block()
-		end
-		self.grav = self.grav * -0.2
-		if abs(self.grav)<1 then
-			self.grav = 0
+	if self.flying then
+		self.grav+=self.grav_acc
+		self.grav = mid(-self.max_grav, self.grav, self.max_grav)
+	else
+		self.grav+=grav_acc
+	end
+	if not self.ignore_walls then
+		if self:is_in_wall() then
+			if self.grav>0 then
+				self:clip_above_block()
+			else
+				self:clip_below_block()
+			end
+			self.grav = self.grav * -0.2
+			if abs(self.grav)<1 then
+				self.grav = 0
+			end
 		end
 	end
 end
@@ -122,18 +129,20 @@ function actor:momentum()
 	end
 	self.x+=self.spd
 	--when this moves us into a wall:
-	if self:is_in_wall() then
-		--position exactly on pixel.
-		self.x=flr(self.x)
-		--move out of the wall.
-		while self:is_in_wall() do
-			if self.spd>0 then
-				self.x-=1
-			else
-				self.x+=1
+	if not self.ignore_walls then
+		if self:is_in_wall() then
+			--position exactly on pixel.
+			self.x=flr(self.x)
+			--move out of the wall.
+			while self:is_in_wall() do
+				if self.spd>0 then
+					self.x-=1
+				else
+					self.x+=1
+				end
 			end
+			self.spd=0
 		end
-		self.spd=0
 	end
 end
 
@@ -236,58 +245,73 @@ end
 
 --------------------------------------------------------------------------------
 
-player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation = 0, stairs = false, stair_timer=0, stair_dir = false, ducking = false, whip_animation=0, whip_cooldown = 0})
+player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
+					stairs=false, stair_timer=0, stair_dir=false,
+					ducking=false, whip_animation=0, whip_cooldown = 0,
+					invul = 0})
 
 function player:update()
+	if self.invul<=0 then
+		self.pal = player_pal
+	end
 	--movement inputs
 	if not self.stairs then
-		if btn(3) and (self:on_ground() or self.ducking) then
-			if not self.ducking then
-				self.y+=2
-			end
-			self.ducking = true
-			-- self.spd=0
-			self.acc=0
-		else
-			self.ducking = false
-			if btn(1) and not btn(0) then
-				self.acc=1
-				if self.whip_animation==0 then
-					self.f = false
+		if self.invul == 0 then
+			if btn(3) and (self:on_ground() or self.ducking) then
+				if not self.ducking then
+					self.y+=2
 				end
-			elseif btn(0) and not btn(1) then
-				self.acc=-1
-				if self.whip_animation==0 then
-					self.f = true
-				end
-			else
+				self.ducking = true
+				-- self.spd=0
 				self.acc=0
+			else
+				self.ducking = false
+				if btn(1) and not btn(0) then
+					self.acc=1
+					if self.whip_animation==0 then
+						self.f = false
+					end
+				elseif btn(0) and not btn(1) then
+					self.acc=-1
+					if self.whip_animation==0 then
+						self.f = true
+					end
+				else
+					self.acc=0
+				end
 			end
-		end
 
-		if self.ducking then
-			self.height=12
+			if self.ducking then
+				self.height=12
+			else
+				self.height=14
+				if self:is_in_wall() then
+					self.y-=2
+				end
+				if self:on_ground() and btnp(4) then
+					self.grav=-player_jump_height
+				end
+			end
+			self:momentum()
+			self:gravity()
+			if abs(self.spd)<0.1 then
+				self.animation = 1.9
+			end
+			if self:on_ground() and btn(2) then
+				self:mount_stairs_up()
+			elseif self:on_ground() and btn(3) then
+				self:mount_stairs_down()
+			end
 		else
-			self.height=14
-			if self:is_in_wall() then
-				self.y-=2
-			end
-			if self:on_ground() and btnp(4) then
-				self.grav=-player_jump_height
-			end
-		end
-		self:momentum()
-		self:gravity()
-		if abs(self.spd)<0.1 then
-			self.animation = 1.9
-		end
-		if self:on_ground() and btn(2) then
-			self:mount_stairs_up()
-		elseif self:on_ground() and btn(3) then
-			self:mount_stairs_down()
+			self:fly_when_hit()
+			self:momentum()
+			self:gravity()
 		end
 	end
 	if self.stairs then
+		if self.invul>0 then
+			self:flash_when_hit()
+		end
 		self.ducking = false
 		self.spd=0
 		if btn(2) and not btn(3) then
@@ -437,6 +461,7 @@ player_legs = actor:new({s=16, height=0})
 
 function player_legs:update()
 	self:goto_master()
+	self.pal= self.master.pal
 	self.y+=8
 	self.f = self.master.f
 	self.s = 16 + self.master.walk_s%2
@@ -449,6 +474,39 @@ function player_legs:update()
 	if not self.master:on_ground() and not self.master.stairs or self.master.ducking then
 		self.s = 20
 	end
+end
+
+function player:hit(attacker)
+	if self.invul == 0 then
+		self.health-=1
+		self.invul=24
+		if not self.stairs then
+			self.grav=-1.5
+			self.acc=0
+		end
+		if attacker.x>self.x then
+			self.spd=-0.5
+			self.f = false
+		else
+			self.spd=0.5
+			self.f = true
+		end
+	end
+end
+
+function player:fly_when_hit()
+	if self.spd>0 then
+		self.spd = self.max_spd
+	else
+		self.spd = -self.max_spd
+	end
+	self:flash_when_hit()
+end
+
+function player:flash_when_hit()
+	self.invul-=1
+	self.pal = hurt_pal
+	self.invis = not self.invis
 end
 
 --------------------------------------------------------------------------------
@@ -516,7 +574,71 @@ end
 
 --------------------------------------------------------------------------------
 
-zombie = actor:new({s=15, height=14, dcc=0, base_max_spd=0.25, f = true, enemy=true, invul=0, leg_spd = 0.05, health=3})
+enemy = actor:new({enemy = true, health = 1, pal_type = 1, dcc=0, base_max_spd=0.25, f=true, invul=0})
+
+function enemy:use_pal()
+	if self.pal_type == 1 then
+		self.pal = enemy_pal_1
+	elseif self.pal_type == 2 then
+		self.pal = enemy_pal_2
+	end
+end
+
+function enemy:fly_when_hit()
+	if self:fully_on_ground() then
+		self.invul-=0.5
+		if self.health>0 then
+			self.invul-=0.5
+		end
+		self.max_spd=self.base_max_spd
+	else
+		self.max_spd=1
+		if self.spd>0 then
+			self.spd = self.max_spd
+		else
+			self.spd = -self.max_spd
+		end
+	end
+	self.pal = hurt_pal
+	self.invis = not self.invis
+	if self.health<=0 then
+		for i=0,0 do
+			add_actor(death_particle:new({x=self.x+rnd(self.width),y=self.y+rnd(self.height)}))
+		end
+	end
+end
+
+function enemy:hit(attacker)
+	if self.invul == 0 then
+		self.health-=1
+		self.invul=8
+		self.grav=-1.5
+		self.acc=0
+		if attacker.x>self.x then
+			self.spd=-0.5
+			self.f = false
+		else
+			self.spd=0.5
+			self.f = true
+		end
+	end
+end
+
+function enemy:die_when_dead()
+	if self.health<=0 then
+		self.dead=true
+	end
+end
+
+function enemy:hit_player()
+	if self:intersects(player) then
+		player:hit(self)
+	end
+end
+
+--------------------------------------------------------------------------------
+
+zombie = enemy:new({s=15, height=14, leg_spd = 0.05, health=3})
 
 function zombie:init()
 	self:use_slaves()
@@ -525,36 +647,17 @@ function zombie:init()
 	self.f=true
 end
 
---This code needs rewriting
+--this code needs rewriting
 function zombie:update()
-	if self:offscreen() then return end
+	if self:offscreen() then
+		self:update_slaves()
+		return
+	end
 	--self.f = self.x>player.x
 	if self.invul>0 then
-		if self:fully_on_ground() then
-			self.invul-=0.5
-			if self.health>0 then
-				self.invul-=0.5
-			end
-			self.max_spd=self.base_max_spd
-		else
-			self.max_spd=1
-			if self.spd>0 then
-				self.spd = self.max_spd
-			else
-				self.spd = -self.max_spd
-			end
-		end
-		self.pal = hurt_pal
-		self.invis = not self.invis
-		if self.health<=0 then
-			for i=0,0 do
-				add_actor(death_particle:new({x=self.x+rnd(self.width),y=self.y+rnd(self.height)}))
-			end
-		end
+		self:fly_when_hit()
 	else
-		if self.health<=0 then
-			self.dead=true
-		end
+		self:die_when_dead()
 		self.invis = false
 		self.max_spd=self.base_max_spd
 		self.acc=0.1
@@ -574,6 +677,7 @@ function zombie:update()
 		end
 	end
 
+	self:hit_player()
 	self:update_slaves()
 end
 
@@ -582,27 +686,7 @@ function zombie:on_edge()
 	self.spd = -self.spd
 end
 
-function zombie:hit(attacker)
-	if self.invul == 0 then
-		self.health-=1
-		self.invul=8
-		self.grav=-1.5
-		self.acc=0
-		if attacker.x>self.x then
-			self.spd=-0.5
-			self.f = false
-		else
-			self.spd=0.5
-			self.f = true
-		end
-	end
-end
-
-function zombie:use_pal()
-	self.pal = enemy_pal_1
-end
-
-zombie_legs = actor:new({s=31, animation = 0, enemy=true})
+zombie_legs = enemy:new({s=31, animation = 0, enemy=true})
 
 function zombie_legs:update()
 	self:goto_master()
@@ -612,6 +696,7 @@ function zombie_legs:update()
 	self.animation = self.animation%2
 	self.s = 30+self.animation
 	self.pal = self.master.pal
+	self:hit_player()
 end
 
 --------------------------------------------------------------------------------
@@ -646,7 +731,7 @@ end
 
 --------------------------------------------------------------------------------
 
-bat = actor:new({s=26, enemy=true, invul=0, health=1})
+bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=2})
 
 function bat:init()
 	self.f=true
@@ -657,29 +742,48 @@ end
 
 function bat:update()
 	if self:offscreen() then return end
-	if self.awake then
-		self.wing_timer=(self.wing_timer+0.2)%2
-		self.s = 27+self.wing_timer
+	if self.invul>0 then
+		if not self:is_in_wall() then
+			self.ignore_walls = false
+		end
+		self.flying = false
+		self:fly_when_hit()
+		self:momentum()
+		self:gravity()
+	else
+		self.ignore_walls = true
+		self.flying = true
+		self:die_when_dead()
+		if self.awake then
+			self.wing_timer=(self.wing_timer+0.2)%2
+			self.s = 27+self.wing_timer
 
-		self.f = self.x>player.x
-		self.target_x = player.x
-		self.target_y = player.y+1
-		self.y = self.target_y
-	end
-	if distance_between(self.x,self.y,player.x,player.y)<32 then
-		self.awake = true
+			self.f = self.x>player.x
+
+			if self.f then
+				self.acc = -0.1
+			else
+				self.acc = 0.1
+			end
+
+			if self.y>player.y then
+				self.grav_acc = -0.1
+			else
+				self.grav_acc = 0.1
+			end
+
+			self:momentum()
+			self:gravity()
+		end
+		if distance_between(self.x,self.y,player.x,player.y)<32 then
+			self.awake = true
+		end
+		self:hit_player()
 	end
 end
 
 function bat:use_pal()
 	self.pal = enemy_pal_2
-end
-
-function zombie:hit(attacker)
-	if self.invul == 0 then
-		self.health-=1
-		self.invul=8
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -688,6 +792,7 @@ function _init()
 	enemy_pal_1 = {5,8,2,15}
 	enemy_pal_2 = {3,13,11,15}
 	hurt_pal = {8,9,7,7}
+	player_pal = {1,13,2,15}
 
 	whip_length=10
 	whip_speed=0.25
@@ -707,7 +812,7 @@ function _init()
 
 	add_actor(cam)
 
-	local zom = bat:new({x=184+8, y=16-8})
+	local zom = zombie:new({x=184+8, y=16-8})
 	zom:init()
 	add_actor(zom)
 
@@ -715,11 +820,11 @@ function _init()
 	grav_acc = 0.15
 	player_jump_height=2.5
 
-	player.life = 3
-	player_max_life = 8
+	player.health = 6
+	player_max_health = 8
 
-	boss_life = 2
-	boss_max_life = 6
+	boss_health = 2
+	boss_max_health = 6
 
 	draw_bounding_boxes = false
 
@@ -840,37 +945,37 @@ function draw_hud()
 	line(0,112,127,112,5)
 	print("player", 1, 114, 7)
 	print("enemy", 108, 114, 7)
-	for i=0,player_max_life-1 do
+	for i=0,player_max_health-1 do
 		spr(47, i*5, 120)
 	end
-	for i=0,player.life-1 do
+	for i=0,player.health-1 do
 		spr(63, i*5, 120)
 	end
-	for i=0,boss_max_life-1 do
+	for i=0,boss_max_health-1 do
 		spr(46, 120-i*5, 120)
 	end
-	for i=0,boss_life-1 do
+	for i=0,boss_health-1 do
 		spr(62, 120-i*5, 120)
 	end
 end
 
 __gfx__
-0000dd0d0000dd0d0000dd0d000dd0d000ffdd0d0000dd0d0000dd0d000000000000000008080000000000000000000000055000006670000000770000005505
-000dddd0000dddd0000dddd000dddd0000ffddd0000dddd0000dddd0000000000080000000000000000000000000000000577500066677000007777000055550
-00ddfff000ddfff000dddff00ddfff0000fdfff000ddfff000ddfff0000000000000000000000000000000000055550005777750666776707707777000057770
-00ddfff000ddfff000dddff0ffdfff0000fdfff000ddfff000ddfff0777700007777000077770000000000000577775005777750666775777705777000557770
-0d22dd200d22dd200dddddd0ff2dd2000df2dd200d22dff00d22dd20666000006660000066600000000000005777777505777750666777700766557000665570
-df22222f0df222200ddd22200f2222000d2222200d2ff2200d2f2220000000000000000000000000000000005677776505677650566677000076660000666600
-dff2222f0dfff2200dd2fff0022222000d2222200d2222200d22ffff000000000080000000000000000000005666666505666650055667700066660000667777
-0ff11100001ff10000111ff0011111000011110000111110001111ff000000000000000008080000000000000555555000555500005550000066660000666657
-0011110000111100001111000d221100002111100000000000000000000000000000000000000000060550600006000600060006006666000066660000677600
-002112000002210000221dd0ddd221101d221dd00000000000000000000000000000000000000000060550600050555500005555065555500067760000777700
-0d2202200002220000222dd0dd0022101dd00dd00000000000000000000000000000000000000000655555560560565600055656655575550007770007770770
-ddd00dd0000dd0000dd2011111100220100001110000000000000000c77777770000000000000000655555565666555500566555555577550007600066600760
-1d000dd0000dd0000dd0000000000d20000000000000000000000000c66666660000000000000000656556565666555000566556555555500006700067000670
-011001110001110001dd000000000dd0000000000000000000000000000000000000000000000000066556605665550005665566555500600006670006700667
-0000000000000000001d0000000001dd000000000000000000000000000000000000000000000000005555000605550005055560555000000000000000000000
-00000000000000000001000000000011000000000000000000000000000000000000000000000000006006000050500000505000055555500000000000000000
+0000660600006606000066060006606000ff66060000660600006606000000000000000008080000000000000000000000055000006670000000770000005505
+0006666000066660000666600066660000ff66600006666000066660000000000080000000000000000000000000000000577500066677000007777000055550
+0066fff00066fff000666ff0066fff0000f6fff00066fff00066fff0000000000000000000000000000000000055550005777750666776707707777000057770
+0066fff00066fff000666ff0ff6fff0000f6fff00066fff00066fff0777700007777000077770000000000000577775005777750666775777705777000557770
+067766700677667006666660ff76670006f7667006776ff006776670666000006660000066600000000000005777777505777750666777700766557000665570
+6f77777f06f77770066677700f77770006777770067ff770067f7770000000000000000000000000000000005677776505677650566677000076660000666600
+6ff7777f06fff7700667fff00777770006777770067777700677ffff000000000080000000000000000000005666666505666650055667700066660000667777
+0ff55500005ff50000555ff0055555000055550000555550005555ff000000000000000008080000000000000555555000555500005550000066660000666657
+00555500005555000055550006775500007555500000000000000000000000000000000000000000060550600006000600060006006666000066660000677600
+00755700000775000077566066677550567756600000000000000000000000000000000000000000060550600050555500005555065555500067760000777700
+06770770000777000077766066007750566006600000000000000000000000000000000000000000655555560560565600055656655575550007770007770770
+66600660000660000667055555500770500005550000000000000000c77777770000000000000000655555565666555500566555555577550007600066600760
+56000660000660000660000000000670000000000000000000000000c66666660000000000000000656556565666555000566556555555500006700067000670
+05500555000555000566000000000660000000000000000000000000000000000000000000000000066556605665550005665566555500600006670006700667
+00000000000000000056000000000566000000000000000000000000000000000000000000000000005555000605550005055560555000000000000000000000
+00000000000000000005000000000055000000000000000000000000000000000000000000000000006006000050500000505000055555500000000000000000
 0500000000000000000000000000dd0d0000dd0d0000dd0d00000000000000000000000000000000000000006000000600060000000000000000000000000000
 565000000000000000000000000dddd0000dddd0000dddd00000000000000000000000000000000000000000660550660066000000000000000666600aaaa000
 05000000000000000000000000ddfff000ddfff000ddfff00000000000000000000000000000000000000000666556660666550000000000000600600a00a000
