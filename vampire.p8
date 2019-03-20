@@ -731,7 +731,7 @@ end
 
 --------------------------------------------------------------------------------
 
-bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=2})
+bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=2, pal_type=1})
 
 function bat:init()
 	self.f=true
@@ -782,10 +782,6 @@ function bat:update()
 	end
 end
 
-function bat:use_pal()
-	self.pal = enemy_pal_2
-end
-
 --------------------------------------------------------------------------------
 
 function _init()
@@ -812,7 +808,7 @@ function _init()
 
 	add_actor(cam)
 
-	local zom = zombie:new({x=184+8, y=16-8})
+	local zom = bat:new({x=184+8, y=16-8})
 	zom:init()
 	add_actor(zom)
 
@@ -820,7 +816,7 @@ function _init()
 	grav_acc = 0.15
 	player_jump_height=2.5
 
-	player.health = 6
+	player.health = 8
 	player_max_health = 8
 
 	boss_health = 2
