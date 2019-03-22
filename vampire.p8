@@ -936,6 +936,16 @@ end
 
 --------------------------------------------------------------------------------
 
+cam_border_left = actor:new()
+
+function cam_border_left:update()
+	if self.x<player.x then
+		cam.x = max(cam.x, self.x)
+	end
+end
+
+--------------------------------------------------------------------------------
+
 mirror = actor:new()
 
 function mirror:update()
@@ -1017,6 +1027,8 @@ function _init()
 
 	--temp
 	local cb = cam_border_right:new({x=54*8, y=0})
+	add_actor(cb)
+	local cb = cam_border_left:new({x=49*8, y=140})
 	add_actor(cb)
 end
 
