@@ -895,6 +895,37 @@ end
 
 --------------------------------------------------------------------------------
 
+pendulum = platform:new({xw=0, yw=0, speed = 0.003})
+
+function pendulum:init()
+	platform.init(self)
+	self.length = self.y-self:get_top()
+end
+
+function pendulum:move()
+	self.position = (self.position+self.speed) % 1
+	local p = sin(self.position)/15
+	self.x = self.origin_x + self.length * sin(p)
+	self.y = self:get_top() + self.length * cos(p)
+end
+
+function pendulum:draw()
+
+	for i=-1,1 do
+		line(self.origin_x+8+i, self:get_top(), self.x+8+i, self.y+8, 6-abs(i))
+	end
+
+	for i=0,1 do
+		circfill(self.x+8, self.y+6, 10-i*3, 9+i)
+	end
+end
+
+function pendulum:get_top()
+	return self.y-self.y%112
+end
+
+--------------------------------------------------------------------------------
+
 cam_border_right = actor:new()
 
 function cam_border_right:update()
@@ -941,8 +972,7 @@ function _init()
 	player:add_slave(player.whip)
 	player.whip:setup(whip_length)
 
-	add_actor(cam)
-
+	--temp
 	local zom = bat:new({x=184+8, y=16-8})
 	zom:init()
 	add_actor(zom)
@@ -960,6 +990,12 @@ function _init()
 	local pla = platform:new({x=70*8, y=22*8, yw=24})
 	pla:init()
 	add_actor(pla)
+
+	local pla = pendulum:new({x=8*8, y=19*8})
+	pla:init()
+	add_actor(pla)
+
+	add_actor(cam)
 
 	terminal_velocity=4
 	grav_acc = 0.15
@@ -1105,6 +1141,7 @@ function _draw()
 		for a in all(actors) do
 			a:draw()
 		end
+		player:draw()
 		camera()
 		clip()
 	end
