@@ -238,14 +238,11 @@ function cam:update()
 		self.speed=0.5
 		--only transition screen on stairs.
 		local y_prev = self.y
-		if player.y<=104 then
-			self.y=0
-		else
-			self.y=112
-		end
+		self:y_move()
 		if self.y!=y_prev then
 			blackout_time=20
 			self:jump_to()
+			player:checkpoint()
 		end
 	else
 		self.speed=2
@@ -264,6 +261,14 @@ end
 function cam:jump_to()
 	self:set_goal()
 	self.x = self.goal_x
+end
+
+function cam:y_move()
+	if player.y<=104 then
+		self.y=0
+	else
+		self.y=112
+	end
 end
 
 function cam:set_position()
@@ -435,7 +440,28 @@ function player:update()
 		self.x = cam.x
 	end
 
+	if not self.stairs and self.y>=cam.y+104 then
+		self.health=0
+	end
+
+	if self.health<=0 then
+		self:respawn()
+	end
+
 	self:update_slaves()
+end
+
+function player:checkpoint()
+	self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir = self.x, self.y, self.stairs, self.f, self.stair_dir
+end
+
+function player:respawn()
+	blackout_time=40
+	self.health=player_max_health
+	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
+	self.invul, self.invis, self.mom, self.grav = 0, false, 0, 0
+	cam:jump_to()
+	cam:y_move()
 end
 
 function player:on_ground()
@@ -861,8 +887,12 @@ function platform:update()
 	self:move()
 
 	if self.supporting_player then
+		plr_prev_x, plr_prev_y = player.x, player.y
 		player.x+=self.x-prev_x
 		player.y+=self.y-prev_y
+		if player:is_in_wall() then
+			player.x, player.y = plr_prev_x, plr_prev_y
+		end
 		player:update_slaves()
 	end
 
@@ -992,6 +1022,8 @@ function _init()
 	player.whip = whip:new()
 	player:add_slave(player.whip)
 	player.whip:setup(whip_length)
+
+	player:checkpoint()
 
 	--temp
 	local zom = bat:new({x=184+8, y=16-8})
