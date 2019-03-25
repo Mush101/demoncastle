@@ -34,13 +34,15 @@ else:
         width = data["layers"][0]["width"]
         out_str = num_to_char(width)
 
+        entity_list = []
+
         try:
             entities = data["layers"][1]["objects"]
             for e in entities:
                 object_id = e["properties"]["object_id"]
                 hard_mode_only = e["properties"]["hard_mode_only"]
-                x = math.floor(e["x"]/8)
-                y = math.floor(e["y"]/8)
+                x = math.floor(e["x"] / 8)
+                y = math.floor(e["y"] / 8)
                 tile_pos = x + y * width
 
                 add_number = 256
@@ -49,10 +51,15 @@ else:
 
                 new_tiles[tile_pos] += add_number
 
-                out_str += num_to_one_char(object_id)
+                entity_list.append((object_id, tile_pos))
         except IndexError:
             print("Index error.")
             pass
+
+        entity_list = sorted(entity_list, key=lambda x: x[1])
+
+        for e in entity_list:
+            out_str += num_to_one_char(e[0])
 
         out_str += "|"
 

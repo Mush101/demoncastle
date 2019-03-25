@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="108" height="28" tilewidth="8" tileheight="8" nextobjectid="8">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="108" height="28" tilewidth="8" tileheight="8" nextobjectid="26">
  <tileset firstgid="1" source="Vampire.tsx"/>
  <layer name="Tile Layer 1" width="108" height="28">
   <data encoding="csv">
@@ -9,8 +9,8 @@
 135,135,135,135,135,135,135,135,149,150,135,135,135,135,135,135,161,131,132,135,135,161,131,132,135,135,65,65,65,99,256,256,256,97,82,82,82,72,256,256,256,256,97,99,65,65,65,82,82,82,72,256,97,65,65,256,65,65,65,65,65,85,69,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,132,135,135,161,131,132,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,135,65,
 130,131,132,135,135,161,131,132,135,135,161,131,132,135,135,161,177,147,148,129,130,177,256,148,129,130,65,65,65,65,65,85,69,65,65,65,65,65,70,86,65,65,65,65,65,65,65,97,88,97,82,72,87,65,256,256,256,256,256,256,256,67,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,148,129,130,177,256,148,129,130,132,135,135,161,131,132,135,135,161,131,132,161,131,132,135,135,161,131,132,135,135,65,
 146,147,148,129,130,177,147,148,129,130,177,147,148,129,130,177,256,256,256,145,146,256,256,256,145,146,256,98,256,256,256,67,71,82,65,65,65,82,72,68,256,256,87,88,65,65,65,97,99,256,87,88,256,65,256,256,256,256,256,256,67,256,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,256,145,146,256,256,256,145,146,148,129,130,177,256,148,129,130,177,147,148,177,147,148,129,130,177,147,148,129,130,65,
-256,256,256,145,146,256,256,256,145,146,256,256,256,145,146,256,256,256,256,256,256,256,256,256,256,256,256,98,256,256,67,71,82,88,65,65,65,99,97,72,68,256,256,82,88,65,97,82,82,99,256,256,256,256,256,256,256,256,256,67,256,256,65,65,65,65,65,65,65,65,65,82,65,87,65,65,65,65,256,256,256,256,256,256,256,256,256,145,146,256,256,256,145,146,256,256,256,256,256,256,145,146,256,256,256,145,146,65,
-256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,98,256,67,256,97,99,71,65,65,65,82,82,82,72,68,256,87,82,98,97,88,97,88,256,97,72,256,256,256,256,256,67,256,256,256,65,65,65,65,65,65,65,65,65,88,99,256,65,99,65,65,256,256,256,256,256,256,256,256,256,256,256,256,82,82,99,256,82,82,72,256,82,82,72,256,256,256,256,256,256,65,
+256,256,256,145,146,256,256,256,145,146,256,256,256,145,146,256,256,256,256,256,256,256,256,256,256,256,256,98,256,256,67,71,82,88,65,65,65,99,97,72,68,256,256,82,88,65,97,82,82,99,256,256,256,65,256,256,256,256,256,67,256,256,65,65,65,65,65,65,65,65,65,82,65,87,65,65,65,65,256,256,256,256,256,256,256,256,256,145,146,256,256,256,145,146,256,256,256,256,256,256,145,146,256,256,256,145,146,65,
+256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,98,256,67,256,97,99,71,65,65,65,82,82,82,72,68,256,87,82,98,97,88,97,88,256,97,72,65,256,256,256,256,67,256,256,256,65,65,65,65,65,65,65,65,65,88,99,256,65,99,65,65,256,256,256,256,256,256,256,256,256,256,256,256,82,82,99,256,82,82,72,256,82,82,72,256,256,256,256,256,256,65,
 256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,65,65,65,65,65,85,69,65,65,65,65,65,65,97,82,72,68,256,87,98,87,82,82,88,256,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,256,87,82,88,65,97,65,65,256,256,256,256,256,256,256,256,256,256,256,256,82,256,256,256,99,256,99,256,82,256,99,256,256,256,256,256,256,65,
 256,256,256,256,256,256,256,256,256,71,98,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,256,98,82,99,256,67,71,65,65,65,65,65,65,99,97,82,72,68,256,98,256,97,88,256,256,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,72,256,88,256,99,87,65,65,256,256,256,256,256,256,256,256,256,256,256,256,82,99,256,256,99,256,99,256,82,256,99,256,256,256,256,256,256,65,
 102,256,256,256,100,102,256,256,256,97,98,256,256,256,256,100,101,65,65,65,65,65,256,256,256,256,100,98,88,256,67,71,82,65,65,65,65,65,65,65,65,66,66,66,65,65,66,65,65,70,66,66,66,66,65,65,66,65,65,65,66,66,66,65,65,65,65,65,65,65,99,256,256,99,87,72,65,65,256,256,71,82,99,98,256,256,256,256,256,256,82,256,256,256,99,256,99,256,82,256,99,256,256,256,256,256,256,65,
@@ -34,16 +34,124 @@
 </data>
  </layer>
  <objectgroup name="Entities">
-  <object id="6" x="152" y="64" width="8" height="8">
+  <object id="6" x="224" y="80" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="0"/>
    </properties>
   </object>
-  <object id="7" x="144" y="112" width="8" height="8">
+  <object id="7" x="64" y="144" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="7"/>
+   </properties>
+  </object>
+  <object id="8" x="256" y="48" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="true"/>
+    <property name="object_id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="9" x="327" y="15" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="10" x="392" y="112" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="11" x="656" y="112" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="12" x="424" y="0" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="13" x="560" y="176" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="4"/>
+   </properties>
+  </object>
+  <object id="14" x="608" y="0" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="15" x="848" y="0" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="16" x="416" y="152" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="true"/>
+    <property name="object_id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="17" x="648" y="120" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="8"/>
+   </properties>
+  </object>
+  <object id="18" x="560" y="0" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="19" x="520" y="192" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="true"/>
+    <property name="object_id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="20" x="424" y="192" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="21" x="136" y="112" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="22" x="424" y="56" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="9"/>
+   </properties>
+  </object>
+  <object id="23" x="424" y="48" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="9"/>
+   </properties>
+  </object>
+  <object id="24" x="648" y="128" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="9"/>
+   </properties>
+  </object>
+  <object id="25" x="648" y="136" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="false"/>
+    <property name="object_id" type="int" value="9"/>
    </properties>
   </object>
  </objectgroup>
