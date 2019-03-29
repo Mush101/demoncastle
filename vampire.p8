@@ -430,14 +430,17 @@ function player:update()
 		end
 	end
 
-	if self.y<-8 then
-		self.y += 224
-		self.x += level_offset*8
-		cam:jump_to()
-	elseif self.y>224-4 then
-		self.y-=224
-		self.x -= level_offset*8
-		cam:jump_to()
+	--move between screens when the player moves off on stairs.
+	if self.stairs then
+		if self.y<-8 then
+			self.y += 224
+			self.x += level_offset*8
+			cam:jump_to()
+		elseif self.y>224-4 then
+			self.y-=224
+			self.x -= level_offset*8
+			cam:jump_to()
+		end
 	end
 
 	if self.x<cam.x then
@@ -1273,6 +1276,10 @@ function sort_actors()
 end
 
 function is_solid(x,y)
+	--ignore tiles above the camera.
+	if y<cam.y then
+		y=cam.y
+	end
 	return get_flag_at(x,y,0)
 end
 
