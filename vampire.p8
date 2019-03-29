@@ -4,8 +4,6 @@ __lua__
 
 --todo:
 --fix the top of the screen jump bug
---implement the other camera border object
---allow loading of objects from the level loader
 --compress level code on save and on load
 
 --------------------------------------------------------------------------------
@@ -50,12 +48,12 @@ end
 
 function actor:on_ground()
 	return is_solid(self.x, self.y+self.height+1)
-		or is_solid(self.x+self.width, self.y+self.height+1)
+		or is_solid(self.x+self.width-1, self.y+self.height+1)
 end
 
 function actor:fully_on_ground()
 	return is_solid(self.x, self.y+self.height+1)
-		and is_solid(self.x+self.width, self.y+self.height+1)
+		and is_solid(self.x+self.width-1, self.y+self.height+1)
 end
 
 function actor:clip_above_block()
