@@ -227,6 +227,8 @@ function actor:use_pal()
 		self.pal = enemy_pal_1
 	elseif self.pal_type == 2 then
 		self.pal = enemy_pal_2
+	elseif self.pal_type == 0 then
+		self.pal = hurt_pal
 	end
 end
 
@@ -878,7 +880,7 @@ end
 
 --------------------------------------------------------------------------------
 
-platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=-16, pal_type=1, depth=-5})
+platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=-16, pal_type=0, depth=-5})
 
 function platform:init()
 	self.origin_x, self.origin_y = self.x, self.y
