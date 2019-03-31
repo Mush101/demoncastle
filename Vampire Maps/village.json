@@ -526,7 +526,7 @@
                  "properties":
                     {
                      "hard_mode_only":false,
-                     "object_id":11
+                     "object_id":12
                     },
                  "propertytypes":
                     {
@@ -538,7 +538,7 @@
                  "visible":true,
                  "width":8,
                  "x":160,
-                 "y":72
+                 "y":64
                 }, 
                 {
                  "height":8,
@@ -547,7 +547,7 @@
                  "properties":
                     {
                      "hard_mode_only":false,
-                     "object_id":10
+                     "object_id":12
                     },
                  "propertytypes":
                     {
@@ -558,8 +558,8 @@
                  "type":"",
                  "visible":true,
                  "width":8,
-                 "x":144,
-                 "y":72
+                 "x":80,
+                 "y":184
                 }],
          "opacity":1,
          "type":"objectgroup",
