@@ -187,32 +187,37 @@ function actor:hitbox_overlaps(a)
 	return true
 end
 
---checks exact pixel collisions
-function actor:intersects(b)
+--checks exact pixel collisions (potentially recursive on slaves)
+function actor:intersects(b, r)
 	--must pass simple test first.
-	if not self:hitbox_overlaps(b) then return false end
-	if self.s==nil or b.s==nil then
-		return true
-	end
-	--scratchpad area
-	rectfill(0,0,16,8,0)
-	--draw both sprites to screen
-	spr(self.s,0,0,1,1,self.f)
-	spr(b.s,8,0,1,1,b.f)
-	--calculate differences.
-	x_dif=b.x-self.x
-	y_dif=b.y-self.y
-	for x=max(0,x_dif),min(7,7+x_dif) do
-		for y=max(0,y_dif),min(7,7+y_dif) do
-			a_pix=pget(x,y)
-			b_pix=pget(8+x-x_dif,y-y_dif)
-			--if two pixels overlap...
-			if a_pix!=0 and b_pix!=0 then
-				return true
+	if self:hitbox_overlaps(b) then
+		if not self.s or not b.s then
+			return false
+		end
+		--scratchpad area
+		rectfill(0,0,16,8,0)
+		--draw both sprites to screen
+		spr(self.s,0,0,1,1,self.f)
+		spr(b.s,8,0,1,1,b.f)
+		--calculate differences.
+		x_dif=b.x-self.x
+		y_dif=b.y-self.y
+		for x=max(0,x_dif),min(7,7+x_dif) do
+			for y=max(0,y_dif),min(7,7+y_dif) do
+				a_pix=pget(x,y)
+				b_pix=pget(8+x-x_dif,y-y_dif)
+				--if two pixels overlap...
+				if a_pix!=0 and b_pix!=0 then
+					return true
+				end
 			end
 		end
 	end
-	--no collision
+	if b.slaves and r then
+		for a in all(b.slaves) do
+			if self:intersects(a, r) then return true end
+		end
+	end
 	return false
 end
 
@@ -703,6 +708,9 @@ function enemy:fly_when_hit()
 end
 
 function enemy:hit(attacker)
+	if self.health<=0 then
+		return
+	end
 	if self.invul == 0 then
 		self.health-=1
 		self.invul=8
@@ -715,7 +723,9 @@ function enemy:hit(attacker)
 			self.spd=0.5
 			self.f = true
 		end
-		if self.hurt_sound then
+		if self.health<=0 and self.death_sound then
+			sfx(self.death_sound)
+		elseif self.hurt_sound then
 			sfx(self.hurt_sound)
 		end
 	end
@@ -728,7 +738,7 @@ function enemy:die_when_dead()
 end
 
 function enemy:hit_player()
-	if self.invul == 0 and self:intersects(player) then
+	if self.invul == 0 and self:intersects(player, true) then
 		player:hit(self)
 		return true
 	end
@@ -736,7 +746,7 @@ end
 
 --------------------------------------------------------------------------------
 
-zombie = enemy:new({s=15, height=14, leg_spd = 0.05, hurt_sound=9})
+zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9})
 
 function zombie:init()
 	self:use_slaves()
@@ -886,7 +896,7 @@ end
 
 --------------------------------------------------------------------------------
 
-shooter = enemy:new({s=29, pal_type=1, health=3, base_f=true, timer=0, depth=-1})
+shooter = enemy:new({s=29, pal_type=1, health=3, base_f=true, timer=0, depth=-1, death_sound=11})
 
 function shooter:update()
 	if self.invul>0 then
@@ -925,7 +935,7 @@ function fireball:update()
 	else
 		self.x+=self.spd
 	end
-	if self:intersects(player) then
+	if self:intersects(player, true) then
 		player:hit(self)
 		self.dead=true
 	end
@@ -1085,7 +1095,7 @@ function chicken:update()
 	else
 		self.invis = false
 		self:gravity()
-		if self:intersects(player) or self:intersects(player_legs) then
+		if self:intersects(player, true) then
 			player.health = player_max_health
 			sfx(2)
 			self.dead = true
@@ -1609,3 +1619,4 @@ __sfx__
 0004000024630216401d6401a63019630176201760019600166001560015600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000400001c1201d1201e1301f1301f1301f1301d1201b1201a1202460024600246002460024600006000060000600006000060000600006000060000600006000060000600006000060000600006000060000600
 000400002423025230262302723028220282202822228222262322523224232000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010400001c6301c6301c6302b6302b6302b6300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
