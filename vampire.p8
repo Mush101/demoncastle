@@ -3,7 +3,6 @@ version 16
 __lua__
 
 --todo:
---fix the top of the screen jump bug
 --compress level code on save and on load
 
 --------------------------------------------------------------------------------
@@ -14,9 +13,7 @@ function actor:new(a)
 	return setmetatable(a or {}, self)
 end
 
-function actor:update()
-
-end
+function actor:update() end
 
 function actor:init() end
 
@@ -912,8 +909,7 @@ function shooter:update()
 			if not self:offscreen() then
 				self.timer+=1
 				if self.timer>120 then
-					local f=axe:new({x=self.x, y=self.y+3, f=self.f})
-					f.y-=3
+					local f=fireball:new({x=self.x, y=self.y+3, f=self.f})
 					add_actor(f)
 					f:update()
 					self.timer=0
@@ -993,7 +989,7 @@ end
 
 --------------------------------------------------------------------------------
 
-axe_knight=enemy:new({s=8, height=16, pal_type=2, health=5, base_max_spd=0.5})
+axe_knight=enemy:new({s=8, height=16, pal_type=2, health=5, base_max_spd=0.5, goal=32, throw_timer=0, death_sound=9})
 
 function axe_knight:init()
 	self:use_slaves()
@@ -1017,6 +1013,20 @@ function axe_knight:update()
 				self.acc=0.02
 			end
 
+			local dist = abs(self.x-player.x)
+			if dist<self.goal then
+				self.acc*=-1
+			end
+
+			if self.throw_timer==0 then
+				local f=axe:new({x=self.x, y=self.y+3, f=self.f})
+				add_actor(f)
+				f:update()
+				self.throw_timer=60
+			end
+
+			self.throw_timer=max(0, self.throw_timer-rnd(2))
+
 			self:hit_player()
 		end
 	else
@@ -1036,7 +1046,7 @@ function axe_knight_legs:update()
 	self.y+=8
 	self.f, self.invis, self.pal = self.master.f, self.master.invis, self.master.pal
 	self.timer+=abs(self.master.spd)
-	if self.timer>2 then
+	if self.timer>4 then
 		self.timer=0
 		self.s = 49-self.s
 	end
