@@ -555,7 +555,7 @@ function player:dismount_stairs()
 	end
 end
 
-player_legs = actor:new({s=16, height=0, extends_hitbox=true})
+player_legs = actor:new({s=16, height=6, extends_hitbox=true})
 
 function player_legs:update()
 	self:goto_master()
@@ -745,7 +745,7 @@ end
 
 --------------------------------------------------------------------------------
 
-zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9, extends_hitbox=true})
+zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9})
 
 function zombie:init()
 	self:use_slaves()
@@ -796,7 +796,7 @@ function zombie:on_edge()
 	self.spd = -self.spd
 end
 
-zombie_legs = enemy:new({s=31, animation = 0, enemy=true})
+zombie_legs = enemy:new({s=31, animation = 0, enemy=true, extends_hitbox=true})
 
 function zombie_legs:update()
 	self:goto_master()
