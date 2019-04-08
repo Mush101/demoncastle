@@ -442,7 +442,7 @@ function player:update()
 			self.y += 224
 			self.x += level_offset*8
 			cam:jump_to()
-		elseif self.y>224-4 then
+		elseif self.y>224-8 then
 			self.y-=224
 			self.x -= level_offset*8
 			cam:jump_to()
