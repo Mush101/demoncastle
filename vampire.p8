@@ -255,11 +255,14 @@ function cam:update()
 	if self.x<=0 then
 		self.x=0
 	end
-	cpu_usage = stat(1)
 end
 
 function cam:set_goal()
-	self.goal_x = player.x-60
+	if self.special_goal then
+		self.special_goal = false
+	else
+		self.goal_x = player.x-60
+	end
 end
 
 function cam:jump_to()
@@ -470,8 +473,11 @@ function player:respawn()
 	self.health=player_max_health
 	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
 	self.invul, self.invis, self.mom, self.grav = 0, false, 0, 0
+	cam.special_goal = false
 	cam:jump_to()
 	cam:y_move()
+	clear_level()
+	load_level(current_level)
 end
 
 function player:on_ground()
@@ -1254,7 +1260,10 @@ end
 boss_cam = actor:new({depth=-20})
 
 function boss_cam:update()
-	if (player.x>=self.x) cam.x = min(cam.x+1, self.x)
+	if player.x>=self.x then
+		cam.goal_x = self.x
+		cam.special_goal = true
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -1395,8 +1404,9 @@ function _init()
 
 	blackout_time = 0
 	--start_film_reel()
+	current_level = village_level
 	clear_level()
-	load_level(village_level)
+	load_level(current_level)
 	level_offset = -58
 
 	--temp
@@ -1407,6 +1417,7 @@ function _init()
 end
 
 function clear_level()
+	actors = {player, cam}
 	for i=0,127 do
 		for j=0,27 do
 			mset(i,j,0)
@@ -1426,7 +1437,7 @@ function load_level(s)
 	got_entities = false
 	entity_list = {}
 	chain = 0
-	while cursor<#s do
+	while cursor<#s or chain!=0 do
 		if not got_entities then
 			char = sub(s,cursor, cursor)
 			if char == "|" then
@@ -1530,6 +1541,7 @@ function _update60()
 		end
 		film_offset = film_offset % 128
 	end
+	cpu_usage = stat(1)
 end
 
 function add_actor(a)
