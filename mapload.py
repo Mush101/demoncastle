@@ -17,6 +17,20 @@ def num_to_one_char(num):
     return s[num]
 
 
+def get_chain_output(chain_length):
+    chain_char = "w"
+    if chain_length >= 32:
+        chain_char = "x"
+        chain_length -= 32
+    if chain_length >= 32:
+        chain_char = "y"
+        chain_length -= 32
+    if chain_length >= 32:
+        chain_char = "z"
+        chain_length -= 32
+    return chain_char + num_to_one_char(chain_length)
+
+
 if len(sys.argv) <= 1:
     print("Please specify file name")
 else:
@@ -63,7 +77,19 @@ else:
 
         out_str += "|"
 
+        prev_tile = -1
+        chain_length = 0
         for i in range(0, len(new_tiles)):
-            out_str += num_to_char(new_tiles[i])
+            this_tile = new_tiles[i]
+            if this_tile == prev_tile and chain_length < 127:
+                chain_length += 1
+            else:
+                if chain_length > 0:
+                    out_str += get_chain_output(chain_length)
+                    chain_length = 0
+                out_str += num_to_char(this_tile)
+                prev_tile = this_tile
 
+        if chain_length > 0:
+            out_str += get_chain_output(chain_length)
         print(out_str)
