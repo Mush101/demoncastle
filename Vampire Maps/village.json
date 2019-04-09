@@ -526,7 +526,7 @@
                  "properties":
                     {
                      "hard_mode_only":false,
-                     "object_id":13
+                     "object_id":15
                     },
                  "propertytypes":
                     {
@@ -538,7 +538,7 @@
                  "visible":true,
                  "width":8,
                  "x":768,
-                 "y":56
+                 "y":24
                 }, 
                 {
                  "height":8,
@@ -602,6 +602,48 @@
                  "width":8,
                  "x":672,
                  "y":0
+                }, 
+                {
+                 "height":8,
+                 "id":35,
+                 "name":"",
+                 "properties":
+                    {
+                     "hard_mode_only":false,
+                     "object_id":13
+                    },
+                 "propertytypes":
+                    {
+                     "hard_mode_only":"bool",
+                     "object_id":"int"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":752,
+                 "y":56
+                }, 
+                {
+                 "height":8,
+                 "id":37,
+                 "name":"",
+                 "properties":
+                    {
+                     "hard_mode_only":false,
+                     "object_id":17
+                    },
+                 "propertytypes":
+                    {
+                     "hard_mode_only":"bool",
+                     "object_id":"int"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":104,
+                 "y":152
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -609,7 +651,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":35,
+ "nextobjectid":38,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.3",
