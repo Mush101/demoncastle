@@ -1362,7 +1362,8 @@ function heart_crystal:update()
 			end
 		end
 		if not self.invis then
-			self:appear()
+			self.x-=36
+			self:be_chicken()
 		end
 	else
 		self:gravity()
@@ -1370,19 +1371,44 @@ function heart_crystal:update()
 			self:death_particle()
 		end
 		if self:intersects(player,true) then
+			self.dead = true
 			self:collect()
 		end
 	end
 end
 
-function heart_crystal:appear()
-	self.x-=36
-	sfx(2)
+function heart_crystal:collect()
+	sfx(3)
+	health_go_up = true
 end
 
-function heart_crystal:collect()
-	self.dead = true
-	sfx(1)
+function heart_crystal:be_chicken() end
+
+--------------------------------------------------------------------------------
+
+stone_sealing = heart_crystal:new({s=58})
+
+function stone_sealing:collect()
+	sfx(3)
+	got_stones+=1
+	got_level_item = true
+end
+
+function stone_sealing:be_chicken()
+	if got_level_item then
+		self.dead = true
+		add_actor(chicken:new({x=self.x, y=self.y}))
+	end
+end
+
+--------------------------------------------------------------------------------
+
+key = stone_sealing:new({s=56})
+
+function key:collect()
+	sfx(3)
+	got_key=true
+	got_level_item = true
 end
 
 --------------------------------------------------------------------------------
@@ -1461,11 +1487,8 @@ function _init()
 	load_level(current_level)
 	level_offset = -58
 
-	--temp
-	-- local cb = cam_border_right:new({x=54*8, y=0})
-	-- add_actor(cb)
-	-- local cb = cam_border_left:new({x=49*8, y=140})
-	-- add_actor(cb)
+	health_timer=0
+	got_key, got_stones = false, 0
 end
 
 function clear_level()
@@ -1477,7 +1500,7 @@ function clear_level()
 	end
 end
 
-entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), fall_platform, pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, heart_crystal, heart_crystal}
+entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), fall_platform, pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key}
 
 function load_level(s)
 	cls()
@@ -1571,6 +1594,21 @@ end
 function _update60()
 	if blackout_time>0 then
 		blackout_time-=1
+		return
+	end
+	if health_go_up then
+		if health_timer>=10 then
+			if player.health>=player_max_health then
+				health_go_up = false
+				player_max_health+=1
+				sfx(1)
+			else
+				sfx(0)
+			end
+			player.health+=1
+			health_timer=0
+		end
+		health_timer+=1
 		return
 	end
 	sort_actors()
@@ -1719,7 +1757,22 @@ function draw_hud()
 	for i=0,boss_health-1 do
 		spr(62, 120-i*5, 120)
 	end
+	--draw_stat()
+	local s = {}
+	if got_key then
+		s = {56}
+	end
+	for i=1,got_stones do
+		add(s,58)
+	end
+	local cursor=65-5*#s
+	for i in all(s) do
+		spr(i, cursor, 117)
+		cursor+=10
+	end
+end
 
+function draw_stat()
 	middle_text = "actors: " .. #actors
 	print(middle_text,64-2*#middle_text, 115)
 	middle_text = ""..cpu_usage*100 .. "%"
