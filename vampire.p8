@@ -1268,6 +1268,9 @@ function cam_border_left:update()
 	if self.x<player.x then
 		cam.x = max(cam.x, self.x)
 	end
+	if self:on_camera() and player.x<self.x and self.x-player.x<16 then
+		self.dead=true
+	end
 end
 
 boss_cam = actor:new({depth=-20})
@@ -1293,7 +1296,7 @@ end
 
 --------------------------------------------------------------------------------
 
-chicken = actor:new({s=61})
+chicken = actor:new({s=61, depth=-10})
 
 function chicken:init()
 	self.y+=8
