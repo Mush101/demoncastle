@@ -1305,6 +1305,7 @@ end
 breakable_block = actor:new({breaks=true})
 
 function breakable_block:break_me()
+	breaks = false
 	mset(self.x/8, self.y/8, 0)
 	self.dead = true
 	for i=0,1 do
