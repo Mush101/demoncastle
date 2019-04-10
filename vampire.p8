@@ -310,7 +310,7 @@ function player:update()
 		--move on the ground
 		if self.invul == 0 then
 			--crouching
-			if btn(3) and (self:on_ground() or self.ducking) then
+			if btn(3) and (self:on_ground() or self.ducking) and false then
 				if not self.ducking then
 					self.y+=2
 				end
