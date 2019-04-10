@@ -368,10 +368,14 @@ function player:update()
 		end
 		self.ducking = false
 		self.spd=0
-		if btn(2) and not btn(3) then
+		local up, down = 1, 0
+		if self.stair_dir then
+			up, down = 0, 1
+		end
+		if btn(2) and not btn(3) or btn(up) then
 			self.stair_timer+=1
 			self.f = self.stair_dir
-		elseif btn(3) and not btn(2) then
+		elseif btn(3) and not btn(2) or btn(down) then
 			self.stair_timer-=1
 			self.f = not self.stair_dir
 		end
@@ -1383,6 +1387,7 @@ end
 function heart_crystal:collect()
 	sfx(3)
 	health_go_up = true
+	level_end = true
 end
 
 function heart_crystal:be_chicken() end
@@ -1492,6 +1497,12 @@ function _init()
 
 	health_timer=0
 	got_key, got_stones = false, 0
+
+	darker_pal = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}
+	darkness=0
+
+	level_end_timer = 0
+	difficulty_menu = true
 end
 
 function clear_level()
@@ -1595,6 +1606,9 @@ end
 --------------------------------------------------------------------------------
 
 function _update60()
+	if difficulty_menu then
+		return
+	end
 	if blackout_time>0 then
 		blackout_time-=1
 		return
@@ -1613,6 +1627,10 @@ function _update60()
 		end
 		health_timer+=1
 		return
+	end
+	if level_end then
+		if (level_end_timer<=20) level_end_timer+=1
+		darkness=level_end_timer/5
 	end
 	sort_actors()
 	for a in all(actors) do
@@ -1702,6 +1720,19 @@ end
 
 function _draw()
 	cls()
+	if difficulty_menu then
+		s = "demon castle"
+		print(s, 64-2*#s,24,7)
+		s = "demo version"
+		print(s, 64-2*#s,30,12)
+		s = "please select difficulty"
+		print(s, 64-2*#s,48,7)
+		return
+	end
+	if level_end_timer>20 then
+		print("end of demo",64-22,60)
+		return
+	end
 	if blackout_time<=0 then
 		clip(0,0,128,112)
 		cam:set_position()
@@ -1740,6 +1771,9 @@ function _draw()
 
 	else
 		draw_hud()
+	end
+	for i=1,darkness do
+		darker()
 	end
 end
 
@@ -1788,6 +1822,19 @@ function draw_stat()
 	col = 3
 	if cpu_usage>1 then col=8 end
 	line(x,127,x+cpu_usage*(4*#middle_text),127,col)
+end
+
+function darker()
+	for i= 0x6000, 0x7fff do
+		local two = peek(i)
+		local second = two % 16
+		local first = lshr(two - second, 4) % 16
+
+		first = darker_pal[first+1]
+		second = darker_pal[second+1]
+
+		poke(i, shl(first,4) + second)
+	end
 end
 
 __gfx__
