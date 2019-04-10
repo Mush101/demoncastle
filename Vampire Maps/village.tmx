@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="101" height="28" tilewidth="8" tileheight="8" nextobjectid="38">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="101" height="28" tilewidth="8" tileheight="8" nextobjectid="39">
  <tileset firstgid="1" source="Vampire.tsx"/>
  <layer name="Tile Layer 1" width="101" height="28">
   <data encoding="csv">
@@ -114,7 +114,7 @@
   </object>
   <object id="19" x="520" y="192" width="8" height="8">
    <properties>
-    <property name="hard_mode_only" type="bool" value="true"/>
+    <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="0"/>
    </properties>
   </object>
@@ -172,10 +172,10 @@
     <property name="object_id" type="int" value="1"/>
    </properties>
   </object>
-  <object id="29" x="408" y="200" width="8" height="8">
+  <object id="29" x="552" y="200" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="true"/>
-    <property name="object_id" type="int" value="11"/>
+    <property name="object_id" type="int" value="10"/>
    </properties>
   </object>
   <object id="30" x="768" y="24" width="8" height="8">
@@ -212,6 +212,12 @@
    <properties>
     <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="17"/>
+   </properties>
+  </object>
+  <object id="38" x="368" y="64" width="8" height="8">
+   <properties>
+    <property name="hard_mode_only" type="bool" value="true"/>
+    <property name="object_id" type="int" value="0"/>
    </properties>
   </object>
  </objectgroup>
