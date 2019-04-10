@@ -480,7 +480,7 @@ function player:respawn()
 	blackout_time=40
 	self.health=player_max_health
 	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
-	self.invul, self.invis, self.mom, self.grav = 0, false, 0, 0
+	self.invul, self.invis, self.mom, self.grav, self.invis = 0, false, 0, 0, false
 	cam.special_goal = false
 	cam:jump_to()
 	cam:y_move()
@@ -525,9 +525,9 @@ function player:mount_stairs_down()
 end
 
 function player:mount_stairs_up()
-	local pos_x = self.x+10
+	local pos_x = self.x+8
 	if self.f then
-		pos_x = self.x-2
+		pos_x = self.x
 	end
 	local pos_y = self.y+8
 	local is_stairs = get_flag_at(pos_x, pos_y, 1)
