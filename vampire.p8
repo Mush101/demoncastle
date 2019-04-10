@@ -308,10 +308,13 @@ function player:update()
 	if self.invul==0 and self.extra_invul>0 then
 		self:flash_when_hit()
 	end
+	if self.invul==0 and self.extra_invul==0 then
+		self.invis=false
+	end
 	if not self.stairs then
 		--move on the ground
 		if self.invul == 0 then
-			--crouching
+			--crouching is dummied out
 			if btn(3) and (self:on_ground() or self.ducking) and false then
 				if not self.ducking then
 					self.y+=2
@@ -374,12 +377,15 @@ function player:update()
 		if self.stair_dir then
 			up, down = 0, 1
 		end
-		if btn(2) and not btn(3) or btn(up) then
+		if btn(2) and not btn(3) then
 			self.stair_timer+=1
 			self.f = self.stair_dir
 		elseif btn(3) and not btn(2) or btn(down) then
 			self.stair_timer-=1
 			self.f = not self.stair_dir
+		elseif btn(up) then
+			self.stair_timer+=1
+			self.f = self.stair_dir
 		end
 		if self.stair_timer>=6 then
 			self.stair_timer=0
@@ -509,48 +515,48 @@ function player:fully_on_ground()
 end
 
 function player:mount_stairs_down()
-	local pos_x=self.x+6
-	if self.f then
-		pos_x-=4
-	end
-	local pos_y=self.y+16
-	local is_stairs = get_flag_at(pos_x, pos_y, 1)
-	local facing_left = get_flag_at(pos_x, pos_y, 2)
-	if is_stairs then
-		self.stairs = true
-		self.x = flr(pos_x/8)*8+2
-		if facing_left then
-			self.x-=4
+	local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+16)/8)
+	for add=-1,1 do
+		pos_x = tile_x+add
+		local is_stairs = get_flag(pos_x, tile_y, 1)
+		local facing_left = get_flag(pos_x, tile_y, 2)
+		if is_stairs and not (facing_left and add==-1) and not (not facing_left and add==1) then
+			self.stairs = true
+			self.x = pos_x*8
+			self.y = tile_y*8-14
+			if facing_left then
+				self.x-=2
+			else
+				self.x+=2
+			end
+			self.animation = 1
+			self.stair_dir = facing_left
+			self.f = not facing_left
+			self.stair_timer=-10
 		end
-		self.y = flr(pos_y/8)*8-14
-		self.animation = 1
-		self.stair_dir = facing_left
-		self.f = not facing_left
-		self.stair_timer=-10
 	end
 end
 
 function player:mount_stairs_up()
-	local pos_x = self.x+8
-	if self.f then
-		pos_x = self.x
-	end
-	local pos_y = self.y+8
-	local is_stairs = get_flag_at(pos_x, pos_y, 1)
-	local facing_left = get_flag_at(pos_x, pos_y, 2)
-	if is_stairs and ((facing_left and pos_x%8>=4) or (not facing_left and pos_x%8<4)) then
-		self.stairs = true
-		self.x = flr(pos_x/8)*8
-		self.y = flr(pos_y/8)*8-6
-		if facing_left then
-			self.x+=6
-		else
-			self.x-=6
+	local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+10)/8)
+	for add=-1,1 do
+		pos_x = tile_x+add
+		local is_stairs = get_flag(pos_x, tile_y, 1)
+		local facing_left = get_flag(pos_x, tile_y, 2)
+		if is_stairs and not (facing_left and add==1) and not (not facing_left and add==-1) then
+			self.stairs = true
+			self.x = pos_x*8
+			self.y = tile_y*8-6
+			if facing_left then
+				self.x+=6
+			else
+				self.x-=6
+			end
+			self.animation = 1
+			self.stair_dir = facing_left
+			self.f = facing_left
+			self.stair_timer=10
 		end
-		self.animation = 1
-		self.stair_dir = facing_left
-		self.f = facing_left
-		self.stair_timer=10
 	end
 end
 
@@ -594,6 +600,7 @@ end
 
 function player:hit(attacker)
 	if self.invul == 0 and self.extra_invul==0 then
+		sfx(12)
 		self.health-=1
 		self.invul=24
 		self.extra_invul=24
@@ -753,7 +760,7 @@ function enemy:die_when_dead()
 end
 
 function enemy:hit_player()
-	if self.invul == 0 and self:intersects(player, true) then
+	if self.invul == 0 and self.health>0 and self:intersects(player, true) then
 		player:hit(self)
 		return true
 	end
@@ -822,9 +829,6 @@ function zombie_legs:update()
 	self.animation = self.animation%2
 	self.s = 30+self.animation
 	self.pal = self.master.pal
-	if self.invul<=0 then
-		self:hit_player()
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -919,7 +923,7 @@ end
 
 --------------------------------------------------------------------------------
 
-batboss = bat:new({health=6, s=194})
+batboss = bat:new({health=6, s=194, death_sound=13})
 
 function batboss:update()
 	bat.update(self)
@@ -1504,7 +1508,7 @@ function _init()
 	darker_pal = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}
 	darkness=0
 
-	level_end_timer = 0
+	level_end_timer = -20
 	difficulty_menu = true
 end
 
@@ -1648,6 +1652,7 @@ function _update60()
 	if level_end then
 		if (level_end_timer<=20) level_end_timer+=1
 		darkness=level_end_timer/5
+		return
 	end
 	sort_actors()
 	for a in all(actors) do
@@ -1706,6 +1711,10 @@ end
 function get_flag_at(x,y,flag)
 	x/=8
 	y/=8
+	return get_flag(x,y,flag)
+end
+
+function get_flag(x,y,flag)
 	return fget(mget(x,y),flag)
 end
 
@@ -1762,7 +1771,8 @@ function _draw()
 		return
 	end
 	if level_end_timer>20 then
-		print("end of demo",64-22,60)
+		print("end of demo",64-22,60,7)
+		print("thank you for playing!",20,102,12)
 		return
 	end
 	if blackout_time<=0 then
@@ -2043,3 +2053,5 @@ __sfx__
 000400001c1201d1201e1301f1301f1301f1301d1201b1201a1202460024600246002460024600006000060000600006000060000600006000060000600006000060000600006000060000600006000060000600
 000400002423025230262302723028220282202822228222262322523224232000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 010400001c6301c6301c6302b6302b6302b6300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000400001133010330113301232000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01060000216302364023640180001f6302164021640180001d6201f6301f6300c0001a6101c6201c6200000014630146201462314613146130000000000000000000000000000000000000000000000000000000
