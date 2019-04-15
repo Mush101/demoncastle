@@ -1198,6 +1198,17 @@ function platform:update()
 
 end
 
+function platform:draw()
+	local prev_x = self.x
+	if self.supporting_player then
+		self.x=player.x-flr(player.x-self.x)
+		self:update_slaves()
+	end
+	actor.draw(self)
+	self.x = prev_x
+	self:update_slaves()
+end
+
 function platform:move()
 	self.position = (self.position+self.speed) % 1
 	self.x = self.origin_x + self.xw * sin(self.position)
