@@ -277,7 +277,7 @@ end
 
 function cam:jump_to()
 	self:set_goal()
-	self.x = self.goal_x
+	self.x=self.goal_x
 end
 
 function cam:y_move()
@@ -766,6 +766,11 @@ function enemy:hit_player()
 	end
 end
 
+function enemy:boss_health()
+	boss_health = self.health
+	boss_max_health = self.max_health
+end
+
 --------------------------------------------------------------------------------
 
 zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9})
@@ -923,13 +928,12 @@ end
 
 --------------------------------------------------------------------------------
 
-batboss = bat:new({health=6, s=194, death_sound=13})
+batboss = bat:new({health=6, s=194, death_sound=13, max_health=6})
 
 function batboss:update()
 	bat.update(self)
 	self:animate()
-	boss_health = self.health
-	boss_max_health = 6
+	self:boss_health()
 	if self.awake then
 		if self.x<=cam.x then
 			self.x = cam.x
@@ -1063,7 +1067,7 @@ end
 
 --------------------------------------------------------------------------------
 
-axe_knight=enemy:new({s=8, height=16, pal_type=2, health=5, base_max_spd=0.5, goal=32, throw_timer=0, hand_timer=0, death_sound=11})
+axe_knight=enemy:new({s=8, height=16, pal_type=2, health=5, max_health=5, base_max_spd=0.5, goal=32, throw_timer=0, hand_timer=0, death_sound=11})
 
 function axe_knight:init()
 	self:use_slaves()
@@ -1073,54 +1077,56 @@ function axe_knight:init()
 end
 
 function axe_knight:update()
-	if not self:on_camera() then
-		return
-	end
-	if self.invul<=0 then
-		if self:die_when_dead() then
-			self.invis=false
-			self:use_pal()
+	if self:on_camera() then
+		if self.invul<=0 then
+			if self:die_when_dead() then
+				self.invis=false
+				self:use_pal()
 
-			self.max_spd=self.base_max_spd
+				self.max_spd=self.base_max_spd
 
-			if self.x>player.x then
-				self.f=true
-				self.acc=-0.02
-			else
-				self.f=false
-				self.acc=0.02
-			end
-
-			local dist = abs(self.x-player.x)
-			if dist<self.goal then
-				self.acc*=-1
-			end
-
-			if self.hand_timer>0 then
-				self.hand_timer-=1
-				if self.hand_timer==11 then
-					local f=axe:new({x=self.x, y=self.y+3, f=self.f})
-					add_actor(f)
-					f:update()
-					self.throw_timer=60
-				end
-			else
-
-				if self.throw_timer==0 then
-					self.hand_timer=15
+				if self.x>player.x then
+					self.f=true
+					self.acc=-0.02
+				else
+					self.f=false
+					self.acc=0.02
 				end
 
-				self.throw_timer=max(0, self.throw_timer-rnd(2))
-			end
+				local dist = abs(self.x-player.x)
+				if dist<self.goal then
+					self.acc*=-1
+				end
 
-			self:hit_player()
+				if self.hand_timer>0 then
+					self.hand_timer-=1
+					if self.hand_timer==11 then
+						local f=axe:new({x=self.x, y=self.y+3, f=self.f})
+						add_actor(f)
+						f:update()
+						self.throw_timer=60
+					end
+				else
+
+					if self.throw_timer==0 then
+						self.hand_timer=15
+					end
+
+					self.throw_timer=max(0, self.throw_timer-rnd(2))
+				end
+
+				self:hit_player()
+			end
+		else
+			self:fly_when_hit()
 		end
-	else
-		self:fly_when_hit()
+		self:momentum()
+		--self:gravity()
+		self:update_slaves()
 	end
-	self:momentum()
-	--self:gravity()
-	self:update_slaves()
+	if current_level==3 then
+		self:boss_health()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -1544,6 +1550,16 @@ function load_level(level, respawning)
 	else
 		next_level = 1
 	end
+
+	if not respawning then
+		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
+		player:checkpoint()
+		cam.special_goal = false
+		cam:jump_to()
+		cam:y_move()
+		cam:update()
+	end
+
 	if (level.map_string) map_string = level.map_string
 	width = two_char_to_int(sub(s,1,2))
 	cursor = 3
@@ -1608,13 +1624,6 @@ function load_level(level, respawning)
 				y+=1
 			end
 		end
-	end
-	if not respawning then
-		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
-		player:checkpoint()
-		cam.special_goal = false
-		cam:jump_to()
-		cam:update()
 	end
 
 	if level.music then
