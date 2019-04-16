@@ -495,7 +495,8 @@ function player:checkpoint()
 end
 
 function player:respawn()
-	blackout_time=40
+	--blackout_time=40
+	play_music(5)
 	self.health=player_max_health
 	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
 	self.invul, self.invis, self.mom, self.grav, self.invis = 0, false, 0, 0, false
@@ -503,6 +504,8 @@ function player:respawn()
 	cam:jump_to()
 	cam:y_move()
 	load_level(current_level, true)
+	level_start=true
+	darkness=4
 end
 
 function player:on_ground()
@@ -1333,7 +1336,7 @@ end
 cam_border_right = actor:new({depth=-20})
 
 function cam_border_right:update()
-	if self.x+8>player.x then
+	if self.x+8>=player.x then
 		cam.x = min(cam.x, self.x-120)
 	end
 end
@@ -1343,7 +1346,7 @@ end
 cam_border_left = actor:new({depth=-20})
 
 function cam_border_left:update()
-	if self.x<player.x then
+	if self.x<=player.x then
 		cam.x = max(cam.x, self.x)
 	end
 	if self:on_camera() and player.x<self.x and self.x-player.x<16 then
@@ -1461,7 +1464,7 @@ function heart_crystal:collect()
 	sfx(3)
 	health_go_up = true
 	level_end = true
-	music(-1)
+	play_music(-1)
 end
 
 function heart_crystal:be_chicken() end
@@ -1675,7 +1678,10 @@ function load_level(level, respawning)
 	end
 
 	if level.music then
-		music(level.music)
+		level_music = level.music
+		if between_levels then
+			play_music(level_music)
+		end
 	end
 end
 
@@ -1751,6 +1757,7 @@ function _update60()
 			darkness=4-level_start_timer/5
 		else
 			level_start, level_start_timer, darkness = false, 0, 0
+			play_music(level_music)
 		end
 		return
 	end
@@ -1778,6 +1785,13 @@ function _update60()
 		film_offset = film_offset % 128
 	end
 	cpu_usage = stat(1)
+end
+
+function play_music(num)
+	if playing_music!=num then
+		music(num)
+		playing_music=num
+	end
 end
 
 function add_actor(a)
@@ -2184,10 +2198,11 @@ __sfx__
 010e00002514025120251402512025140251202514025120251402314023130231202114021130231402313025140251302512025120251202512025120251202512025122251222512225112251122511225112
 010e0000231402313023120231201f1401f1301f1201f12021140211301f1401e1401e1301e1201e1201e1121f1401f1301f1201f1201c1401c1301c1201c1201e1401e1301c1401b1401b1301b1201b1201b112
 010e00001c1401c1301c1201c1201a1401a1301a1201a120191401913019120191201614016130161201612017140171201714017120161401612017140171301712017120171201712017110171101711217112
+011000001f0401e0401d0401c0401b0401b0401b0301b032000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 03 0e424344
 01 130f4344
 00 14104344
 00 15114344
 02 16124344
-
+04 17424344
