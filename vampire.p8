@@ -1473,7 +1473,7 @@ end
 
 --------------------------------------------------------------------------------
 
-chicken = actor:new({s=61, depth=-10})
+chicken = actor:new({s=61, depth=-10, grav=-2})
 
 function chicken:init()
 	self.y+=8
