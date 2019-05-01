@@ -1685,6 +1685,8 @@ function _init()
 
 	between_levels = false
 
+	p_width, p_timer=46,0
+
 	player:update()
 end
 
@@ -1837,6 +1839,7 @@ end
 --------------------------------------------------------------------------------
 
 function _update60()
+	p_timer=(p_timer+0.01)%1
 	if difficulty_menu then
 		if btnp(3) or btnp(2) then
 			hard_mode = not hard_mode
@@ -2010,6 +2013,7 @@ function _draw()
 	if blackout_time<=0 then
 		cam:set_position()
 		map(0,0,0,0,128,32)
+		draw_portal()
 		for a in all(actors) do
 			a:draw()
 		end
@@ -2043,6 +2047,21 @@ function _draw()
 	for i=1,darkness do
 		darker()
 	end
+end
+
+function draw_portal()
+	if (p_width<=0) return
+	camera()
+	rectfill(63-p_width,0,64+p_width,95,0)
+	for i=0,16 do
+		for j=0,95 do
+			if sin(p_timer+j/128)*8+8>i then
+				pset(i+p_width+64,j,0)
+				pset(63-p_width-i,95-j,0)
+			end
+		end
+	end
+	cam:set_position()
 end
 
 function draw_hud()
