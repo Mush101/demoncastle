@@ -1626,6 +1626,8 @@ levels =
 }
 
 function _init()
+	--almost all of the properties can be shoved in one long list. tokens!
+
 	--hard_mode = false
 
 	enemy_pal_1 = {5,8,2,15}
@@ -1675,6 +1677,7 @@ function _init()
 	health_timer=0
 	got_key, got_stones = false, 0
 
+	--i might be able to shorten this, token-wise
 	darker_pal = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}
 	darkness=0
 
@@ -1909,6 +1912,7 @@ function _update60()
 			end
 		end
 	end
+	--all of the below can probably be removed
 	if film_reel then
 		film_offset += film_speed
 		film_speed += film_acc
@@ -1988,6 +1992,7 @@ function distance_between(x1,y1,x2,y2)
 	return sqrt(xd*xd + yd*yd)
 end
 
+--probably won't use this
 function start_film_reel()
 	film_reel = true
 	film_offset = 120
@@ -2023,6 +2028,7 @@ function _draw()
 		clip()
 	end
 
+	--this bit can go.
 	if film_reel then
 
 		int_offset = flr(film_offset)
@@ -2096,6 +2102,7 @@ function draw_hud()
 	end
 end
 
+--replace this with something nicer.
 function draw_basic_menu()
 	s = "demon castle"
 	print(s, 64-2*#s,24,7)
@@ -2138,6 +2145,7 @@ function centre_print(str, y, col)
 	print(str,64-2*#str,y,col)
 end
 
+--can remove this
 function draw_stat()
 	middle_text = "actors: " .. #actors
 	print(middle_text,64-2*#middle_text, 115)
@@ -2374,4 +2382,3 @@ __music__
 00 1b1e4344
 00 1c1f4344
 02 1d204344
-
