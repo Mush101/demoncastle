@@ -1438,18 +1438,23 @@ end
 
 heart_crystal = actor:new({s=57, invis=true, grav=-2, depth=-10})
 
+function heart_crystal:init()
+	self.x-=36
+end
+
 function heart_crystal:update()
 	if not self:on_camera() then return end
 	if self.invis then
-		self.invis = false
-		for a in all(actors) do
-			if a.enemy and a:on_camera() then
-				self.invis = true
+		if cam.x>self.x-80 then
+			self.invis = false
+			for a in all(actors) do
+				if a.enemy and a:on_camera() then
+					self.invis = true
+				end
 			end
-		end
-		if not self.invis then
-			self.x-=36
-			self:be_chicken()
+			if not self.invis then
+				self:be_chicken()
+			end
 		end
 	else
 		self:gravity()
