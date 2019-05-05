@@ -308,8 +308,7 @@ end
 --------------------------------------------------------------------------------
 
 player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
-					stairs=false, stair_timer=0, stair_dir=false,
-					ducking=false, whip_animation=0, whip_cooldown = 0,
+					stairs=false, stair_timer=0, whip_animation=0, whip_cooldown = 0,
 					invul = 0, extra_invul=0, always_update = true, depth=-2,
 					legs_s=0})
 
@@ -329,14 +328,14 @@ function player:update()
 		--move on the ground
 		if self.invul == 0 then
 			--crouching is dummied out
-			if btn(3) and (self:on_ground() or self.ducking) and false then
-				if not self.ducking then
-					self.y+=2
-				end
-				self.ducking = true
-				-- self.spd=0
-				self.acc=0
-			else
+			-- if btn(3) and (self:on_ground() or self.ducking) and false then
+			-- 	-- if not self.ducking then
+			-- 	-- 	self.y+=2
+			-- 	-- end
+			-- 	-- self.ducking = true
+			-- 	-- -- self.spd=0
+			-- 	-- self.acc=0
+			-- else
 				self.ducking = false
 				if btn(1) and not btn(0) then
 					self.acc=1
@@ -351,11 +350,11 @@ function player:update()
 				else
 					self.acc=0
 				end
-			end
+			-- end
 
-			if self.ducking then
-				self.height=12
-			else
+			-- if self.ducking then
+			-- 	self.height=12
+			-- else
 				self.height=14
 				if self:is_in_wall() then
 					self.y-=2
@@ -363,7 +362,7 @@ function player:update()
 				if self:on_ground() and btnp(4) and not between_levels then
 					self.grav=-player_jump_height
 				end
-			end
+			-- end
 			self:momentum()
 			self:gravity()
 			if abs(self.spd)<0.1 then
@@ -385,7 +384,7 @@ function player:update()
 		if self.invul>0 then
 			self:flash_when_hit()
 		end
-		self.ducking = false
+		-- self.ducking = false
 		self.spd=0
 		local up, down = 1, 0
 		if self.stair_dir then
@@ -605,7 +604,8 @@ function player_legs:update()
 			self.s +=1
 		end
 	end
-	if not self.master:on_ground() and not self.master.stairs or self.master.ducking then
+	-- if not self.master:on_ground() and not self.master.stairs or self.master.ducking then
+	if not self.master:on_ground() and not self.master.stairs then
 		self.s = 20
 	end
 end
@@ -1270,10 +1270,10 @@ end
 
 slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16})
 
-function slimeboss:init()
+function slimeboss:init(extra)
 	self:use_slaves()
 	self:add_slave(mirror:new():flip())
-	self:add_slave(slimebelly:new():init())
+	self:add_slave(slimebelly:new():init(extra))
 	self:boss_health()
 end
 
@@ -1293,9 +1293,10 @@ end
 
 slimebelly = enemy:new({extends_hitbox=true})
 
-function slimebelly:init()
+function slimebelly:init(extra)
 	self:use_slaves()
 	self:add_slave(mirror:new())
+	if (extra) self:add_slave(slimebelly:new():init())
 	return self
 end
 
@@ -1320,8 +1321,7 @@ function summoner:update()
 	p_width=8
 	self.timer+=1
 	if self.timer>20 then
-		self.timer=0
-		self.s=459-self.s
+		self.timer, self.s = 0, 459-self.s
 	end
 	if self.invul>0 then
 		self:fly_when_hit()
@@ -1329,6 +1329,9 @@ function summoner:update()
 	else
 		if self:die_when_dead() then
 			self:hit_player()
+		else
+			final_boss = demon:new({x=self.x, y=self.y-64}):init()
+			add_actor(final_boss)
 		end
 	end
 	self.f=false
@@ -1337,13 +1340,81 @@ end
 
 --------------------------------------------------------------------------------
 
+demon = enemy:new({s=210, health=3, max_health=3, timer=0, width=16, height=24})
+
+function demon:init()
+	slimeboss.init(self, true)
+	self:add_slave(demon_hand:new())
+	self:add_slave(demon_hand:new({f=false}))
+	return self
+end
+
+function demon:update()
+	self:boss_health()
+	if (self:offscreen()) return
+	if self.health<=0 then
+		self.timer, self.s=move_towards(0.25,self.timer,0.01),212
+		self:move()
+		play_music(-1)
+		if self.timer==0.25 then
+			ending_sequence=true
+			if (got_stones>=3) good_end=true
+		end
+	elseif self.invul>0 then
+		self.invul-=1
+		self.invis=not self.invis
+	else
+		p_width=min(p_width+0.5, 46)
+		self.invis = p_width<46
+		if not self.invis then
+			self.timer=(self.timer+0.008)%1
+			self.s=210+self.timer*2
+			play_music(1)
+			self:move()
+			self:hit_player()
+		end
+	end
+	self.f=false
+	self:update_slaves()
+end
+
+function demon:move()
+	if (ending_sequence) return
+	self.y=40+max(-0.5, sin(self.timer))*30
+end
+
+demon_hand = enemy:new({s=240})
+
+function demon_hand:update()
+	local m=-1
+	if (self.f) m=1
+	local timer = self.master.timer*2+0.4*m
+	self:goto_master()
+	self.x += m*(cos(timer)*-15+16)+4
+	self.y += cos(timer)*8+20
+end
+
+--------------------------------------------------------------------------------
+
+ending_stone = actor:new({s=58, ignore_walls=true})
+
+function ending_stone:update()
+	local timer = e_timer+self.num/3
+	if e_rad<35 then
+		self.x=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2)
+		self.y=move_towards(cam.y+40+cos(timer)*e_rad,self.y,2)
+	else
+		self.s=55
+		self:gravity()
+	end
+end
+
 --------------------------------------------------------------------------------
 
 platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=0, pal_type=0, depth=-5})
 
 function platform:init()
-	self.origin_x, self.origin_y = self.x, self.y
-	self.position=0
+	self.origin_x, self.origin_y, position = self.x, self.y, 0
 	self:use_slaves()
 	self:add_slave(mirror:new())
 	self:use_pal()
@@ -1353,8 +1424,7 @@ function platform:update()
 	self.supporting_player = false
 	if player.x>=self.x-8 and player.x<self.x+self.width then
 		if player.y + player.height >= self.y and player.prev_y + player.height <=self.y+self.height then
-			player.y = self.y-14
-			player.grav = 0
+			player.y, player.grav = self.y-14, 0
 			self.supporting_player = true
 		end
 	end
@@ -1390,8 +1460,7 @@ end
 
 function platform:move()
 	self.position = (self.position+self.speed) % 1
-	self.x = self.origin_x + self.xw * sin(self.position)
-	self.y = self.origin_y + self.yw * sin(self.position)
+	self.x, self.y = self.origin_x + self.xw * sin(self.position), self.origin_y + self.yw * sin(self.position)
 end
 
 --------------------------------------------------------------------------------
@@ -1434,8 +1503,7 @@ end
 function pendulum:move()
 	self.position = (self.position+self.speed) % 1
 	local p = sin(self.position)/15
-	self.x = self.origin_x + self.length * sin(p)
-	self.y = self:get_top() + self.length * cos(p)
+	self.x, self.y = self.origin_x + self.length * sin(p), self:get_top() + self.length * cos(p)
 end
 
 function pendulum:draw()
@@ -1640,8 +1708,7 @@ function next_level_marker:update()
 		self.lv=nl_1
 	end
 	if self:intersects(player) then
-		next_level = self.lv
-		level_end = true
+		next_level, level_end = self.lv, true
 		progression+=1
 	end
 end
@@ -1662,23 +1729,15 @@ function _init()
 
 	--hard_mode = false
 
-	enemy_pal_1 = {5,8,2,15}
-	--enemy_pal_2 = {3,13,11,15}
-	--enemy_pal_2 = {5,6,9,0}
-	enemy_pal_2 = {2,14,8,0}
-	hurt_pal = {8,9,7,7}
-	player_pal = {1,13,2,15}
+	enemy_pal_1, enemy_pal_2, hurt_pal, player_pal = {5,8,2,15},{2,14,8,0},{8,9,7,7},{1,13,2,15}
 
-	whip_length=10
-	whip_speed=0.25
-	whip_cooldown=10
-	actors = {}
+	whip_length, whip_speed, whip_cooldown = 10, 0.25, 10
 
 	--player.y=82
 	player:use_slaves()
 	player:add_slave(player_legs)
 	player:use_pal()
-	player:update_slaves()
+	--player:update_slaves()
 	--player_sword:use_slaves()
 	--player:add_slave(player_sword)
 	--player_sword:add_slave(player_sword_tip)
@@ -1687,38 +1746,23 @@ function _init()
 	player:add_slave(player.whip)
 	player.whip:setup(whip_length)
 
-	next_start_x, next_start_y = 4, 58
+	--next_start_x, next_start_y = 4, 58
 
-	terminal_velocity=4
-	grav_acc = 0.15
-	player_jump_height=2.5
+	terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer = 4, 0.15, 2.5, 6, 6, 0
 
-	player.health = 6
-	player_max_health = 6
+	-- boss_health, boss_max_health = 2
+	-- boss_max_health = 6
 
-	boss_health = 2
-	boss_max_health = 6
+	--draw_bounding_boxes = false
 
-	draw_bounding_boxes = false
-
-	blackout_time = 0
-	--start_film_reel()
-	current_level = 2
-	--next_level = 4
-
-	health_timer=0
-	got_key, got_stones = false, 0
+	blackout_time, current_level = 0,2
+	got_key, got_stones, e_timer, e_stones, e_rad = false, 3, 0, {}, 20
 
 	--i might be able to shorten this, token-wise
-	darker_pal = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}
-	darkness=0
+	darker_pal, darkness = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}, 0
 
 	level_start_timer, level_end_timer = 0, -20
-	level_start = true
-	difficulty_menu = true
-	progression=0
-
-	between_levels = false
+	level_start, difficulty_menu, progression, between_levels = true, true, 0, false
 
 	p_width, p_timer=46,0
 
@@ -1879,6 +1923,7 @@ end
 
 function _update60()
 	p_timer=(p_timer+0.01)%1
+
 	if difficulty_menu then
 		if btnp(3) or btnp(2) then
 			hard_mode = not hard_mode
@@ -1887,8 +1932,7 @@ function _update60()
 		if btnp(4) or btnp(5) then
 			difficulty_menu = false
 			if hard_mode then
-				player.health=4
-				player_max_health=4
+				player.health, player_max_health=4,4
 			end
 			load_level(current_level)
 			sfx(3)
@@ -1919,12 +1963,11 @@ function _update60()
 		if level_end_timer<=40 then
 			level_end_timer+=1
 		else
-			level_start, level_end, level_end_timer = true, false, 0
+			level_start, level_end, level_end_timer, got_level_item= true, false, 0, false
 			load_level(next_level)
-			got_level_item = false
 		end
 		darkness=level_end_timer/5
-		return
+		if (not ending_sequence) return
 	end
 	if level_start then
 		if level_start_timer<=20 then
@@ -1935,6 +1978,42 @@ function _update60()
 			play_music(level_music)
 		end
 		return
+	end
+	--end of the game
+	if ending_sequence then
+		if e_timer<0.01 and got_stones>0 then
+			local es = ending_stone:new({x=player.x,y=player.y,num=got_stones})
+			add(e_stones, es)
+			add_actor(es)
+			got_stones-=1
+		end
+		-- for a in all(e_stones) do
+		-- 	a:update()
+		-- end
+		e_timer=(e_timer+0.01)%1
+		if got_stones==0 then
+			p_width-=0.25
+			if good_end then
+				e_rad-=0.15
+				for i in all(e_stones) do
+					i:death_particle()
+				end
+				--p_width-=0.15
+			else
+				e_rad+=0.15
+				if e_rad>40 then
+					final_boss.y-=2
+					final_boss.s=210
+					final_boss.timer+=0.01
+					final_boss:update_slaves()
+					p_width+=2
+				end
+			end
+		end
+		if e_rad<=2 or e_rad>60 then
+			level_end=true
+		end
+		--return
 	end
 	sort_actors()
 	for a in all(actors) do
@@ -1949,18 +2028,18 @@ function _update60()
 		end
 	end
 	--all of the below can probably be removed
-	if film_reel then
-		film_offset += film_speed
-		film_speed += film_acc
-		if film_speed<0 then
-			film_speed = 0
-		end
-		if film_speed>128 then
-			film_speed = 128
-		end
-		film_offset = film_offset % 128
-	end
-	cpu_usage = stat(1)
+	-- if film_reel then
+	-- 	film_offset += film_speed
+	-- 	film_speed += film_acc
+	-- 	if film_speed<0 then
+	-- 		film_speed = 0
+	-- 	end
+	-- 	if film_speed>128 then
+	-- 		film_speed = 128
+	-- 	end
+	-- 	film_offset = film_offset % 128
+	-- end
+	--cpu_usage = stat(1)
 end
 
 function play_music(num)
@@ -2023,18 +2102,17 @@ end
 
 --beware of floating point overflow!
 function distance_between(x1,y1,x2,y2)
-	xd = abs(x1-x2)
-	yd = abs(y1-y2)
+	xd, yd = abs(x1-x2), abs(y1-y2)
 	return sqrt(xd*xd + yd*yd)
 end
 
 --probably won't use this
-function start_film_reel()
-	film_reel = true
-	film_offset = 120
-	film_speed = 16
-	film_acc = -0.1
-end
+-- function start_film_reel()
+-- 	film_reel = true
+-- 	film_offset = 120
+-- 	film_speed = 16
+-- 	film_acc = -0.1
+-- end
 
 --------------------------------------------------------------------------------
 
@@ -2065,27 +2143,27 @@ function _draw()
 	end
 
 	--this bit can go.
-	if film_reel then
-
-		int_offset = flr(film_offset)
-
-		if int_offset<112 then
-			memcpy(0x4300, 0x6000, int_offset*64)
-			memcpy(0x6000, 0x6000 + int_offset*64, (128-int_offset)*64)
-			memcpy(0x6000 + (128-int_offset)*64, 0x4300, int_offset*64)
-		else
-			val = 128 - int_offset
-			memcpy(0x6000+64*val, 0x6000, (128 - val)*64)
-			rectfill(0,0,127,val-1,0)
-		end
-
-	else
+	-- if film_reel then
+	--
+	-- 	int_offset = flr(film_offset)
+	--
+	-- 	if int_offset<112 then
+	-- 		memcpy(0x4300, 0x6000, int_offset*64)
+	-- 		memcpy(0x6000, 0x6000 + int_offset*64, (128-int_offset)*64)
+	-- 		memcpy(0x6000 + (128-int_offset)*64, 0x4300, int_offset*64)
+	-- 	else
+	-- 		val = 128 - int_offset
+	-- 		memcpy(0x6000+64*val, 0x6000, (128 - val)*64)
+	-- 		rectfill(0,0,127,val-1,0)
+	-- 	end
+	--
+	-- else
 		if between_levels then
 			draw_level_select_gui()
 		else
 			draw_hud()
 		end
-	end
+	-- end
 	for i=1,darkness do
 		darker()
 	end
@@ -2107,7 +2185,7 @@ function draw_portal()
 end
 
 function draw_hud()
-	rectfill(0,112,127,127,0)
+	--rectfill(0,112,127,127,0)
 	line(0,112,127,112,5)
 	print("player", 1, 114, 7)
 	print("enemy", 108, 114, 7)
@@ -2140,27 +2218,22 @@ end
 
 --replace this with something nicer.
 function draw_basic_menu()
-	s = "demon castle"
-	print(s, 64-2*#s,24,7)
-	s = "demo version"
-	print(s, 64-2*#s,30,12)
-	s = "please select difficulty"
-	print(s, 64-2*#s,48,7)
+	centre_print("demon castle", 24,7)
+	centre_print("demo version",30,12)
+	centre_print("please select difficulty",48,7)
 	s = "> normal  "
 	if hard_mode then
 		s="normal"
 	end
-	print(s, 64-2*#s,64,7)
+	centre_print(s,64,7)
 	s = "hard  "
 	if hard_mode then
 		s="> hard    "
 	end
-	print(s, 64-2*#s,70,7)
+	centre_print(s,70,7)
 
-	s = "use the arrow keys,"
-	print(s, 64-2*#s,96,7)
-	s = "and the [z] and [x] keys"
-	print(s, 64-2*#s,102,7)
+	centre_print("use the arrow keys", 96, 7)
+	centre_print("and the [z] and [x] keys", 102, 7)
 end
 
 function draw_level_select_gui()
@@ -2182,20 +2255,20 @@ function centre_print(str, y, col)
 end
 
 --can remove this
-function draw_stat()
-	middle_text = "actors: " .. #actors
-	print(middle_text,64-2*#middle_text, 115)
-	middle_text = ""..cpu_usage*100 .. "%"
-	for i=#middle_text,8 do
-		middle_text = " "..middle_text
-	end
-	middle_text = "cpu:"..middle_text
-	x = 64-2*#middle_text
-	print(middle_text,x, 121)
-	col = 3
-	if cpu_usage>1 then col=8 end
-	line(x,127,x+cpu_usage*(4*#middle_text),127,col)
-end
+-- function draw_stat()
+-- 	middle_text = "actors: " .. #actors
+-- 	print(middle_text,64-2*#middle_text, 115)
+-- 	middle_text = ""..cpu_usage*100 .. "%"
+-- 	for i=#middle_text,8 do
+-- 		middle_text = " "..middle_text
+-- 	end
+-- 	middle_text = "cpu:"..middle_text
+-- 	x = 64-2*#middle_text
+-- 	print(middle_text,x, 121)
+-- 	col = 3
+-- 	if cpu_usage>1 then col=8 end
+-- 	line(x,127,x+cpu_usage*(4*#middle_text),127,col)
+-- end
 
 function darker()
 	for i= 0x6000, 0x7fff do
@@ -2235,14 +2308,14 @@ __gfx__
 0000000000000000000000000000000000000000566677000000000000000000600550060555666000006600066655006665566600000000000d00d009009000
 0000000000000000000000000000000000000000055667700000000000000000000550005550660000066660006600006605506600000000000dddd009999000
 00000000000000000000000000000000000000000055500000000000000000000005500055006000006666660006000060000006000000000000000000000000
-0660066007770000066000000220220002202200022022000220220000aaaa000660000002202200004440000000000000000000000000000000000000000000
-677567757eee0000677600002ee288202882ee2028828820288288200aa00aa06006000028828820049aa400808080808080080000000007000666600aaaa000
-67756775eee20000677600002ee8882028eeee2028888e20288888200aa00aa0600600002888e82049999a40808080808880088000990970000622600a88a000
-05500550ee200000066000002e8888202eeee820288eee202888882000aaaa00066600002888882049999940888080808880888809449440000622600a88a000
-0000000000000000000000002e8888202eee88202eeeee2028888e20000aa000000560600288820049999940080080808080088064444446000622600a88a000
-0000000000000000000000000288820002e8820002eee200028ee200000aaa00000056560028200004999400080008808080080060444406000d22d009889000
-0000000000000000000000000028200000282000002e2000002e2000000aa000000005600002000000444000000000000000000066000066000dddd009999000
-00000000000000000000000000020000000200000002000000020000000aaa000000000000000000000000008888888888888880066666600000000000000000
+06600660077700000660000002202200022022000220220002202200005550000660000002202200004440000000000000000000000000000000000000000000
+677567757eee0000677600002ee288202882ee202882882028828820056775006006000028828820049aa400808080808080080000000007000666600aaaa000
+67756775eee20000677600002ee8882028eeee2028888e202888882056666750600600002888e82049999a40808080808880088000990970000622600a88a000
+05500550ee200000066000002e8888202eeee820288eee202888882056666650066600002888882049999940888080808880888809449440000622600a88a000
+0000000000000000000000002e8888202eee88202eeeee2028888e2056666650000560600288820049999940080080808080088064444446000622600a88a000
+0000000000000000000000000288820002e8820002eee200028ee20005666500000056560028200004999400080008808080080060444406000d22d009889000
+0000000000000000000000000028200000282000002e2000002e200000555000000005600002000000444000000000000000000066000066000dddd009999000
+00000000000000000000000000020000000200000002000000020000000000000000000000000000000000008888888888888880066666600000000000000000
 07777770772777670000555555550000077055555555077000000000000000007777777700550555005505550055055507705555555507700000000056666665
 7eeeeee80070007000000666666000007ee0066666600ee80000005500000000c717c7170600055506000555060005557ee0066666600ee80006500054444445
 7eeeeee82202200200000000000000007ee0000000000ee8000000000000000071c171c16506d0506506d0506506d0507ee0000000000ee85605555005555550
@@ -2315,30 +2388,30 @@ __gfx__
 56656556000565655555555500000000000000000000000000000000522222227522222222272222222272222222752222222222222222222222705200000000
 05555005000565500555555000000000000000000000000000000000222222222222222222222222222222222222222222222222222222222222272200000000
 0000000000005500005555000000000000000000000000000000000022222222822222222223333333333333333d333332222222222222222222222200000000
-000000000000000000011000000000000000000000000000000000002222222888222222223333353333333533dddd3353222255555555555555522200000000
-000000000000005500110000000100000000000000000000000000002222223eee22222223333333333b33333466664333222555555555555555555500000000
-00000055000005660171000000110000000000000000000000000000223252ee5e226d6d33333533333333344260662444225555161616161111155100000000
-00005566000056660171000001710000000000000000000000000000383ee35e8532266d333b33333333334222222222222255511d6666661111111100000000
-0005666600005666176100001761000000000000000000000000000022222222222222223b3333333b5333dd222222222225551111ddddd11111111100000000
-00566666000566661761000016610011000000000000000000000000222222262225222243333353333333d6222222222255511122d060d22211155100000000
-056666660005666616610011166511220000000000000000000000002222226d222252222333333333333422222222222555511222d66d622221111100000000
-056666660056666616651122165522220000000000000000000000002222226622225522244433b335334222222222222555112222d0d0d22222111100000000
-666666656666750016552222155222220000000000000088002200882222224622222555522244444444222225522d6d4d4d4d422ddddddd2222111100000000
-666666756667750015522222112222220000000000000888002208882222444344422255555522222222222555226dd64d4d4d422ddd0ddd2222111100000000
-66667775777775001122222201222222000000002200088800880888224444444444222555555555555555555226d62255111152222222222222111100000000
-777777757777550001222222001220020000000022000888008808882244444444f44222250555555555555056ddd22555111152222222222222115500000000
-7777775577775500012220220012222200000000888002880088828823444f344444442222655555555555222222225555111155222222222225111100000000
-7777555577755500001220020001222200000000888888280088882824444444444444422d622626262222222222555551111155555522225555111100000000
-555555505555500000122222000122220000000008888828000888282244f44444443444d6d22d66662222222225555511111115555555555555111100000000
-5555500055500000000122220001222200000000008888820008888222244444444444f4462222ddd55555555555555111111111505555555551111100000000
-00111100001111100001222200012222000000008888800088882000522224443f3444444d6ddd0665555ddd5555551111111111111555551111111100000000
-01222210012222710001222200012202000000008888200088820000555222244444444346dd65d6d55226062222511111551111111111111111111100000000
-012222211222221100001222000012220000000088820000888200001555222224444f44222225d6052222222222511111111111111111111111111100000000
-122221711222210000001202000011220000000088820000888200001155522222244442222255d6622222622225511111111111111111111111111100000000
-122221111222271000001202000001110000000088820000888200001115555222222222222555dd6226d6d6d655511111111111111551111111551100000000
-121171001222211000001222000000110000000088882000888820005111555552222222225552d0626d6ddd6d55111111115511111111111111111100000000
-171011000122271000000122000000000000000088888200888882001111115555555555555552222dd222222551111111111111111111111111111100000000
-01100000001111100000001100000000000000002822880028228800115511115555555555522222222222225511111111111111111111115511111100000000
+000000000000000000011000000000000001100000000000000000002222222888222222223333353333333533dddd3353222255555555555555522200000000
+000000000000005500110000000100000011000000000000000000002222223eee22222223333333333b33333466664333222555555555555555555500000000
+00000055000005660171000000110000017100000000000000000000223252ee5e226d6d33333533333333344260662444225555161616161111155100000000
+00005566000056660171000001710000017100000000000000000000383ee35e8532266d333b33333333334222222222222255511d6666661111111100000000
+0005666600005666176100001761000017610000000000000000000022222222222222223b3333333b5333dd222222222225551111ddddd11111111100000000
+00566666000566661761000016610011176100000000000000000000222222262225222243333353333333d6222222222255511122d060d22211155100000000
+056666660005666616610011166511221661001100000000000000002222226d222252222333333333333422222222222555511222d66d622221111100000000
+056666660056666616651122165522221665112200000000000000002222226622225522244433b335334222222222222555112222d0d0d22222111100000000
+666666656666750022225561222225512222556100000088002200882222224622222555522244444444222225522d6d4d4d4d422ddddddd2222111100000000
+666666756667750022222551222222112222255100000888002208882222444344422255555522222222222555226dd64d4d4d422ddd0ddd2222111100000000
+66667775777775002222221122222210222222112200088800880888224444444444222555555555555555555226d62255111152222222222222111100000000
+777777757777550022222210200221002222221022000888008808882244444444f44222250555555555555056ddd22555111152222222222222115500000000
+7777775577775500220222102222210020222210888002880088828823444f344444442222655555555555222222225555111155222222222225111100000000
+7777555577755500200221002222100022022100888888280088882824444444444444422d622626262222222222555551111155555522225555111100000000
+555555505555500022222100222210002222210008888828000888282244f44444443444d6d22d66662222222225555511111115555555555555111100000000
+5555500055500000222210002222100022221000008888820008888222244444444444f4462222ddd55555555555555111111111505555555551111100000000
+00111100001111102222100022221000222210008888800088882000522224443f3444444d6ddd0665555ddd5555551111111111111555551111111100000000
+01222210012222712222100020221000222210008888200088820000555222244444444346dd65d6d55226062222511111551111111111111111111100000000
+012222211222221122210000222100002221000088820000888200001555222224444f44222225d6052222222222511111111111111111111111111100000000
+122221711222210020210000221100002021000088820000888200001155522222244442222255d6622222622225511111111111111111111111111100000000
+122221111222271020210000111000002021000088820000888200001115555222222222222555dd6226d6d6d655511111111111111551111111551100000000
+121171001222211022210000110000002221000088882000888820005111555552222222225552d0626d6ddd6d55111111115511111111111111111100000000
+171011000122271022100000000000002210000088888200888882001111115555555555555552222dd222222551111111111111111111111111111100000000
+01100000001111101100000000000000110000002822880028228800115511115555555555522222222222225511111111111111111111115511111100000000
 __gff__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010206030700000901010103070009000000010101000008010101010108090000000000000000000101010101080801010100000000000307010100000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -2418,4 +2491,3 @@ __music__
 00 1b1e4344
 00 1c1f4344
 02 1d204344
-
