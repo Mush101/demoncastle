@@ -1414,7 +1414,7 @@ end
 platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=0, pal_type=0, depth=-5})
 
 function platform:init()
-	self.origin_x, self.origin_y, position = self.x, self.y, 0
+	self.origin_x, self.origin_y, self.position = self.x, self.y, 0
 	self:use_slaves()
 	self:add_slave(mirror:new())
 	self:use_pal()
@@ -1750,13 +1750,13 @@ function _init()
 
 	terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer = 4, 0.15, 2.5, 6, 6, 0
 
-	-- boss_health, boss_max_health = 2
-	-- boss_max_health = 6
+	boss_health, boss_max_health = 0,0
+	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
 
 	blackout_time, current_level = 0,2
-	got_key, got_stones, e_timer, e_stones, e_rad = false, 3, 0, {}, 20
+	got_key, got_stones, e_timer, e_stones, e_rad = false, 0, 0, {}, 20
 
 	--i might be able to shorten this, token-wise
 	darker_pal, darkness = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}, 0
@@ -1764,7 +1764,7 @@ function _init()
 	level_start_timer, level_end_timer = 0, -20
 	level_start, difficulty_menu, progression, between_levels = true, true, 0, false
 
-	p_width, p_timer=46,0
+	p_width, p_timer=0,0
 
 	player:update()
 end
@@ -1897,9 +1897,9 @@ function load_level(level, respawning)
 		end
 	end
 
-	local s=summoner:new({x=56, y=80})
-	s:init()
-	add_actor(s)
+	--local s=summoner:new({x=56, y=80})
+	--s:init()
+	--add_actor(s)
 end
 
 function char_to_int(c)
