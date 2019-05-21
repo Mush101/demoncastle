@@ -1798,6 +1798,7 @@ function load_level(level, respawning)
 	current_level = level
 	level = levels[level]
 	s = level.data
+	-- there's a way of doing default value using 'x or nil', or something.
 	if level.start_x then
 		start_x, start_y = level.start_x, level.start_y
 	else
