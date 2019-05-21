@@ -1729,7 +1729,7 @@ function _init()
 
 	--hard_mode = false
 
-	enemy_pal_1, enemy_pal_2, hurt_pal, player_pal = {5,8,2,15},{2,14,8,0},{8,9,7,7},{1,13,2,15}
+	enemy_pal_1, enemy_pal_2, hurt_pal, player_pal = string_to_array("582f"),string_to_array("2e80"),string_to_array("8977"),string_to_array("1d2f")
 
 	whip_length, whip_speed, whip_cooldown = 10, 0.25, 10
 
@@ -1759,7 +1759,7 @@ function _init()
 	got_key, got_stones, e_timer, e_stones, e_rad = false, 0, 0, {}, 20
 
 	--i might be able to shorten this, token-wise
-	darker_pal, darkness = {0,0,0,5,2,0,5,6,2,4,9,3,1,5,2,14}, 0
+	darker_pal, darkness = string_to_array("000520562493152e"), 0
 
 	level_start_timer, level_end_timer = 0, -20
 	level_start, difficulty_menu, progression, between_levels = true, true, 0, false
@@ -1767,6 +1767,14 @@ function _init()
 	p_width, p_timer=0,0
 
 	player:update()
+end
+
+function string_to_array(s)
+	a = {}
+	for i=1,#s+1 do
+		add(a, char_to_int(char_at(s,i)))
+	end
+	return a
 end
 
 function clear_level()
@@ -1783,6 +1791,7 @@ entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=
 function load_level(level, respawning)
 	cls()
 	clear_level()
+	--do i need these?
 	centre_print("loading...", 61, 7)
 	centre_print("level "..level, 55, 7)
 	between_levels = level==1
@@ -1904,7 +1913,8 @@ end
 
 function char_to_int(c)
 	for i=0,31 do
-		if char_at("0123456789abcdefghijklmnopqrstuv",i+1) == c then
+		--if char_at("0123456789abcdefghijklmnopqrstuv",i+1) == c then
+		if char_at("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?",i+1) == c then
 			return i
 		end
 	end
