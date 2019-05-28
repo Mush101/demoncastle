@@ -1851,8 +1851,8 @@ function load_level(level, respawning)
 				num=sub(s,cursor+1,cursor+1)
 				if char==":" or hard_mode then
 					entity = entity_dict[char_to_int(num)+1]:new():level_up()
-					entity:init()
 					entity.x,entity.y=x*8, y*8
+					entity:init()
 					add_actor(entity)
 				end
 				cursor+=1
