@@ -4,7 +4,7 @@ import math
 
 
 def num_to_char(num):
-    s = "0123456789abcdefghijklmnopqrstuv"
+    s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?"
     first_char = "0"
     if num >= 32:
         first_char = s[int(num / 32)]
@@ -13,7 +13,7 @@ def num_to_char(num):
 
 
 def num_to_one_char(num):
-    s = "0123456789abcdefghijklmnopqrstuv"
+    s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?"
     return s[num]
 
 
