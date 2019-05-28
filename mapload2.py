@@ -120,6 +120,8 @@ else:
                 prev_tile = -1
                 chain_length = 0
 
+        if chain_length > 0:
+            out_str += "+" + num_to_one_char(chain_length)
         print(out_str)
 
     #     entity_list = sorted(entity_list, key=lambda x: x[1])
