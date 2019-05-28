@@ -44,7 +44,7 @@ else:
         for i in old_tiles:
             num = int(i) - 65
             if num < 0 or num > 127:
-                num = 0
+                num = 63  # Empty tile
             new_tiles.append(num)
 
         # Get the width and put it at the start of the output string
@@ -84,6 +84,16 @@ else:
         prev_tile = -1
         chain_length = 0
         for tile in new_tiles:
+
+            # Check for an entity on this tile:
+            for e in entity_list:
+                if e[1] == tile_num:
+                    if chain_length > 0:
+                        out_str += "+" + num_to_one_char(chain_length)
+                    prev_tile = -1
+                    chain_length = 0
+                    out_str += e[0]
+
             # Determine whether it's part of the first or second graphics bank
             add_value = 0
             if tile >= 64:
@@ -103,18 +113,9 @@ else:
                 chain_length = 0
                 out_str += num_to_one_char(tile - add_value)
 
-            # Check for an entity on this tile:
-            for e in entity_list:
-                if e[1] == tile_num:
-                    if chain_length > 0:
-                        out_str += "+" + num_to_one_char(chain_length)
-                    prev_tile = tile
-                    chain_length = 0
-                    out_str += e[0]
-
             tile_num += 1
 
-            if chain_length >= 127:
+            if chain_length >= 63:
                 out_str += "+" + num_to_one_char(chain_length)
                 prev_tile = -1
                 chain_length = 0

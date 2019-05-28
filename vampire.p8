@@ -1719,7 +1719,7 @@ end
 levels =
 {
 	{music=0, data="1i23232jjjkk2j|5vzv5vzv5vxb0h0710125vw31m5v1j181l1m169j5v955vw11m5v1m5vw1110hw1110hw1118h5v9418141l161m5vw8dv0h125v10075vw21n5vw1165v1n165vw114155v1m5v1m5vw1110hw1110hw1110h5vw1165vw1161n5v131k155vw51210120m125vw21314w11714w117945v14w15v1n5v1m5vw1110hw1110hw1118h5v141714w117141k14w2155v0uw28u01w300w1050l0tw75v14w1155vw11n5v1h1r1o1i1h1i1h1i1h5v0tw61h1r1o1i1g0f0v0f0v0jw4001d031dw6135v14w25vw4025v111315115vw21dw7021d1h1i5v1f5v1f5vw200w35v035vw31314w15v14w2155vw2025vw11114w111155vw20e5vw4025v1h1i1g5v1f5v1f01w300w3150313151314w1945v14w3155v020e13141114w11114955vw1115vw10e5v025v1h1i1h1i5v1f5v1f0jw200w60sw55v0sw41h1i1h1i1h1i01w45v1i1h1i1h1i1h1i1h1i1h1i1g08w35vzv5vzv5vxb14w51l5vw11j14w4945v00wf5v00wf14w31l5vw51j14w35v00wf5v00wf14181l5vw91j14185v00wf5v00wf5v165vw813155vw1165v00wf5v00wf15165vw113155v2e2f5v13141k1415165v00wf5v00wf141715131k14152u2v131k14w11k14975v00wf5v00wf0twf5v00wf5v00wf1dwf5v00wf5v00wf"},
-	{music=8, next_start_x=4, next_start_y=58, start_x=16, start_y=82, map_string="the path splits here...", nl_1=3, nl_2=4, offset = -58, data="35/6/+p0+2h+3n0wh+4n0+4wh+3n0:2+620+4:2+5:3+1y30wy:3x/6+6:e+f:2/0/6/+p0+2hy0+6mh+1:0n0+4wh+3n0+520+bh73mhx/6/+l0/6+7456/+f0+2y0+46y0+9nwhnmh0+420+cyw73mx/6+h456/+10/6+7kl6+5w236+1w236/+10+2y0+2wh+270+3wy0+2h+270w0+7k40/+e36+1w236+bk:fl6/+10/1236+1w236+1w236+1wMij01M/0/j01/0+4k40+45l0+6wnwh7m0+4;1+320/+fj01M/0/j0136+1w236+1w23w23/0/hij01Mij01Mij01M/0/+2gh/0/+2gh/0x0+226h0+2h730+1mn0+2wy0mn0+720/+hgh/0/+2ghj01M/0/j01MijMij/0/+3gh/0/+2gh/0/+2gh/0+bx0+126h;0n0+2yw730+1hn0wh+1y0+3:9+520+ah0m0/+cgh/0/+2gh/0+xx020wy60+2h+2730mhxwnwn0w70:9+420+bny0+1y0+i:d+Bk40+5wh730mxm;0h+1n0+kmhn0w0+x6e0+fxhy0260+5ywh730x0wn0+k70n0ym0+9e0+bw0B0+2zB0+2wx0+3zA0+8zxn:0026h0+71+20+110+151+30+110+21+20+6y0+1ym70+36hye0+1xwy0+6e0wh0AB0zAxy6yhx0+2zA+1x0+2xAB0zAxy26ym0+7j+20xj0j+13j+60j+40+5h76h7m0+2ewh+1x0+1xh+2e0+4xh+201+3NONONONO1+4x0+2x1+f0+6x0+430+h1+50+11+1k40+11+1010+21+40+110+1j+gx0+2xj+e0+7x0+530+gj+50+1j+12j+i0/6+1:3/0+1hyx0+3xwh0/+16:2/+10+v:3+330+6PA+1QA+2QA+1R0+620+2:2/+i6/+10+1hyx0+3xwh0/+16/+10+wB0+130+6QA+2QA+1RS0+620+2:8/+j6/+10+1mhx0+3x7m0/+16/+10+wAB0+130+5PA+4R0S0+520+3:9/+j6/+10+17mx0+3xh70/+16/+10+x5l0+8SAQRS0;1+1T0+420+4:9/+j6/+10+1hyx0+1:7+2xyh0/+16w/0+y30+8TPR0S0/+w36/0+1h+1x0+3xwn:h0/+11M/0+wB0;0+130+bS0/+wj0/0+1ywx0+3xn60/+1h/0+xA+1B030+aT0+9x0+1x0/+jg/0+1y0x0+3x6y0+?x0+1x0+mhyx0+3xhn0+Bx0x0x0+d:4+7x0+1x0+mhyx0+3:cxw70+ABx0xBx0+kx0+1x0+my+1x0+3xwh0+AAxzxA:0xB0+7:0+8z0+2x0+1x0+mk40+55l0+AAxAxAxAB0zB0+2zB0+2;a+2zA+10+2x0+1x0+m20+2mhnmn3mh0+y1+a0+11+20+11+50+2x0+1x0+l20+36n6nwn3w0+m8+mo+18+2o+18"},
+	{music=8, next_start_x=4, next_start_y=58, start_x=16, start_y=82, map_string="the path splits here...", nl_1=3, nl_2=4, offset = -58, data="35/6/+p0+2h+3n?wh+4n?+10+2wh+3n:20+1?+42?+20:20+4:30+1y3?w:3yx/6+5:e6+e:26/0/6/+p0+2hy?+6mh:0hn?+10+2wh+3n0+1?+32?+30+7h73mhx/6/+l0/6+7456/+f0+2y?+46y?+60+2nwhnmh0+1?+22?+40+7yw73mx/6+h456/+10/6+7kl6+5w236+1w236/+10+2y?+2wh+27?+3wy0+2h+27?w0+1?0+4kc0/+e36+1w236+b:fkl6/+10/1236+1w236+1w236+1wMij01Mij01/0+4k40+45l0+6wnwh7m0?+2;1?+320/+fj01Mij0136+1w236+1w23w23/0/hij01Mij01Mij01M/?/+2gh/?/+2gh/?x?+226h0+2h73?+1mn0+2wy?mn?0?+52?0+f?/gh/?/+2ghj01Mij01MijMij/0?/+2gh/?/+2gh/?/+2gh/?+bx?+126;0hn0+2yw73?+1hn0wh+1y?+2:90?+42?+10+8h0m0+3?/+8gh/?/+2gh/?+50?+qx?2?wy60+2h+273?mhxwnwn?w7:90?+32?+20+8ny?0y0+1?+f:d?+50?+p0+4k40+5wh73?mx;0mh+1n?0+i?mhn0w0+1?+l0?+86e?+fxhy?260+5ywh73?x?wn?+10+i7?n?ym0+1?+7e?+bw0B?+2zB?+2wx?+3zA0+4?+3zx:0n?26h0+71+20+110+151+30+110+21+20+6y?+1ym70+1?+16hye?+1xwy?+6e?wh0AB?zAxy6yhx?+2zA+1x?+2xAB?zAxy26ym0+7j+20xj0j+13j+60j+40+5h76h7m0+1?ewh+1x?+1xh+2e?+4xh+201+3NONONONO1+4x?+2x1+f0+2?+20x?0+1?+13?+c0+41+50+11+1k40+11+1010+21+40+110+1j+gx?+2xj+e0+3?+10+1x0+2?+23?+b0+4j+50+1j+12j+i0/6:36/0+1hyx?+3xwh0+1:2/6/+10+u:30+1?+13?+6PA+1QA+2QA+1R?+62?0:20/+i6/+10+1hyx?+3xwh0/+16/+10+wB?+13?+6QA+2QA+1RS?+62?+1:80/+j6/+10+1mhx?+3x7m0/+16/+10+wAB?+13?+5PA+4R?S?+52?+2:90/+j6/+10+17mx?+3xh70/+16/+10+x5l0+2?+5SAQRS;1?+1T?+42?+3:90/+j6/+10+1hyx?:7?+2xyh0/+16w/0+w?+13?+8TPR?S?+40/+r36/0+1h+1x?+3xw:hn0/+11M/0+wB;0?+13?+bS?+50/+qj0/0+1ywx?+3xn60/+1h/?0+wA+1B?3?+aT?+60+1?x?+1x?/+jg/0+1y?x?+3x6y0+1?+10+D?+g0+1?x?+1x?+k0+1hyx?+3xhn0+1?+10+w?x?x?x?+c:4?+40+1?x?+1x?+k0+1hyx?+2:c?xw70+1?+10+wBx?xBx?+h0+1?x?+1x?+j0+2y+1x?+3xwh0+2?0+wAxzx:0AxB?+6:0?+8z0+1?x?+1x?+j0+2k40+55l0+2?0+wAxAxAxAB?zB?+2zB?+1;a?+2zA+10+1?x?+1x?+i0+1?+12?+2mhnmn3mh0+y1+a?+11+2?+11+50+1?x?+1x?+i0+1?2?+36n6nwn3w0+m8+mo+18+2o+18"},
 	{music=1, next_start_x=4, next_start_y=194, start_x=16, start_y=82, map_string="the path continues...", nl_1=5, data="2ii23e2f540c3i901g91064500b|14w5155vw11j14wk1l5v1j149414w91894009414we9l5v1j14wb940014w6155vw11j14wb1l1j14w31l1m5vw31j14w71l5v165v0014wb18141l5vw314wc0014w7155vw11j14w91l5vw11j181l5vw11m5vw41m1j14w31l5vw2165v0014w21l5v1j1418141l5vw1165vw51j14wb0014w71l5vw31j14w61l5vw3165vw21n5vw41n5vw11j181l5vw3165v00141l5vw4165vw3165vw71j14w59414w2001j14w51l5vw51j14w41l5vw4165vwc165vw4165v005vw6165vdv5vw1165vw814w9005vw11j1418141l5vw40e5vw21j181l5vw6165v0e125vw9165vw4165v005vw6165vw3165vw11h1i1h1i1h1i5v1j14w8005vw3165vw510115vw3165vw513151613110h075vw31314155vw1165vw4165v005vw6165vw3165vw11g1h1i5vw1115vw11jw118141l1m1j1418005vw3165vw4100h11125vw2165vw31314w21714110hw1125v1314w415165vw3131714005vw1dv5vw2dv165vw21317155v1h1i1g5vw1115vw3165vw11m5vw116005vw3165vw40hw111125vw2165vw11314w41h1i1h1i1h1i0tw21h1i1h1i1417155v1314w3005vw51317155v1314w2151g1h1i5vw1115vw3165vw11n5vw1160014155vw1165vw3060hw1110h075v131714w71g1h1i1dw61h1i1g14w8005vw41h1i0tw100050l0tw21h1i1g155v115vw3165vw4160014w2151613155vw11h1i1h1i0twc1h1i5vw81h1i0tw2000k04000tw25vw41g1h1i1dw2031dw25v1h1i1415115vw3965vw21314170014w31714w31g1h1i1dwd1g5vwa1g1dw3021dw45vw41h1i5vw4035vw31g14w111141513141714w5000tw81h1i5vwu025vw4005vw41g5vw6035vw11h1i0twe1dw81g5vwu025vw5000ow41h1i5vw6035vw11g1dwe5vw21j14w71l5vw21m5vw11m5vw11m5vw9805vw5025vw71j14w81l5vw3035vw5lv5vwe1j14w41l5vw31m5vw11n5vw11m5vw9005vw4025vw91m1j14w41l1m5vw5035vwf125vw414w31l5vw41m5vw41m5vw9805vw3025vwa1m5vw11j14w11l5v1m5vw6035vw1lv5vwb125v0e5vw21j141llv5vw1dv0e5vw11n5vw41m5vw9805vw2025vwb1m5vw21m5vw21m5vw7035vwd0h12115vw3lv5vw310115vw71n5vw600we5vw41n5vw21n5vw21n5vw600w45vwa0hw1115vw81011125vwg115v115vw5115v115vwedv5vw6115v115vwb0hw1110h075vw5100h11125vwf131115115vw5115v115vwidv5vw2115v115vwb0hw1110hw1125vw3060hw1110h125vwc1314w1111411155vw4115v115vwc00w45vw4115v115vwb1h1i1h1i0tw71h1i1h1i5vwa1h1i1h1i0tw41h1i1h1i5v115v115v00w25vw5dv5vw2115v115vw5115v115vwb1g1h1i1dw91h1i1g125vw2dv5vw4101g1h1i1dw61h1i1g15115v115vwd115v115vw5115v115vwb1h1i5vwb1h1i0h125vw6060h1h1i5vw81h1i141115115vw1dv5vw8dv5v115v115vw5115v115vwb1g5vwd1g0h125vw60hw11g5vwa1gh4111411155vwc115v115vw5115v115vwb1h1i5vwb1h1i0hw1075vw4060hw11h1i5vw81h1i0twl5vw4115v115vwb1g5vwd1g0hw2125vw2100hw21g5vwa1g1dwl0owj"},
 	{music=8, next_start_x=140, next_start_y=90, start_x=16, start_y=194, map_string="the path splits again...", nl_1=2, nl_2=2, offset = 50, data="2jellf5l4000849ml5232g0l000ll|155v035vw71m5vw11m5vw21m5vw4035vw51m5vw41m5vwb1mw15vw41m5vw7dv5vw21m5vw71m5vw100145vw1035vw61n5vw11m5vw21m5vw5035vw41m5vw41n5vwb1m1n5vw41m5vwb1m5vw71m5vw10014155vw1035vw81m5vw21n5vw6035vw31n5vwh1m5vw51m5vwb1m5vw71m5vw1000sw61h1i5vw41n5vwb03he0u5vwd1e8u0uw15vw11n5vw51n5vwb1n5vw6dv1m5vw1001cw51h1i1g155vwe0f0v0f0v0f5vw3dv5vw70f0v0f0v0f5vwu1n5vw1005vw61h1i14155vw10ugu0uw15vw81f5v1f5vwe1f5v1f5vx2005vw60sw31h1i0fw10v0f5vw81f5v1f5vwe1f5v1f5vx2005vw31h1i5v1cw21h1i1g5vw11f5vw91f5v1f5vwbdv5vw11f5v1f5vw5dv5vw3dv5vwm005vwa1h1i5vw11f5vw91f5v1f5vw7dv5vw51f5v1f5vwddv5vwj005vw51h1i5vw31g5vw11f5vdv5vw71f5v1f5vw61e0uw35vw21f5v1f5vw21h1i1h1i0sw31h1i1h9i5vwfdv5vw2005vwa1h1i5vw11f5vw4dv5vw31f5v9f5vw40f0v0fw20v0f5vw21f5v1f5vw21g1h1i1cw51h1i1g5vw11h1i5vwf005vw11h1i5vw71g5vw11f5vw20uw45vw11f5v1f5vw51f5vw21f5vw31f5v1f5vw21h1i5vw71h1i5vw11gw15vw11h1i1h1i0sw31h1i1h1i5vw1005vwa1h1i5vw11f5vw20f0v0f0v0f5vw11f5v1f5vw51f5vw21f5vw31f5v1f5vw21g5vw91g5vw11h1i5vw11g1h1i1cw51h1i1g5vw1005vwb1g0ox41h1i5vw71h1i0ow11gw10ow11h1i5vw71h1i0ow10026xma600w3a626wja60026w7242526xd00w326wl0026w130222326w22k2l26wa30222326wv00w326wc242526w60020213g2i2j20212326w130222326w13022233020213g2i2j20212326w130222326w130222330222326w730222326w400w326wc2k2l26w6002g2h5vw22g2h2j20213g2i2j20213g2i2j3g2g2h5vw22g2h2j20213g2i2j20213g2i2j3g2i2j20212326302220213g2i2j20212326w100w32630222330222326w730222326w3005vw72g2h5vw22g2h5vwb2g2h5vw22g2h5vw52g2h2j213g2i2g2h5vw22g2h2j202100w3213g2i2j3g2i2j20212326302220213g2i2j20212326005vxa2h5vw92g2h00w32h5vw52g2h2j213g2i2g2h5vw22g2h2j21005vxm1300w35vw92h5vw92h0014155vxi1314w100w35vwedv5vw50014w3155vwh10075vw110125vwl1314w21k00w35vw40e5vwf0014w4155vwbdv5vw2100h125v068h0h075vwbdv5vw513141k14w300w35vw41112dv5vw5dv5v0e5vw40014w6155v0uwa5vw10h1h1i5v0h1h1i125vw10uw35vw10uw65vw2131k14w39k1400w35vw4110h075vlv5vw410115vw4000sw80fw10v0fw10v0fw10v0fw10sw11h1i1h1i1h1i0sw30fw10v0f5vw10fw10v0fw10v0f5vw10sw1000500w20sw55vw30sw300w305000sw35vw3001cw80owa1cwb0owe1cw3031cw70ow31cw8031cw30ow300"},
 	{music=1, next_start_x=276, next_start_y=58, start_x=16, start_y=82, map_string="the castle drawbridge is ahead", nl_1=2, offset = -24, data="2d2223g11l011l9923efl0lm0l|14wt1l5vw2035vw49g1h1i5vw90m0hw29h1i1g5vw3025vw11j14w6941h14wb1l1m5v1j14wb1l1m5vw4035vw31h1i1g5vwa100hw19g1h1i5vw2025vw31m1j14w51h1j14w91l5v1m5vw11m1j14w81l5v1m5vw5035vw21g1h1i5vw7dv5vw20hw11h1i5vw2025vw41m5v1m1j1814w21h5v1m1j14w61l5vw11m5vw11m5v1m1j14w11814w21l5vw11m5vw6035vw11h1i1g5vwb0m0h1g1h1i1h1i1h1i1h1i1h1i1m5v1m5v161j14w11h5v1m5vw11j1418141l1m5vw21m5vw11n5v1m5vlv1m165vlv1m5vw21m5vw2lv5vw21h1i1h1i1h1i5vw11h1i1h1i1h1i5vw3lv101h1i1h1i5vw4115v1m5v1n5v16dv1m1j1h5v1n5vw3165vw11m5vw21m5vw31n5vw11n165vw11m5vw21n5vw11h1i1o1i1h1i1h1i1h1i1g5vw21h1i1h1i1h1i5vw31h1i1h1i5vw5115v1m5vw2165v1m5v1h5vw5165vw11m5vw21n5vw7165vw11m5vw602101h1i1h1i1h1i1h1i5vw311dv5vw11h1i1o1i1h1i1h1i5vw6115v1n5vw2165v1n5v1h5vw5165vw11m5vw41314w1155vw2165vw11n5vw5025v060hw21h1i1h1i5vw4115vw3025v1h1i1h1i5vw7115vw4165vw21h5v1314155vw1165vw11n5v13155v1314w515165vw7025v100hw212101h1i5vw5115vw2025v1h1i1h1i1h1i5vw6115vw4165vw21h1314w2155v165vw11314w41k14w19414w21714155vw41h1i1h1i12100hw39g5vw5115vw1025v1h1i1h1i060h1h1i5vw5115vw11314w11714151hw114w11k14w21714w31k14w41h1i1h1i14w3155vw41h1i1h1i0hw3129g5v06075vw2115v025vw21h1i07101h1i1h1i5vw4115v1314w21h1i1h1i1h14wf1h1i1h1i1h1i1h1i14w1155v1h1i1h1i1h1i1h1i1210121h1i0hw2125vw111025v0e5vw21h1i0m0h1h1i5vw313141114w31h1i1h1i1hw10txr000400w10twb1h1dxr021dwe1h26xga61h9i1h1i0hw10n5vw102dv5vw21j14wa1h26xh1hw11i1g0h0n5vw1025vw51j14w61k14w11h26w4242526wg30222326wa30222326w130222326w130221h1i1h1i125vw1025vw71m1j14w61k1h26w42k2l26w530222326w130222326w1303g2i2j2326w130222326w3303g2i2j20213g2i2j20213g2i1hw11i1g0n5v025vw81m5vw11m5vw19j14w21h26w130222326w130222326w1303g2i2j20213g2i2j20213g5vw22j20213g2i2j202120213g5vw22g2h5vw22g2h5vw11h1i1h1i1h1i1h1i1h1i5vw51n5vw11m5vw51h20213g2i2j20213g2i2j20213g5vw22g2h5vw22g2h5vw42g2h5vw22g2h2g2h5vwc1hw11i1h1i1h1i1h1i1g5vw81m5vw51h2g2h5vw22g2h5vw22g2h5vx51h1i1h1i1h1i1h1i1h1i1h1i1h1i5vw41m5vw11h1i1h1i1h5vwmdv5vwp005vw31h1i1h1i1h1i5v115vw51n5vw2115v1hw15vwm1h1i5vw5dv5vwg13005vw41h1i1h1i5vw1115vw9115v141h14155vwedv1h1i1h1i1h1i1h1i5vwk1314w1005vw51h1i1g155v115vw20e5vw4dv1113141h14w2155vw8lv5vw21h1i1h1i1h1i1h1i1h1i1h1i1h1i1h1i5vw7dv5vw31314w2005vw61h1i1415115vw2115vw4131114w11h14w4155vw91h1i1h1i1h1i1h1i1h1i5vw11h1i1h1i1h1i0tw70k0400w114w3005vw51h1i1g14w11114155v115vw10e5v13141114w11h14w500w1050l0tw51g1h1i5vw31h1i1h1i5vw11h1i5vw11h1i1dw6021dw11314w3005vw61h1i0twf1h14w5151dw1031dw51h1i5vwf1h1i5vw4025vw11314w4005vw71g1dwf1h"}
@@ -1840,64 +1840,101 @@ function load_level(level, respawning)
 	got_entities = false
 	entity_list = {}
 	chain = 0
+	add_val = 64
+	x,y=0,0
 	while cursor<#s or chain!=0 do
-		if not got_entities then
-			char = sub(s,cursor, cursor)
-			if char == "|" then
-				got_entities = true
+		if chain<=0 then
+			char=sub(s,cursor,cursor)
+			if char=="/" then
+				add_val=192-add_val
+			elseif char==":" or char==";" then
+				num=sub(s,cursor+1,cursor+1)
+				if char==":" or hard_mode then
+					entity = entity_dict[char_to_int(num)+1]:new():level_up()
+					entity:init()
+					entity.x,entity.y=x*8, y*8
+					add_actor(entity)
+				end
+				cursor+=1
+			elseif char=="+" then
+				num=sub(s,cursor+1,cursor+1)
+				chain=char_to_int(num)
+				cursor+=1
 			else
-				num = char_to_int(char) + 1
-				add(entity_list, entity_dict[num]:new():level_up())
+				prev_val = char_to_int(char)+add_val
+				mset(x,y,prev_val)
+				x+=1
 			end
 			cursor+=1
 		else
-			if chain<=0 then
-				local first = sub(s,cursor,cursor)
-				local second = sub(s,cursor+1,cursor+1)
-				local it_is_chain = false
-				local mult = 0
-				for a in all({"w","x","y","z"}) do
-					if a == first then
-						it_is_chain = true
-						break
-					else
-						mult+=32
-					end
-				end
-				if it_is_chain then
-					chain = mult+char_to_int(second)-1
-				else
-					tile = two_char_to_int(sub(s,cursor, cursor+1))
-				end
-				cursor+=2
-			else
-				chain-=1
-			end
-			local en, hard = false, false
-			if tile>=512 then
-				tile -= 512
-				en, hard = true, true
-			elseif tile>=256 then
-				tile -= 256
-				en = true
-			end
-			if en then
-				ent = entity_list[1]
-				del(entity_list, ent)
-				if not hard or hard_mode then
-					ent.x, ent.y = x*8, y*8
-					ent:init()
-					add_actor(ent)
-				end
-			end
-			mset(x,y,tile+64)
+			mset(x,y,prev_val)
+			chain-=1
 			x+=1
-			if x>=width then
-				x=0
-				y+=1
-			end
+		end
+		if x>=width then
+			x=0
+			y+=1
 		end
 	end
+
+	-- while cursor<#s or chain!=0 do
+	-- 	if not got_entities then
+	-- 		char = sub(s,cursor, cursor)
+	-- 		if char == "|" then
+	-- 			got_entities = true
+	-- 		else
+	-- 			num = char_to_int(char) + 1
+	-- 			add(entity_list, entity_dict[num]:new():level_up())
+	-- 		end
+	-- 		cursor+=1
+	-- 	else
+	-- 		if chain<=0 then
+	-- 			local first = sub(s,cursor,cursor)
+	-- 			local second = sub(s,cursor+1,cursor+1)
+	-- 			local it_is_chain = false
+	-- 			local mult = 0
+	-- 			for a in all({"w","x","y","z"}) do
+	-- 				if a == first then
+	-- 					it_is_chain = true
+	-- 					break
+	-- 				else
+	-- 					mult+=32
+	-- 				end
+	-- 			end
+	-- 			if it_is_chain then
+	-- 				chain = mult+char_to_int(second)-1
+	-- 			else
+	-- 				tile = two_char_to_int(sub(s,cursor, cursor+1))
+	-- 			end
+	-- 			cursor+=2
+	-- 		else
+	-- 			chain-=1
+	-- 		end
+	-- 		local en, hard = false, false
+	-- 		if tile>=512 then
+	-- 			tile -= 512
+	-- 			en, hard = true, true
+	-- 		elseif tile>=256 then
+	-- 			tile -= 256
+	-- 			en = true
+	-- 		end
+	-- 		if en then
+	-- 			ent = entity_list[1]
+	-- 			del(entity_list, ent)
+	-- 			if not hard or hard_mode then
+	-- 				ent.x, ent.y = x*8, y*8
+	-- 				ent:init()
+	-- 				add_actor(ent)
+	-- 			end
+	-- 		end
+	-- 		mset(x,y,tile+64)
+	-- 		x+=1
+	-- 		if x>=width then
+	-- 			x=0
+	-- 			y+=1
+	-- 		end
+	-- 	end
+	-- end
 
 	if level.music then
 		level_music = level.music
@@ -1914,7 +1951,7 @@ function load_level(level, respawning)
 end
 
 function char_to_int(c)
-	for i=0,31 do
+	for i=0,63 do
 		--if char_at("0123456789abcdefghijklmnopqrstuv",i+1) == c then
 		if char_at("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?",i+1) == c then
 			return i
