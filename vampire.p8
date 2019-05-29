@@ -318,6 +318,9 @@ function player:update()
 	self.pal = player_pal
 	-- end
 	--movement inputs
+	if self.health<=0 then
+		self:death_particle()
+	end
 	if self.invul==0 and self.extra_invul>0 then
 		self:flash_when_hit()
 	end
@@ -491,8 +494,9 @@ function player:update()
 		self.health=0
 	end
 
-	if self.health<=0 and self.invul==0 then
-		self:respawn()
+	if self.health<=0 and self.invul==0 and not death_time then
+		death_time=90
+		play_music(5)
 	end
 
 	self:update_slaves()
@@ -504,14 +508,15 @@ end
 
 function player:respawn()
 	--blackout_time=40
-	play_music(5)
 	self.health=player_max_health
 	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
-	self.invul, self.invis, self.mom, self.grav, self.invis = 0, false, 0, 0, false
-	cam.special_goal = false
+	self.invul, self.invis, self.mom, self.grav, self.invis, cam.special_goal = 0, false, 0, 0, false, false
 	cam:jump_to()
 	cam:y_move()
 	load_level(current_level, true)
+	for a in all(actors) do
+		a:update()
+	end
 	level_start=true
 	darkness=4
 end
@@ -1402,8 +1407,7 @@ ending_stone = actor:new({s=58, ignore_walls=true})
 function ending_stone:update()
 	local timer = e_timer+self.num/3
 	if e_rad<35 then
-		self.x=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2)
-		self.y=move_towards(cam.y+40+cos(timer)*e_rad,self.y,2)
+		self.x, self.y=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2),move_towards(cam.y+40+cos(timer)*e_rad,self.y,2)
 	else
 		self.s=55
 		self:gravity()
@@ -1550,8 +1554,7 @@ boss_cam = actor:new({depth=-20})
 
 function boss_cam:update()
 	if player.x>=self.x then
-		cam.goal_x = self.x
-		cam.special_goal = true
+		cam.goal_x,cam.special_goal = self.x, true
 		if not level_end then
 			play_music(6)
 		end
@@ -1695,8 +1698,7 @@ key = stone_sealing:new({s=56})
 
 function key:collect()
 	sfx(3)
-	got_key=true
-	got_level_item = true
+	got_key, got_level_item = true, true
 end
 
 --------------------------------------------------------------------------------
@@ -1847,26 +1849,17 @@ function load_level(level, respawning)
 		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
 		player:checkpoint()
 		cam.special_goal = false
-		cam:jump_to()
-		cam:y_move()
-		cam:update()
-		player:update_slaves()
+		-- cam:jump_to()
+		-- cam:y_move()
+		--cam:update()
+		--player:update_slaves()
 		if between_levels then
 			cam.x=flr(player.x/136)*136
-			lk = lock:new({x=player.x+100, y=player.y+38})
-			add_actor(lk)
 		end
 	end
 
 	if (level.map_string) map_string = level.map_string
-	width = two_char_to_int(sub(s,1,2))
-	cursor = 3
-	x, y = 0, 0
-	got_entities = false
-	entity_list = {}
-	chain = 0
-	add_val = 64
-	x,y=0,0
+	width, cursor, x, y, chain, add_val = two_char_to_int(sub(s,1,2)), 3, 0, 0, 0, 64
 	while cursor<#s or chain!=0 do
 		if chain<=0 then
 			char=sub(s,cursor,cursor)
@@ -1970,9 +1963,9 @@ function load_level(level, respawning)
 		end
 	end
 
-	--local s=summoner:new({x=56, y=80})
-	--s:init()
-	--add_actor(s)
+	-- local s=summoner:new({x=56, y=80})
+	-- s:init()
+	-- add_actor(s)
 end
 
 function char_to_int(c)
@@ -1997,6 +1990,14 @@ end
 
 function _update60()
 	p_timer=(p_timer+0.01)%1
+
+	if death_time then
+		death_time-=1
+		if death_time<=0 then
+			death_time=nil
+			player:respawn()
+		end
+	end
 
 	if difficulty_menu then
 		if btnp(3) or btnp(2) then
@@ -2038,10 +2039,18 @@ function _update60()
 			level_end_timer+=1
 		else
 			level_start, level_end, level_end_timer, got_level_item= true, false, 0, false
-			load_level(next_level)
+			if not game_end then
+				load_level(next_level)
+			else
+				map_string="bad end"
+				if (good_end) map_string="the end"
+			end
 		end
 		darkness=level_end_timer/5
 		if (not ending_sequence) return
+	elseif game_end then
+		darkness-=0.1
+		return
 	end
 	if level_start then
 		if level_start_timer<=20 then
@@ -2085,7 +2094,7 @@ function _update60()
 			end
 		end
 		if e_rad<=2 or e_rad>60 then
-			level_end=true
+			level_end, game_end=true,true
 		end
 		--return
 	end
@@ -2192,49 +2201,31 @@ end
 
 function _draw()
 	cls()
+	if game_end and not level_end then
+		draw_level_select_gui()
+	else
+		if blackout_time<=0 then
+			cam:set_position()
+			map(0,0,0,0,128,32)
 
-	-- if level_end_timer>20 then
-	-- 	print("end of demo",64-22,60,7)
-	-- 	print("thank you for playing!",20,102,12)
-	-- 	return
-	-- end
-	if blackout_time<=0 then
-		cam:set_position()
-		map(0,0,0,0,128,32)
-
-		if (difficulty_menu) draw_basic_menu() return
-		draw_portal()
-		for a in all(actors) do
-			a:draw()
+			if (difficulty_menu) draw_basic_menu() return
+			draw_portal()
+			for a in all(actors) do
+				a:draw()
+			end
+			player:draw()
+			map(0,0,0,0,128,32,0b1000)
+			camera()
+			clip()
 		end
-		player:draw()
-		map(0,0,0,0,128,32,0b1000)
-		camera()
-		clip()
-	end
 
-	--this bit can go.
-	-- if film_reel then
-	--
-	-- 	int_offset = flr(film_offset)
-	--
-	-- 	if int_offset<112 then
-	-- 		memcpy(0x4300, 0x6000, int_offset*64)
-	-- 		memcpy(0x6000, 0x6000 + int_offset*64, (128-int_offset)*64)
-	-- 		memcpy(0x6000 + (128-int_offset)*64, 0x4300, int_offset*64)
-	-- 	else
-	-- 		val = 128 - int_offset
-	-- 		memcpy(0x6000+64*val, 0x6000, (128 - val)*64)
-	-- 		rectfill(0,0,127,val-1,0)
-	-- 	end
-	--
-	-- else
 		if between_levels then
 			draw_level_select_gui()
 		else
 			draw_hud()
 		end
-	-- end
+	end
+
 	for i=1,darkness do
 		darker()
 	end
@@ -2308,11 +2299,13 @@ end
 function draw_level_select_gui()
 	--draw border
 	local cols = {0,8,0}
-	for i = 1,3 do
-		rect(i-1,63+i,128-i,128-i,cols[i])
+	if not game_end then
+		for i = 1,3 do
+			rect(i-1,63+i,128-i,128-i,cols[i])
+		end
 	end
 	--draw map
-	rectfill(0,0,127,63)
+	rectfill(0,0,127,63,0)
 	sspr(56,96,64,32,32,8)
 	--rect(30,6,97,41,7)
 	--string
