@@ -1815,41 +1815,44 @@ function load_level(level, respawning)
 	cls()
 	clear_level()
 	--do i need these?
-	centre_print("loading...", 61, 7)
-	centre_print("level "..level, 55, 7)
+	-- centre_print("loading...", 61, 7)
+	-- centre_print("level "..level, 55, 7)
 	between_levels = level==1
 	current_level = level
 	level = levels[level]
 	s = level.data
 	-- there's a way of doing default value using 'x or nil', or something.
-	if level.start_x then
-		start_x, start_y = level.start_x, level.start_y
-	else
-		start_x, start_y = next_start_x, next_start_y
-	end
-	if level.next_start_x then
-		next_start_x, next_start_y = level.next_start_x, level.next_start_y
-	end
-	if level.next_level then
-		next_level = level.next_level
-	else
-		next_level = 1
-	end
-	if level.nl_1 then
-		nl_1, nl_2 = level.nl_1, level.nl_2
-	end
-	if level.offset then
-		level_offset = level.offset
-	end
+	-- if level.start_x then
+	-- 	start_x, start_y = level.start_x, level.start_y
+	-- else
+	-- 	start_x, start_y = next_start_x, next_start_y
+	-- end
+	start_x, start_y = level.start_x or next_start_x, level.start_y or next_start_y
+	next_start_x, next_start_y = level.next_start_x or next_start_x, level.next_start_y or next_start_y
+	-- if level.next_start_x then
+	-- 	next_start_x, next_start_y = level.next_start_x, level.next_start_y
+	-- end
+	next_level = level.next_level or 1
+	-- if level.next_level then
+	-- 	next_level = level.next_level
+	-- else
+	-- 	next_level = 1
+	-- end
+	-- if level.nl_1 then
+	nl_1, nl_2 = level.nl_1, level.nl_2
+	-- end
+	-- if level.offset then
+		level_offset = level.offset or 0
+	-- end
 
 	if not respawning then
 		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
 		player:checkpoint()
 		cam.special_goal = false
-		-- cam:jump_to()
-		-- cam:y_move()
-		--cam:update()
-		--player:update_slaves()
+		cam:jump_to()
+		cam:y_move()
+		cam:update()
+		player:update_slaves()
 		if between_levels then
 			cam.x=flr(player.x/136)*136
 		end
@@ -1892,65 +1895,6 @@ function load_level(level, respawning)
 		end
 	end
 
-	-- while cursor<#s or chain!=0 do
-	-- 	if not got_entities then
-	-- 		char = sub(s,cursor, cursor)
-	-- 		if char == "|" then
-	-- 			got_entities = true
-	-- 		else
-	-- 			num = char_to_int(char) + 1
-	-- 			add(entity_list, entity_dict[num]:new():level_up())
-	-- 		end
-	-- 		cursor+=1
-	-- 	else
-	-- 		if chain<=0 then
-	-- 			local first = sub(s,cursor,cursor)
-	-- 			local second = sub(s,cursor+1,cursor+1)
-	-- 			local it_is_chain = false
-	-- 			local mult = 0
-	-- 			for a in all({"w","x","y","z"}) do
-	-- 				if a == first then
-	-- 					it_is_chain = true
-	-- 					break
-	-- 				else
-	-- 					mult+=32
-	-- 				end
-	-- 			end
-	-- 			if it_is_chain then
-	-- 				chain = mult+char_to_int(second)-1
-	-- 			else
-	-- 				tile = two_char_to_int(sub(s,cursor, cursor+1))
-	-- 			end
-	-- 			cursor+=2
-	-- 		else
-	-- 			chain-=1
-	-- 		end
-	-- 		local en, hard = false, false
-	-- 		if tile>=512 then
-	-- 			tile -= 512
-	-- 			en, hard = true, true
-	-- 		elseif tile>=256 then
-	-- 			tile -= 256
-	-- 			en = true
-	-- 		end
-	-- 		if en then
-	-- 			ent = entity_list[1]
-	-- 			del(entity_list, ent)
-	-- 			if not hard or hard_mode then
-	-- 				ent.x, ent.y = x*8, y*8
-	-- 				ent:init()
-	-- 				add_actor(ent)
-	-- 			end
-	-- 		end
-	-- 		mset(x,y,tile+64)
-	-- 		x+=1
-	-- 		if x>=width then
-	-- 			x=0
-	-- 			y+=1
-	-- 		end
-	-- 	end
-	-- end
-
 	if level.music then
 		level_music = level.music
 		if between_levels then
@@ -1967,7 +1911,6 @@ end
 
 function char_to_int(c)
 	for i=0,63 do
-		--if char_at("0123456789abcdefghijklmnopqrstuv",i+1) == c then
 		if char_at("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?",i+1) == c then
 			return i
 		end
@@ -2107,19 +2050,6 @@ function _update60()
 			end
 		end
 	end
-	--all of the below can probably be removed
-	-- if film_reel then
-	-- 	film_offset += film_speed
-	-- 	film_speed += film_acc
-	-- 	if film_speed<0 then
-	-- 		film_speed = 0
-	-- 	end
-	-- 	if film_speed>128 then
-	-- 		film_speed = 128
-	-- 	end
-	-- 	film_offset = film_offset % 128
-	-- end
-	--cpu_usage = stat(1)
 end
 
 function play_music(num)
@@ -2186,14 +2116,6 @@ function distance_between(x1,y1,x2,y2)
 	return sqrt(xd*xd + yd*yd)
 end
 
---probably won't use this
--- function start_film_reel()
--- 	film_reel = true
--- 	film_offset = 120
--- 	film_speed = 16
--- 	film_acc = -0.1
--- end
-
 --------------------------------------------------------------------------------
 
 function _draw()
@@ -2244,7 +2166,6 @@ function draw_portal()
 end
 
 function draw_hud()
-	--rectfill(0,112,127,127,0)
 	line(0,112,127,112,5)
 	print("player", 1, 114, 7)
 	print("enemy", 108, 114, 7)
@@ -2275,11 +2196,7 @@ function draw_hud()
 	end
 end
 
---replace this with something nicer.
 function draw_basic_menu()
-	-- centre_print("demon castle", 24,7)
-	-- centre_print("demo version",30,12)
-	-- centre_print("please select difficulty",48,7)
 	clip()
 	centre_print("normal",72,7)
 	centre_print("hard",82,7)
@@ -2288,9 +2205,6 @@ function draw_basic_menu()
 	spr(180,40+xd,72+yd)
 	spr(181,79-xd,72+yd)
 	print("mush101.itch.io", 68,122,5)
-
-	-- centre_print("use the arrow keys", 96, 7)
-	-- centre_print("and the [z] and [x] keys", 102, 7)
 end
 
 function draw_level_select_gui()
@@ -2304,7 +2218,6 @@ function draw_level_select_gui()
 	--draw map
 	rectfill(0,0,127,63,0)
 	sspr(56,96,64,32,32,8)
-	--rect(30,6,97,41,7)
 	--string
 	centre_print(map_string,50,7)
 end
@@ -2312,22 +2225,6 @@ end
 function centre_print(str, y, col)
 	print(str,64-2*#str,y,col)
 end
-
---can remove this
--- function draw_stat()
--- 	middle_text = "actors: " .. #actors
--- 	print(middle_text,64-2*#middle_text, 115)
--- 	middle_text = ""..cpu_usage*100 .. "%"
--- 	for i=#middle_text,8 do
--- 		middle_text = " "..middle_text
--- 	end
--- 	middle_text = "cpu:"..middle_text
--- 	x = 64-2*#middle_text
--- 	print(middle_text,x, 121)
--- 	col = 3
--- 	if cpu_usage>1 then col=8 end
--- 	line(x,127,x+cpu_usage*(4*#middle_text),127,col)
--- end
 
 function darker()
 	for i= 0x6000, 0x7fff do
