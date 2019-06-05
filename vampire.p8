@@ -339,31 +339,32 @@ function player:update()
 			-- 	-- -- self.spd=0
 			-- 	-- self.acc=0
 			-- else
-				self.ducking = false
-				if btn(1) and not btn(0) then
-					self.acc=1
-					if self.whip_animation==0 then
-						self.f = false
+				if self.health>0 then
+					if btn(1) and not btn(0) then
+						self.acc=1
+						if self.whip_animation==0 then
+							self.f = false
+						end
+					elseif btn(0) and not btn(1) then
+						self.acc=-1
+						if self.whip_animation==0 then
+							self.f = true
+						end
+					else
+						self.acc=0
 					end
-				elseif btn(0) and not btn(1) then
-					self.acc=-1
-					if self.whip_animation==0 then
-						self.f = true
-					end
-				else
-					self.acc=0
-				end
-			-- end
+				-- end
 
-			-- if self.ducking then
-			-- 	self.height=12
-			-- else
-				self.height=14
-				if self:is_in_wall() then
-					self.y-=2
-				end
-				if self:on_ground() and btnp(4) and not between_levels then
-					self.grav=-player_jump_height
+				-- if self.ducking then
+				-- 	self.height=12
+				-- else
+					self.height=14
+					if self:is_in_wall() then
+						self.y-=2
+					end
+					if self:on_ground() and btnp(4) and not between_levels then
+						self.grav=-player_jump_height
+					end
 				end
 			-- end
 			self:momentum()
@@ -393,15 +394,17 @@ function player:update()
 		if self.stair_dir then
 			up, down = 0, 1
 		end
-		if btn(2) and not btn(3) then
-			self.stair_timer+=1
-			self.f = self.stair_dir
-		elseif btn(3) and not btn(2) or btn(down) then
-			self.stair_timer-=1
-			self.f = not self.stair_dir
-		elseif btn(up) then
-			self.stair_timer+=1
-			self.f = self.stair_dir
+		if self.health>0 then
+			if btn(2) and not btn(3) then
+				self.stair_timer+=1
+				self.f = self.stair_dir
+			elseif btn(3) and not btn(2) or btn(down) then
+				self.stair_timer-=1
+				self.f = not self.stair_dir
+			elseif btn(up) then
+				self.stair_timer+=1
+				self.f = self.stair_dir
+			end
 		end
 		if self.stair_timer>=6 then
 			self.stair_timer=0
@@ -436,7 +439,7 @@ function player:update()
 		self:dismount_stairs()
 	end
 
-	if btnp(5) and self.whip_animation == 0 and self.whip_cooldown == 0 and not between_levels then
+	if btnp(5) and self.whip_animation == 0 and self.whip_cooldown == 0 and self.health>0 and not between_levels then
 		self.whip_animation = 0.1
 		sfx(4)
 	end
@@ -494,9 +497,10 @@ function player:update()
 		self.health=0
 	end
 
-	if self.health<=0 and self.invul==0 and not death_time then
-		death_time=90
+	if self.health<=0 and self.invul==0 then
+		death_time=death_time or 90
 		play_music(5)
+		self.invis=true
 	end
 
 	self:update_slaves()
@@ -616,21 +620,17 @@ function player_legs:update()
 end
 
 function player:hit(attacker)
-	if self.invul == 0 and self.extra_invul==0 then
+	if self.invul == 0 and self.extra_invul==0 and self.health>0 then
 		sfx(12)
 		self.health-=1
-		self.invul=24
-		self.extra_invul=24
+		self.invul, self.extra_invul=24, 24
 		if not self.stairs then
-			self.grav=-1.5
-			self.acc=0
+			self.grav, self.acc=-1.5, 0
 		end
 		if attacker.x>self.x then
-			self.spd=-0.5
-			self.f = false
+			self.spd, self.f=-0.5, false
 		else
-			self.spd=0.5
-			self.f = true
+			self.spd, self.f=0.5, false
 		end
 	end
 end
@@ -893,13 +893,11 @@ end
 
 --------------------------------------------------------------------------------
 
-bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=1, pal_type=1, base_max_spd=1, hurt_sound=10})
+bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=1, pal_type=1, base_max_spd=1, hurt_sound=10, wing_timer=0})
 
 function bat:init()
-	self.f=true
-	self.awake = false
+	-- self.f=true
 	self:use_pal()
-	self.wing_timer=0
 end
 
 function bat:update()
@@ -989,8 +987,7 @@ batwing = enemy:new({s=192})
 
 function batwing:update()
 	self:goto_master()
-	self.s = self.master.wing_s
-	self.pal = self.master.pal
+	self.s, self.pal = self.master.wing_s, self.master.pal
 	if self.f then
 		self.x+=8
 	else
@@ -1554,7 +1551,7 @@ boss_cam = actor:new({depth=-20})
 function boss_cam:update()
 	if player.x>=self.x then
 		cam.goal_x,cam.special_goal = self.x, true
-		if not level_end then
+		if not level_end and not death_time then
 			play_music(6)
 		end
 	end
@@ -1590,9 +1587,8 @@ function chicken:update()
 		self.invis = false
 		self:gravity()
 		if self:intersects(player, true) then
-			player.health = player_max_health
+			player.health, self.dead = player_max_health, true
 			sfx(2)
-			self.dead = true
 		end
 	end
 end
@@ -1839,7 +1835,7 @@ function load_level(level, respawning)
 	-- 	next_level = 1
 	-- end
 	-- if level.nl_1 then
-	nl_1, nl_2 = level.nl_1, level.nl_2
+	nl_1, nl_2 = level.nl_1 or nl_1, level.nl_2 or nl_2
 	-- end
 	-- if level.offset then
 		level_offset = level.offset or 0
@@ -2232,8 +2228,7 @@ function darker()
 		local second = two % 16
 		local first = lshr(two - second, 4) % 16
 
-		first = darker_pal[first+1]
-		second = darker_pal[second+1]
+		first, second = darker_pal[first+1], darker_pal[second+1]
 
 		poke(i, shl(first,4) + second)
 	end
