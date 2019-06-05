@@ -1423,7 +1423,7 @@ end
 
 function platform:update()
 	self.supporting_player = false
-	if player.x>=self.x-8 and player.x<self.x+self.width then
+	if player.x>self.x-8 and player.x<self.x+self.width then
 		if player.y + player.height >= self.y and player.prev_y + player.height <=self.y+self.height then
 			player.y, player.grav = self.y-14, 0
 			self.supporting_player = true
