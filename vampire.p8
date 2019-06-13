@@ -1400,7 +1400,7 @@ ending_stone = actor:new({s=58, ignore_walls=true})
 function ending_stone:update()
 	local timer = e_timer+self.num/3
 	if e_rad<35 then
-		self.x, self.y=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2),move_towards(cam.y+40+cos(timer)*e_rad,self.y,2)
+		self.x, self.y=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2),move_towards(cam.y+36+cos(timer)*e_rad,self.y,2) --save tokens here (replace cam.x/y with absolute values)
 	else
 		self.s=55
 		self:gravity()
