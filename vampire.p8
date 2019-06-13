@@ -205,12 +205,10 @@ function actor:intersects(b, r)
 		spr(self.s,0,0,1,1,self.f)
 		spr(b.s,8,0,1,1,b.f)
 		--calculate differences.
-		x_dif=b.x-self.x
-		y_dif=b.y-self.y
+		x_dif,y_dif=b.x-self.x, b.y-self.y
 		for x=max(0,x_dif),min(7,7+x_dif) do
 			for y=max(0,y_dif),min(7,7+y_dif) do
-				a_pix=pget(x,y)
-				b_pix=pget(8+x-x_dif,y-y_dif)
+				a_pix, b_pix=pget(x,y), pget(8+x-x_dif,y-y_dif)
 				--if two pixels overlap...
 				if a_pix!=0 and b_pix!=0 then
 					return true
@@ -503,20 +501,20 @@ function player:update()
 	if self.health<=0 and self.invul==0 then
 		death_time=death_time or 90
 		play_music(5)
-		self.invis=true
+		self.invis, self.spd, self.acc=true,0,0
 	end
 
 	self:update_slaves()
 end
 
 function player:checkpoint()
-	self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir = self.x, self.y, self.stairs, self.f, self.stair_dir
+	check_x, check_y, check_stairs, check_f, check_stair_dir, check_s = self.x, self.y, self.stairs, self.f, self.stair_dir, self.s
 end
 
 function player:respawn()
 	--blackout_time=40
 	self.health=player_max_health
-	self.x, self.y, self.stairs, self.f, self.stair_dir = self.check_x, self.check_y, self.check_stairs, self.check_f, self.check_stair_dir
+	self.x, self.y, self.stairs, self.f, self.stair_dir, self.s = check_x, check_y, check_stairs, check_f, check_stair_dir, check_s
 	self.invul, self.invis, self.mom, self.grav, self.invis, cam.special_goal = 0, false, 0, 0, false, false
 	cam:jump_to()
 	cam:y_move()
