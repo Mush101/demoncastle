@@ -1527,23 +1527,30 @@ function cam_border_right:update()
 	if (self.key_rule and player.y>self.y+16) return
 	if self.x+8>=player.x then
 		cam.x = min(cam.x, self.x-120)
+	else
+		self:kill()
+	end
+end
+
+function cam_border_right:kill()
+	if self:on_camera() and abs(self.x-player.x)<16 then
+		self.dead=true
 	end
 end
 
 --------------------------------------------------------------------------------
 
-cam_border_left = actor:new({depth=-20})
+cam_border_left = cam_border_right:new()
 
 function cam_border_left:update()
 	if self.x<=player.x then
 		cam.x = max(cam.x, self.x)
-	end
-	if self:on_camera() and player.x<self.x and self.x-player.x<16 then
-		self.dead=true
+	else
+		self:kill()
 	end
 end
 
-boss_cam = actor:new({depth=-20})
+boss_cam = cam_border_left:new()
 
 function boss_cam:update()
 	if player.x>=self.x then
