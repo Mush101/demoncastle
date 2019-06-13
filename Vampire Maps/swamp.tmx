@@ -46,7 +46,7 @@
     <property name="object_id" type="int" value="4"/>
    </properties>
   </object>
-  <object id="3" x="272" y="32" width="8" height="8">
+  <object id="3" x="280" y="32" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="5"/>
@@ -124,7 +124,7 @@
     <property name="object_id" type="int" value="0"/>
    </properties>
   </object>
-  <object id="19" x="144" y="192" width="8" height="8">
+  <object id="19" x="160" y="192" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="false"/>
     <property name="object_id" type="int" value="0"/>
