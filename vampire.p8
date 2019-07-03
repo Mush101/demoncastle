@@ -928,6 +928,9 @@ function bat:update()
 			end
 		end
 	end
+	if self.y<cam.y+4 then
+		self.y=cam.y+4
+	end
 end
 
 function bat:animate()
@@ -944,12 +947,13 @@ function batboss:update()
 	self:animate()
 	self:boss_health()
 	if self.awake then
-		if self.x<=cam.x then
+		if self.x<=cam.x and self.x>cam.x-8 then
 			self.x = cam.x
-		elseif self.x>=cam.x+120 then
-			self.x = cam.x+120
 		end
+		self.x=min(self.x,cam.x+120)
 	end
+	self.x=max(self.x,176)
+	self:update_slaves()
 end
 
 function batboss:init()
