@@ -1178,7 +1178,7 @@ end
 
 --------------------------------------------------------------------------------
 
-medusa = enemy:new({s=13, timer=0, ignore_walls=true, hurt_sound=10})
+medusa = enemy:new({s=13, timer=0, ignore_walls=true, hurt_sound=10, always_update=true})
 
 function medusa:init()
 	self.x=cam.x+127
@@ -1608,7 +1608,7 @@ end
 
 --------------------------------------------------------------------------------
 
-block_bit = actor:new({s=49, life=30, width=4, height=4, dcc=0, ignore_walls=true})
+block_bit = actor:new({s=49, life=30, width=4, height=4, dcc=0, ignore_walls=true, always_update=true})
 
 function block_bit:update()
 	self:momgrav()
@@ -1629,7 +1629,7 @@ end
 function heart_crystal:update()
 	if not self:on_camera() then return end
 	if self.invis then
-		if cam.x>self.x-80 then
+		if cam.x>self.x-80 or self.anyway then
 			self.invis = false
 			for a in all(actors) do
 				if a.enemy and a:on_camera() then
@@ -1663,7 +1663,7 @@ function heart_crystal:be_chicken() end
 
 --------------------------------------------------------------------------------
 
-stone_sealing = heart_crystal:new({s=58})
+stone_sealing = heart_crystal:new({s=58, anyway=true})
 
 function stone_sealing:collect()
 	sfx(3)
@@ -2590,4 +2590,3 @@ __music__
 00 262a4344
 00 272b4344
 02 282c4344
-
