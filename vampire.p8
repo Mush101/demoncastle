@@ -2106,6 +2106,8 @@ end
 --------------------------------------------------------------------------------
 
 function _draw()
+	if darkness!=0 and prev_darkness==darkness and not game_end then return end
+	prev_darkness=darkness
 	cls()
 	if game_end and not level_end then
 		draw_level_select_gui()
@@ -2594,4 +2596,3 @@ __music__
 00 262a4344
 00 272b4344
 02 282c4344
-
