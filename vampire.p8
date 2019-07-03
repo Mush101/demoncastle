@@ -1349,7 +1349,7 @@ function demon:update()
 	else
 		p_width=min(p_width+0.5, 46)
 		self.invis = p_width<46
-		if not self.invis then
+		if not self.invis and not death_time then
 			self.timer=(self.timer+0.008)%1
 			self.s=210+self.timer*2
 			play_music(1)
