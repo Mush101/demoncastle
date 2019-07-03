@@ -222,8 +222,6 @@ end
 function actor:use_pal()
 	if self.pal_type == 1 then
 		self.pal = enemy_pal
-	elseif self.pal_type == 0 then
-		self.pal = hurt_pal
 	end
 end
 
@@ -451,12 +449,12 @@ function player:update()
 		end
 	else
 		if self.whip_animation>0 then
-			self.whip_animation+=whip_speed
+			self.whip_animation+=0.25
 			if self.whip_animation<2 then
 				--self.whip_animation+=whip_speed
 			end
 			if self.whip_animation>=4 then
-				self.whip_cooldown = whip_cooldown
+				self.whip_cooldown = 10
 				self.s = 6
 			else
 				self.s = 3 + flr(self.whip_animation)
@@ -782,8 +780,7 @@ function actor:hit_player(anyway)
 end
 
 function enemy:boss_health()
-	boss_health = self.health
-	boss_max_health = self.max_health
+	boss_health,boss_max_health = self.health,self.max_health
 end
 
 --------------------------------------------------------------------------------
@@ -838,7 +835,7 @@ function zombie:on_edge()
 	self.spd = -self.spd
 end
 
-zombie_legs = enemy:new({s=31, animation = 0, enemy=true, extends_hitbox=true})
+zombie_legs = enemy:new({animation = 0, enemy=true, extends_hitbox=true})
 
 function zombie_legs:update()
 	self:goto_master()
@@ -974,7 +971,7 @@ end
 
 --------------------------------------------------------------------------------
 
-batwing = enemy:new({s=192})
+batwing = enemy:new()
 
 function batwing:update()
 	self:goto_master()
@@ -1013,7 +1010,7 @@ end
 
 --------------------------------------------------------------------------------
 
-fireball = actor:new({s=34, pal_type=3, spd=1, height=4})
+fireball = actor:new({s=34, spd=1, height=4})
 
 function fireball:update()
 	self:animate()
@@ -1100,11 +1097,9 @@ function axe_knight:update()
 				self.max_spd=self.base_max_spd
 
 				if self.x>player.x then
-					self.f=true
-					self.acc=-0.02
+					self.f,self.acc=true, -0.02
 				else
-					self.f=false
-					self.acc=0.02
+					self.f,self.acc=false, 0.02
 				end
 
 				local dist = abs(self.x-player.x)
@@ -1145,7 +1140,7 @@ end
 
 --------------------------------------------------------------------------------
 
-axe_knight_legs = enemy:new({s=24, timer=0})
+axe_knight_legs = enemy:new({s=24,timer=0})
 
 function axe_knight_legs:update()
 	self:goto_master()
@@ -1159,7 +1154,7 @@ end
 
 --------------------------------------------------------------------------------
 
-axe_knight_hand = enemy:new({s=9})
+axe_knight_hand = enemy:new()
 
 function axe_knight_hand:update()
 	self:goto_master()
@@ -1404,7 +1399,6 @@ function platform:init()
 	self.origin_x, self.origin_y, self.position = self.x, self.y, 0
 	self:use_slaves()
 	self:add_slave(mirror:new())
-	self:use_pal()
 end
 
 function platform:update()
@@ -1746,8 +1740,6 @@ function _init()
 
 	hurt_pal, player_pal =string_to_array("2987a"),string_to_array("1d2f")
 
-	whip_length, whip_speed, whip_cooldown = 10, 0.25, 10
-
 	--player.y=82
 	player:use_slaves()
 	player:add_slave(player_legs)
@@ -1759,7 +1751,7 @@ function _init()
 
 	player.whip = whip:new()
 	player:add_slave(player.whip)
-	player.whip:setup(whip_length)
+	player.whip:setup(10)
 
 	--next_start_x, next_start_y = 4, 58
 
@@ -1767,9 +1759,9 @@ function _init()
 	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
-	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness = 0, 0, {}, 20,  0, string_to_array("000520562493152e"), 0
-
-	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0
+	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness = 0, 0, {}, 20,  0, string_to_array("001121562493d52e"), 0
+	--old darkness: "000520562493152e"
+	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0,0,0
 
 	player:update()
 end
@@ -1884,13 +1876,11 @@ function load_level(level, respawning)
 		end
 	end
 
-	if level.music then
-		level_music = level.music
-		if between_levels then
-			play_music(level_music)
-		else
-			play_music(-1)
-		end
+	level_music = level.music
+	if between_levels then
+		play_music(level_music)
+	else
+		play_music(-1)
 	end
 
 	-- local s=summoner:new({x=56, y=80})
@@ -1944,6 +1934,13 @@ function _update60()
 			darkness=4
 		end
 		return
+	end
+	if not game_end then
+		seconds+=1/60
+		if seconds>=60 then
+			minutes+=1
+			seconds=0
+		end
 	end
 	if blackout_time>0 then
 		blackout_time-=1
@@ -2005,7 +2002,7 @@ function _update60()
 		-- end
 		e_timer=(e_timer+0.01)%1
 		if got_stones==0 then
-			p_width-=0.25
+			p_width-=0.25 --might want to half this and the following
 			if good_end then
 				e_rad-=0.15
 				for i in all(e_stones) do
@@ -2113,6 +2110,11 @@ function _draw()
 	if game_end and not level_end then
 		draw_level_select_gui()
 		centre_print("deaths: "..deaths, 72,7)
+		local extra=""
+		if seconds<10 then
+			extra="0"
+		end
+		centre_print("time: "..minutes..":"..extra..flr(seconds), 82,7)
 	else
 		if blackout_time<=0 then
 			cam:set_position()
@@ -2162,7 +2164,7 @@ end
 function draw_hud()
 	line(0,112,127,112,5)
 	print("player", 1, 114, 7)
-	print("enemy", 108, 114, 7)
+	print("enemy", 108, 114)
 	for i=0,player_max_health-1 do
 		spr(47, i*5, 120)
 	end
