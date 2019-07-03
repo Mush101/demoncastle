@@ -711,7 +711,7 @@ end
 enemy = actor:new({enemy = true, health = 1, pal_type = 1, dcc=0, base_max_spd=0.25, f=true, invul=0})
 
 function enemy:fly_when_hit()
-	if self:on_ground(true) then
+	if self:on_ground() then
 		self.invul-=0.5
 		if self.health>0 then
 			self.invul-=0.5
@@ -741,12 +741,14 @@ function enemy:hit(attacker)
 		self.invul=8
 		self.grav=-1.5
 		self.acc=0
-		if attacker.x>self.x then
-			self.spd=-0.5
-			self.f = false
-		else
-			self.spd=0.5
-			self.f = true
+		if not self.dontflip then
+			if attacker.x>self.x then
+				self.spd=-0.5
+				self.f = false
+			else
+				self.spd=0.5
+				self.f = true
+			end
 		end
 		if self.health<=0 and self.death_sound then
 			sfx(self.death_sound)
@@ -1223,7 +1225,6 @@ slime = enemy:new({s=11, hurt_sound=10, health=3, jiggle=1})
 
 function slime:update()
 	self.s=11
-	if self:offscreen() then return true end
 	if self.invul>0 then
 		self:fly_when_hit()
 		self:momgrav()
@@ -1232,7 +1233,7 @@ function slime:update()
 		self:use_pal()
 		self.max_spd=2
 		if self:die_when_dead() then
-			if self:on_ground() then
+			if self:on_ground() and self:on_camera() then
 				self.spd = 0
 				self.jiggle-=0.1
 				if self.jiggle<=-2 or rnd(100)<5 then
@@ -1251,7 +1252,7 @@ end
 
 --------------------------------------------------------------------------------
 
-slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16})
+slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16, dontflip=true})
 
 function slimeboss:init(extra)
 	self:use_slaves()
@@ -1261,12 +1262,9 @@ function slimeboss:init(extra)
 end
 
 function slimeboss:update()
-	if not slime.update(self) then
-		if self.x<=cam.x then --code duplication with batboss?
-			self.x = cam.x
-		elseif self.x>=cam.x+120 then
-			self.x = cam.x+120
-		end
+	slime.update(self)
+	if self.x<=cam.x+1 then
+		self.x = cam.x+1
 	end
 	self.s+=197
 	self.f=false
@@ -1292,7 +1290,7 @@ end
 
 --------------------------------------------------------------------------------
 
-summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0})
+summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0, dontflip=true})
 
 function summoner:init()
 	slimeboss.init(self)
@@ -1323,7 +1321,7 @@ end
 
 --------------------------------------------------------------------------------
 
-demon = enemy:new({s=210, health=9, max_health=9, timer=0, width=16, height=24, x=400, y=128})
+demon = enemy:new({s=210, health=9, max_health=9, timer=0, width=16, height=24, x=400, y=128, dontflip=true})
 
 function demon:init()
 	slimeboss.init(self, true)
