@@ -501,13 +501,14 @@ function player:respawn()
 	self.health=player_max_health
 	self.x, self.y, self.stairs, self.f, self.stair_dir, self.s = check_x, check_y, check_stairs, check_f, check_stair_dir, check_s
 	self.invul, self.invis, self.mom, self.grav, self.invis, cam.special_goal = 0, false, 0, 0, false, false
-	cam:jump_to()
-	cam:y_move()
+	-- cam:jump_to()
+	-- cam:y_move()
 	load_level(current_level, true)
+	sort_actors()
 	for a in all(actors) do
 		a:update()
 	end
-	level_start, darkness=true,4
+	level_start=true
 	deaths+=1
 end
 
@@ -1533,6 +1534,8 @@ function cam_border_left:update()
 	end
 end
 
+--------------------------------------------------------------------------------
+
 boss_cam = cam_border_left:new()
 
 function boss_cam:update()
@@ -1830,13 +1833,14 @@ function load_level(level, respawning)
 		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
 		player:checkpoint()
 		cam.special_goal = false
-		cam:jump_to()
-		cam:y_move()
-		cam:update()
 		player:update_slaves()
-		if between_levels then
-			cam.x=flr(player.x/136)*136
-		end
+	end
+
+	cam:jump_to()
+	cam:y_move()
+	cam:update()
+	if between_levels then
+		cam.x=flr(player.x/136)*136
 	end
 
 	if (level.map_string) map_string = level.map_string
@@ -1931,7 +1935,7 @@ function _update60()
 			end
 			load_level(2) --start in first level
 			sfx(3)
-			darkness=4
+			darkness=5
 		end
 		return
 	end
@@ -1982,7 +1986,7 @@ function _update60()
 	if level_start then
 		if level_start_timer<=20 then
 		 	level_start_timer+=1
-			darkness=4-level_start_timer/5
+			darkness=5-level_start_timer/5
 		else
 			level_start, level_start_timer, darkness = false, 0, 0
 			play_music(level_music)
@@ -2099,7 +2103,7 @@ end
 
 --beware of floating point overflow!
 function distance_between(x1,y1,x2,y2)
-	xd, yd = abs(x1-x2), abs(y1-y2)
+	local xd, yd = abs(x1-x2), abs(y1-y2)
 	return sqrt(xd*xd + yd*yd)
 end
 
