@@ -34,7 +34,8 @@ function actor:draw()
 end
 
 function actor:set_pal()
-	local c={5,6,7,15,10}
+	-- local c={5,6,7,15,10}
+	local c=string_to_array("567fa")
 	for i=1,5 do
 		pal(c[i], self.pal[i])
 	end
@@ -508,8 +509,8 @@ function player:respawn()
 	for a in all(actors) do
 		a:update()
 	end
-	level_start=true
-	darkness=4
+	level_start, darkness=true,4
+	deaths+=1
 end
 
 function player:on_ground()
@@ -952,7 +953,7 @@ function batboss:update()
 		end
 		self.x=min(self.x,cam.x+120)
 	end
-	self.x=max(self.x,176)
+	-- self.x=max(self.x,176)
 	self:update_slaves()
 end
 
@@ -1256,7 +1257,7 @@ end
 
 --------------------------------------------------------------------------------
 
-slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16, dontflip=true})
+slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16})
 
 function slimeboss:init(extra)
 	self:use_slaves()
@@ -1287,14 +1288,14 @@ end
 
 function slimebelly:update()
 	self:goto_master()
-	self.s, self.pal, self.invis = self.master.s+16, self.master.pal, self.master.invis
+	self.s, self.pal, self.invis, self.master.dontflip = self.master.s+16, self.master.pal, self.master.invis, true
 	self.y+=8
 	self:update_slaves()
 end
 
 --------------------------------------------------------------------------------
 
-summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0, dontflip=true})
+summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0})
 
 function summoner:init()
 	slimeboss.init(self)
@@ -1327,7 +1328,7 @@ end
 
 --------------------------------------------------------------------------------
 
-demon = enemy:new({s=210, health=9, max_health=9, timer=0, width=16, height=24, x=400, y=128, dontflip=true})
+demon = enemy:new({s=210, health=9, max_health=9, timer=0, width=16, height=24, x=400, y=128})
 
 function demon:init()
 	slimeboss.init(self, true)
@@ -1734,7 +1735,7 @@ levels =
 	{music=8, next_start_x=140, next_start_y=90, start_x=16, start_y=194, map_string="great ruins border the path...", nl_1=8, nl_2=6, offset = 50, map_marker={49,27}, data="2940a2jB?3?+7S?+1S?+2S?+43?+5S?+4S?+cS?+1S?+1S?+2S?+3:e?+3S?+7S?+10A?+13?+6T?+1S?+2S?+53?+4S?+4T?+cT?+1S?+1S?+2S?+7S?+7S?+10AB?+13?+8S?+2T?+63?+3T?+lS?+1S?+2T?+7S?+7S?+10s+6NO?+4T?+b3;lKu?+e:l?Ku+2?+3S?+1T?+bT?+6:f?S?+10I+5NOMB?+efvfvf?+4:5?+9fvfvf?+3T?+nT?+10?+6NOAB?+1u;lu+2?+8L?L?+gL?L?+w0?+6s+3NOf+1vf?+8L?L?+gL?L?+5zB?+o0?+3NO?I+2NOM?+1L?+9L?L?+c:4?+3L?L?+4:0zA+1B?:0?+m0?+aNO?+1L?+9L?L?+7:0?+8L?L?+3zA+5B?:8?+j0?+5NO?+3M?+1L?+1:4?+7L?L?+6Ku+3?+4L?L?+1NONOs+3NON:9O?+e:m?+30?+aNO?+1L?+4:l?+4L?:5L?+4fvf+2vf?+4L?L?+1MNOI+5NOM?NO?+f0?+1NO?+7M?+1L?+4Ku+2?L?L?+5L?+2L?+5L?L?+1NO?+7NO?M+1?NONOs+5NONO?0?+aNO?+1L?+3fvfvf?L?L?+5L?+2L?+5L?L?+1M?+9M?NO?MNOI+7NOM?0?+bMo+BNO?+7NOoM+1oNO?+9NOo0/6+S:26/0+3:3/6+k:26/0/6+7456/+J0/+36/+l0/6+1w236+2kl6+aw236/+v0/+36+c456/+60/01Mij0136+1w236+1w23w01Mij0136+1w236+1w23w236+7w236/+40/+36+ckl6/+60/gh/?/+2ghj01Mij01MijMgh/?/+2ghj01Mij01MijMij0136w201Mij0136/+10/+36w23w236+7w236/+30?/+7gh/?/+2gh/?/+bgh/?/+2gh/?/+5ghj1Migh/?/+2ghj01/0/+31MijMij0136w201Mij0136/0?/+Gh/?/+9gh/0/+3h/?/+5ghj1Migh/?/+2ghj1/0?+T0+3?/+9h/?/+9h/0AB?+R0+3?+e:g?+60A+3B?+hw7?+1wy?+mzAB?0+3?+4e?+f0A+4B?+d:0?+1why?6:lh+17?+b:0?+7zQA+2B0+3?+4xy:0?+6:0?+1e?+40A+6B?u+a?+1hNO?hNOy?+1u+3?+1u+6?+2zQA+3:lQA0+3?+4xh7?;l?+5wx?+40s+8f+1vf+1vf+1vf+1s+1NONONOs+3f+1vf?+1f+1vf+1vf?+1s+1050+2s+5?+3s+30+350s+3?+30I+8o+aI+bo+eI+33I+7o+3I+83I+3o+30"},
 	{music=1, next_start_x=276, next_start_y=58, start_x=16, start_y=82, map_string="the castle is ahead.", nl_1=7, offset = -24, map_marker={69,22}, data="2940a2dA+tR?+23?+4:2MNO?+6mh+1yh:2NONOM?+32?+1PA+6:2ANA+bRS?PA+bRS?+43?+3NOM?+8w7wN+1:3ONO?+22?+3SPA+5NPA+9R?S?+1SPA+8R?S?+53?+2MNO?+7:g?+1myNONO;b?+22?+4S?SPEA+2N?SPA+6R?+1S?+1S?SPA+1EA+2R?+1S?+63?+1NOM?+awMNONONONONONOS?S?CPA+1N?S?+1PAEARS?+2S?+1T?S?;1?SC?;1?S?+2S?+2;l?+3NONONO?+1NONONO;b?+3NONONO?+4x?S?T?C:1?SPN?T?+3C?+1S?+2S?+3T?+1TC?+1S?+2T?+1NOUZNONONOM?+2NONONO?+2MNONO?+5x?S?+2C?S?N?+5C?+1S?+2T?+7C?+1S?+62wNONONONO?+3x:1?+2NOUZNONO?+6x?T?+2C?T?N?+5C?+1S?+4zA+1B?+2C?+1T?+52?6h+2NONO?+4x?+32?NONO?+7x?+4C?+2N?zAB?+1C?+1T?zB?zA+5BC?+72?wh+2ywNO?+5x?+22?NONONO?+6x?+4C?+2NzA+2B?C?+1zA+4QA+5DAB?+4NONOywh+2n:9M?+5x?+12?NONO6hNO?+5x?+1zA+1DABN+1A+1QA+2DA+3QA+4NONOA:lA+2B?+4NONOh+3y:9M?67?+2x?2?+2NO7wNONO?+3:0?x?zA+2NONONA+fNONONONOA+1B?NONONONOywyNOh+2y?+1x2?e?+2NOmhNO?+3zAxA+3NONON+1t+X040+1t+bNJ+X2J+eN/6+M:26/N:3ONOh+1n?+12:e?+3PA+aN/6/+NN+1OMhn?+12?+5PA+6QA+1N/6+4456+gw236+aw236+1w236+1w2/NONOy?+12?+7SPA+6QN/6+4kl6+5w236+1w236+1wMij36+1w236+3wMij01Mij01Mi/N+1OMn?2?+8S?+1S?+1:fPA+2N/6+1w236+1w236+1wMij01Mij01M/?/+2j01Mij0101M/?/+2gh/?/+2gh/?+1NONONONONO?+5T?+1S?+5N/01Mij01Mij01M/?/+2gh/?/+2gh/?/+4gh/?/+2ghgh/?+cN+1ONONONOM?+8S?+5N/gh/?/+2gh/?/+2gh/?+BNONONONONONONO?+4S?+1NONON?+n:l?+e;i?+a0?+3NONONO?x?+5T?+2x?N+1?+mNO?+5:0?+hz0?+4NONO?+1x?+9x?ANAB?+e:l?NONONONO?+kzA+10?+5NOMB?x?+2e?+4:m?xzANA+2B?+8;0?+3NONONONONONONONO?+7:l?+4zA+20?+6NOABx?+2x?+4zxA+1NA+4B?+9NONONONONO?+1NONONOt+7k40+1A+30?+5NOMA+1xAB?x?+1e?zAxA+1NA+50+15lt+5MNO?+3NONO?+1NO?+1NOJ+62J+1zA+30?+6NOt+fNA+5BJ+13J+5NO?+fNO?+42?+1zA+40?+7MJ+fN"},
 	{music=1, next_start_x=140, next_start_y=170, start_x=16, start_y=66, map_string="the castle is ahead.", nl_1=7, offset = -16, map_marker={62,32}, data="1d2062m/6/+p0+1?+8wh+10+3h+4n?+13?+20+3h+2n?+32?+20+1?mh0/+16+9w236+1w236+4456+1w236+1w/0+1?w7h7?+3wh+10:2?+10h+3n?+33?+10+3hn?+42?+3:90:90?+1w0/+16+8wMij01Mij36+3kl6wMij01M/0+1?mh+3y?+2wh0?+10h+1n?+2mh0+4?+10n?+42?+5:90?+1m0/+16+601M/?/+2gh/?/+2j36+4wM/?/+2gh/?+4whywhy?+2w0+3n?+5wh+30?+10?+10+b7?+10/+16+6gh/?/+9j01201M/?+bmh+37?+1w0+3;b?+7wh+20+1?0?+36h+4n?0+1y?+10/+101:22/+4?/+cghigh/?+7:0?+2w7?+2mh+1y?w0+7y?+3wh+10+3?+2wnwhn?+30+1y?+10/+1ghi/+4?+2e?+n6hy?+3why?+10+3:1wh+2n?+5m0+3?6hn6hn?+1:c?+20+1y?+10+1?+6B?+1x?+4e?+b0+1kc0+7?+1h+1y?0?0+1h+1n?+7;a?0:2?0+1hywywn?+50:20y?+10+8AB?x?+4x?+d2?0+4?x?+16hy?+10?+10hy?+4w0+4?0+ak40+2y?+10+8A+2xB?+2zx?+7e?+32?z0+2?+2x?6nwye?0?+10n?+5whywy0+3h+3n?+326h0+1y?6h:8h+10+51+40?zAxB?+2e?+1zxB?+12?+1A0+1?+1wyx?wewyx?0+1:3?0;b?+7wh+1y0+1:3?0h+1n?+42?wy:90wh7wy:90w0+5j+41+50?+1x?zAxAB2?ezA0+1?e6yxwyxwyx?0+450+1?+17?+1ywh0+1?0hn?+426h+27:90h+50+5?+4j+51+e0+9k40+5h73?+2wy6h7w0+55l0+l?+aj+e0+1wh+2n?+226h+10+3yw73?+1wh+1ywh0+3?x?3?+5x?0+Fwh+1n?+226ywh0?0+1ywh73?+1whywh0+3?x?+13?+3:e0/+46/+a0h7wh+5ywh+2y?+3mh+1ywh+10+1mhy?+226hnwn0?0+1hy?h73?+1wywh0+3?x?+23?+10/+56+6456/+10wywh+2y?mh+2n?+bmn:90?wy?+126h+2n?0?0+1y?+1my?3?wh7:aw0+3?x?+33?0+1?/j/x/6+7kl6/+10h+17whn?+2:gwn?+e:90:90?why26ywn?+1:a?0+1:3?0y?+20+8:2?0+3k40+4?+2x/36+3w23:f6+1w2/0wh+1y?+6:5?+40+2?+30+dk40+2?0y?+3wh7?mh+10?0+1n?2?+2x?+4x/j36+1wMij01Mi/0h+1n?+l0?0h+2n?+426h0+3y?+167why?+1wh0?0+1?2?+3x?+4x?/j01M/?/+2gh/?+10y?+n0?0hy?+52?mh0:2?0+1y:4?+1wywywy?+1w0+6?+2x?+4x?/+1h/+1?+70n?+i:4?+3w0+2y?+2:0?+22?+2w0?0+1y?+1mh+10+1y?+1w0+6?+2x?+4x?+5:d?+50?+10+5?+e6h0+2hn?+32?+3w0+3y?+2wh0+1y?+1h0?:3?x?0+1B?+1x?+4x?+b0?+2x?+1x?+3:0?+awh+10:3?0y?05l0+4?h0+3h7?6h0+2y:6?+1h0?+1x?0+1A?+1x?+1e?+1x?+b0?+2x?+1x?+dwhyw0?0y?+23?+5m0?0+9y?+1w0+1?x?0+1AB?x?+1xzBx?zB?+6zA0?+2x?+1x?+20+2?+10+a?0n?+33?+1wy?+10?x?+1x?+1x?0+1y?+1w0+1?x?0+1A+1BxzAxA+1xA+3B?+2zA+20?+2x?+1x?+3x?+3x?x?x?x?+10+2?w7?+23?my?+10?x?+1x?+1x?0+1n?6h0?+1x?0+11+m?+2x?+1x?+3x?+3x?x?x?x?+10+26h+1y?+23?m7?0+bk40+3?x?0+1j+m"},
-	{music=16, start_x=16, start_y=50, offset = -28, map_marker={84,22}, data="5820e40/6+iw20/MNOMhn?26h+2ywM:2NONONONONO?+1NONONO?+h2?+fNONO?+5NONONONOhywh+2NONONO:2N/+76+a456+4wMih/NONOn?26nhnwyhN:3ONONO?+1NONONO?+1NO?+h2?+gMNONO?+5NONONOmhyh+1n?+1NONONO/+736+1w236+1w23kl6+3wM/?+3NOM?26nwy?mywMNONO?+5;1?+5;1?+h2?+hNONO?+7NONO?+1wh+1y?+2;1hNONON/+7j01Mij01Mij36+1w01M/?+5NONOYVWO?+1whNOMy?+rYVWO?+6NONOYVWONONONONO?+5NONONO?+1mn?+3whNONO+7?/gh/?/+2gh/?/+2j01Mih/?+7xh+273?+2h+1MNOy?+rx73?+6wM:2NOMh73?+2h+2NONO?+3NONONO?+9mhNON+7?/+bgh/?+axh+1nw73?+1:gmhNOMy?+rxh73?+46hNONOwh73?+1wh:0h+1NONO?+1NONOh;1n?+bwMNO+7?+oxhy?+1m73?+1hMNOhy?+p6xh+1e3?6ywywMNOM?wh73?+1mh+2NONONONOhy?+bNONON+7u+f?+8xh+1:d7?+1h73?mNOMwhy?+ohxywNONONXUZNONONONONXUZNONONONONOhn?+dNONO+7fvf+4vf+4vf+1NONONONO?xywhyewh73?MNOw;0ywy?+d:7?+86hxywxywhn26NONONOwhn?2?+3mh+1y;1?+96NOYVWONONONON+7?L?+4L?+4L?+2NONONOM?xh7wyxwNONONOMy+1why?+5:7?+fwhx7wxyhn26ywNONOywy?2?+5why?+9hMNOy3?+1wh+1MNO+7?L?+4L?+4L?+3x?+2NO?xhywhxhMNONONONONXUZ?+j6h+1xywxhy26hywMNOMyhn2?+7h+1y?+76hNOyw73?+1h+1NON+7?L?+4L?+4L?+3x?+1NOM1+7NONONONOn?26hy?+gNONONONONONONONONONONONONO?:b?+4wy+1?+6h+2MNOyw73?wh+1NO+7?L?+4L?+4L?+3x?+2NOj+7MNONONOn?26ywhywy?+2why?+2wymhyMNONONONONONONONONONONONONONONONONO?:b?+46h+2NOywh+173?mh+1N+78+vNONONO?+126hywhywhy?whywhymh+17whNONONONONONONONONONONONONONONONONONONONONONONONOywh+173?mh+8OMh+2n?+owh+1y+1?+226M:2N/6+?6/+3NONOh73?+1mh+1ywNO:2N+1Ohn?+rmymy+1?26yNO/6+c45:26/0/6/+PN;iONOh73?+1wywhMNO+1My?+ty?wy26y+1MN:3/36+1w236+6kl6/0:3/36+1w236+5w36+1w236+pw236+3w/NONOh73?+1m7mhMN+1Oy?+tYVWONONONO/j01Mij36+1w0136+1w/0/j01Mij36+1w01Mj01Mij36+1w0136+1w236+5w236+3wMij36+1wMi/NONOh73?+1wywNO+1My?+v3?mhyNON?/gh/?/+2j01Mihj01M/0?/gh/?/+2j01Mih/?/+1gh/?/+2j01Mihj01Mij36+1w01Mij36+1wM/?/+2j01M/?NONONOh73?+1myMN+1Oy?+v73?w:0ywNO?/+6gh/?/+3gh/?0?/+6gh/?/+agh/?/+3gh/?/+2j01Mgh/?/+2j01M/?/+4gh/?+4NONONONXUZNO+1Mhy?+s;a?wh73mhyMN?+f0?/+vgh/?/+6gh/?+bNONOh+1n?26NON+1Oh+1y?+9:7?+hYVWONONONO?+f0?+TNONOn?26hMNO+1NONONXUZNO?+n3mhywNON?+f0B?+Txhy?26h+1NONywywn?26NOM?+mh73mh;0hyNO?+f0A+1B?+Rxn?26h+1NONOywhy?26hMNO?+b:7?+9wh+173mywMN9a?+39:oa9a?+39a0A+5B?+1zB?+czB?+bzB?+gx?26h+1NONONnhn?2?ywNOM?+4ywy?+dwywhNONONOa9a9a9a9a9a9a9a91+aNO?+3:5?+50+4?+3:5?+50+4?+3:5?+5NO1+dy+1?2?wywMNOywy6h+2ywhy?+66yhNONONONONON+1ONXUZNONONONONOj+bM?+9x?+2x?+9x?+2x?+9Mj+ehn26hy?wNOMhywh+1ywh7wh+2y?wywhywMNONONONONO?NX26h+7NO?o+?o+4"},
+	{music=16, start_x=16, start_y=50, offset = -28, map_marker={84,22}, data="5820e40/6+iw20/MNOMhn?26h+2ywM:2NONONONONO?+1NONONO?+h2?+fNONO?+5NONONONOhywh+2NONONO:2N/+76+a456+4wMih/NONOn?26nhnwyhN:3ONONO?+1NONONO?+1NO?+h2?+gMNONO?+5NONONOmhyh+1n?+1NONONO/+736+1w236+1w23kl6+3wM/?+3NOM?26nwy?mywMNONO?+5;1?+5;1?+h2?+hNONO?+7NONO?+1wh+1y?+2;1hNONON/+7j01Mij01Mij36+1w01M/?+5NONOYVWO?+1whNOMy?+rYVWO?+6NONOYVWONONONONO?+5NONONO?+1mn?+3whNONO+7?/gh/?/+2gh/?/+2j01Mih/?+7xh+273?+2h+1MNOy?+rx73?+6wM:2NOMh73?+2h+2NONO?+3NONONO?+9mhNON+7?/+bgh/?+axh+1nw73?+1:gmhNOMy?+rxh73?+46hNONOwh73?+1wh:0h+1NONO?+1NONOh;1n?+bwMNO+7?+oxhy?+1m73?+1hMNOhy?+p6xh+1e3?6ywywMNOM?wh73?+1mh+2NONONONOhy?+bNONON+7u+e?+9xh+1:d7?+1h73?mNOMwhy?+ohxywNONONXUZNONONONONXUZNONONONONOhn?+dNONO+7fvf+4vf+4vfNONONO?+3xywhyewh73?MNOw;0ywy?+d:7?+86hxywxywhn26NONONOwhn?2?+3mh+1y;1?+96NOYVWONONONON+7?L?+4L?+4L?+1NONOM?+3xh7wyxwNONONOMy+1why?+5:7?+fwhx7wxyhn26ywNONOywy?2?+5why?+9hMNOy3?+1wh+1MNO+7?L?+4L?+2e?L?+1x?+1NO?+3xhywhxhMNONONONONXUZ?+j6h+1xywxhy26hywMNOMyhn2?+7h+1y?+76hNOyw73?+1h+1NON+7?L?+1e?+1L?+2x?L?+1x?NOM1+aNONONONOn?26hy?+gNONONONONONONONONONONONONO?:b?+4wy+1?+6h+2MNOyw73?wh+1NO+7?L?+1x?+1Le?+1x?L?+1x?+1NOj+aMNONONOn?26ywhywy?+2why?+2wymhyMNONONONONONONONONONONONONONONONONO?:b?+46h+2NOywh+173?mh+1N+78+vNONONO?+126hywhywhy?whywhymh+17whNONONONONONONONONONONONONONONONONONONONONONONONOywh+173?mh+8OMh+2n?+owh+1y+1?+226M:2N/6+?6/+3NONOh73?+1mh+1ywNO:2N+1Ohn?+rmymy+1?26yNO/6+c45:26/0/6/+PN;iONOh73?+1wywhMNO+1My?+ty?wy26y+1MN:3/36+1w236+6kl6/0:3/36+1w236+5w36+1w236+pw236+3w/NONOh73?+1m7mhMN+1Oy?+tYVWONONONO/j01Mij36+1w0136+1w/0/j01Mij36+1w01Mj01Mij36+1w0136+1w236+5w236+3wMij36+1wMi/NONOh73?+1wywNO+1My?+v3?mhyNON?/gh/?/+2j01Mihj01M/0?/gh/?/+2j01Mih/?/+1gh/?/+2j01Mihj01Mij36+1w01Mij36+1wM/?/+2j01M/?NONONOh73?+1myMN+1Oy?+v73?w:0ywNO?/+6gh/?/+3gh/?0?/+6gh/?/+agh/?/+3gh/?/+2j01Mgh/?/+2j01M/?/+4gh/?+4NONONONXUZNO+1Mhy?+s;a?wh73mhyMN?+f0?/+vgh/?/+6gh/?+bNONOh+1n?26NON+1Oh+1y?+9:7?+hYVWONONONO?+f0?+TNONOn?26hMNO+1NONONXUZNO?+n3mhywNON?+f0B?+Txhy?26h+1NONywywn?26NOM?+mh73mh;0hyNO?+f0A+1B?+Rxn?26h+1NONOywhy?26hMNO?+b:7?+9wh+173mywMN9a?+39:oa9a?+39a0A+5B?+1zB?+czB?+bzB?+gx?26h+1NONONnhn?2?ywNOM?+4ywy?+dwywhNONONOa9a9a9a9a9a9a9a91+aNO?+3:5?+50+4?+3:5?+50+4?+3:5?+5NO1+dy+1?2?wywMNOywy6h+2ywhy?+66yhNONONONONON+1ONXUZNONONONONOj+bM?+9x?+2x?+9x?+2x?+9Mj+ehn26hy?wNOMhywh+1ywh7wh+2y?wywhywMNONONONONO?NX26h+7NO?o+?o+4"},
 	{music=8, next_start_x=276, next_start_y=90, start_x=16, start_y=192, offset = 41, map_marker={69,22}, nl_1=7, map_string="the castle is ahead.", data="1d50c31ONO?+13?+3NONONONONONONONONONONONONONONONONONONO?+23?+3NONONONONO?:e?+fN+eO:8M?+23?+7PA+2NONONONOA+6R?+g3?+tO+eN:9O?+33?+7SPA+1NONONOA+3RS?S?+i3?+6:g?+lN+eO:9M?+43?+6S?PA+1NONOA+2R?+1S?T?+j3?+n:f?+3O+eNONONONONONO?+2T?+1SPMNOMARS?+2S?+m3?+qN+eONONONONONO?+6S?NONOS?S?+2T?+iNONONONONONO?+jO+eNONONONONO?+7T?+1NO?T?S?+ox?S?+1S?x?+lN+d?wh+1NONONO?+gT?+7:0?+gx?S?+1T?x?+lO+d?+1mh+1NONOM?+Gx?T?+3x?+h:m?+3N+d?+2wh+1NONO?+c:0?+6NXUZNONO?+ex?+5x?+lO+d?+3mNONOM?+6:0?+4;l?+82?NONOM?+2NONO?+7x?+5x?+7NONONONONONONO+e?+5NONO?+aNONO?+3:l?2?+2NONO?+2MNOM?+2NONO?x?+5x?NONO?+2MNONONONONONON+e?+6NONONONONONO?+1x?+1x?+1NONO?+2MNOM?+2NONO?+2MNOM?x?NONO?x?MNOM?+2NONONONONONONO+eo+?o+wONOywh+2y?+5S?S?+1SPA+aR?+Y:2N?NOMy?wh+27?+4T?S?+1S?PA+7RS?+ZM?ONOywhnwywy?+5S?+1T?+1S?+1PA+1RS?S?+O:i?+aN?NOMh7wywh+1y?+5T?+4S?+2S?+1T?S?+ZM?ONOhywh7mh+17?+4:0?+5T?+2S?+3T?+ZN?NONOh7wy+2wy?:l?+dT?+??+2M?ONONOYVWONONONONONO?+??+bN?h+1ywhy?3?wywNONONO?+??+cM?ywhywh7?3?myMNONO?+x:0?+HN?nwhy6h+1y?3?wNONO?+hzB?+bzAB?+kNO?+2:4?+4NO?+aM?6hywh+37?3mMNOM?+gzANO?+9zANONO?+e;0?+2NOM?+7MNO?+9N?why?wywhNONONONO?+5zB?:l?+6;lzANOM?+7zA:lA+1MNONO?+fNONO?+7NONO?+6:0?+1M?ONONONONONONONOM?+4NONONO?+1NONONONO?+3NOYVWONONONONONO?+3:5?+5NONONOM?+7MNONONO?+5N?NONONONONONONONOo+4MNONOMo+1MNONONOMo+3MNO?3?+1NONONONOMo+9MNONONOo+7NONONONOYVWONO?"}
 }
 
@@ -1768,7 +1769,7 @@ function _init()
 	--draw_bounding_boxes = false
 	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness = 0, 0, {}, 20,  0, string_to_array("000520562493152e"), 0
 
-	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers = 0, -20, true, true, 0, false, 0,0, {{38,17}}
+	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0
 
 	player:update()
 end
@@ -2111,6 +2112,7 @@ function _draw()
 	cls()
 	if game_end and not level_end then
 		draw_level_select_gui()
+		centre_print("deaths: "..deaths, 72,7)
 	else
 		if blackout_time<=0 then
 			cam:set_position()
