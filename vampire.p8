@@ -262,6 +262,9 @@ function cam:update()
 	if self.x<=0 then
 		self.x=0
 	end
+	for a in all(borders) do
+		if (a.y>=cam.y and a.y<cam.y+112) a:cupdate()
+	end
 end
 
 function cam:set_goal()
@@ -494,22 +497,6 @@ end
 
 function player:checkpoint()
 	check_x, check_y, check_stairs, check_f, check_stair_dir, check_s = self.x, self.y, self.stairs, self.f, self.stair_dir, self.s
-end
-
-function player:respawn()
-	--blackout_time=40
-	self.health=player_max_health
-	self.x, self.y, self.stairs, self.f, self.stair_dir, self.s = check_x, check_y, check_stairs, check_f, check_stair_dir, check_s
-	self.invul, self.invis, self.mom, self.grav, self.invis, cam.special_goal = 0, false, 0, 0, false, false
-	-- cam:jump_to()
-	-- cam:y_move()
-	load_level(current_level, true)
-	sort_actors()
-	for a in all(actors) do
-		a:update()
-	end
-	level_start=true
-	deaths+=1
 end
 
 function player:on_ground()
@@ -1508,7 +1495,11 @@ end
 
 cam_border_right = actor:new({depth=-20})
 
-function cam_border_right:update()
+function cam_border_right:init()
+	add(borders, self)
+end
+
+function cam_border_right:cupdate()
 	if (self.key_rule and player.y>self.y+16) return
 	if self.x+8>=player.x then
 		cam.x = min(cam.x, self.x-120)
@@ -1527,7 +1518,7 @@ end
 
 cam_border_left = cam_border_right:new()
 
-function cam_border_left:update()
+function cam_border_left:cupdate()
 	if self.x<=player.x then
 		cam.x = max(cam.x, self.x)
 	else
@@ -1539,7 +1530,7 @@ end
 
 boss_cam = cam_border_left:new()
 
-function boss_cam:update()
+function boss_cam:cupdate()
 	if player.x>=self.x then
 		cam.goal_x,cam.special_goal = self.x, true
 		if not level_end and not death_time then
@@ -1792,9 +1783,6 @@ entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=
 function load_level(level, respawning)
 	cls()
 	clear_level()
-	--do i need these?
-	-- centre_print("loading...", 61, 7)
-	-- centre_print("level "..level, 55, 7)
 	between_levels, p_width = level==1, 0
 	if level==6 then
 		back_entry=true
@@ -1802,29 +1790,11 @@ function load_level(level, respawning)
 	current_level = level
 	level = levels[level]
 	s = level.data
-	-- there's a way of doing default value using 'x or nil', or something.
-	-- if level.start_x then
-	-- 	start_x, start_y = level.start_x, level.start_y
-	-- else
-	-- 	start_x, start_y = next_start_x, next_start_y
-	-- end
 	start_x, start_y = level.start_x or next_start_x, level.start_y or next_start_y
 	next_start_x, next_start_y = level.next_start_x or next_start_x, level.next_start_y or next_start_y
-	-- if level.next_start_x then
-	-- 	next_start_x, next_start_y = level.next_start_x, level.next_start_y
-	-- end
 	next_level = level.next_level or 1
-	-- if level.next_level then
-	-- 	next_level = level.next_level
-	-- else
-	-- 	next_level = 1
-	-- end
-	-- if level.nl_1 then
 	nl_1, nl_2 = level.nl_1 or nl_1, level.nl_2 or nl_2
-	-- end
-	-- if level.offset then
-		level_offset = level.offset or 0
-	-- end
+	level_offset = level.offset or 0
 
 	if current_level==7 and back_entry then
 		start_x, start_y=540, 186
@@ -1835,6 +1805,10 @@ function load_level(level, respawning)
 		player:checkpoint()
 		cam.special_goal = false
 		player:update_slaves()
+	else
+		player.health=player_max_health
+		player.x, player.y, player.stairs, player.f, player.stair_dir, player.s = check_x, check_y, check_stairs, check_f, check_stair_dir, check_s
+		player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal = 0, false, 0, 0, false, false
 	end
 
 	cam:jump_to()
@@ -1843,6 +1817,7 @@ function load_level(level, respawning)
 	if between_levels then
 		cam.x=flr(player.x/136)*136
 	end
+	borders={}
 
 	if (level.map_string) map_string = level.map_string
 	enemy_pal, width, cursor, x, y, chain, add_val = string_to_array(sub(s,2,6)), two_char_to_int(sub(s,7,8)), 9, 0, 0, 0, 64
@@ -1888,9 +1863,10 @@ function load_level(level, respawning)
 		play_music(-1)
 	end
 
-	-- local s=summoner:new({x=56, y=80})
-	-- s:init()
-	-- add_actor(s)
+	-- sort_actors()
+	-- for a in all(actors) do
+	-- 	a:update()
+	-- end
 end
 
 function char_to_int(c)
@@ -1919,8 +1895,11 @@ function _update60()
 	if death_time then
 		death_time-=1
 		if death_time<=0 then
+			--respawning
 			death_time=nil
-			player:respawn()
+			load_level(current_level, true)
+			level_start=true
+			deaths+=1
 		end
 	end
 
@@ -2056,22 +2035,22 @@ function add_actor(a)
 end
 
 function sort_actors()
-	new_actors = {}
-	while #actors>0 do
-		local best
-		for a in all(actors) do
-			if not best then
-				best = a
-			else
-				if a.depth>best.depth then
-					best = a
-				end
-			end
-		end
-		add(new_actors, best)
-		del(actors, best)
-	end
-	actors = new_actors
+	-- new_actors = {}
+	-- while #actors>0 do
+	-- 	local best
+	-- 	for a in all(actors) do
+	-- 		if not best then
+	-- 			best = a
+	-- 		else
+	-- 			if a.depth>best.depth then
+	-- 				best = a
+	-- 			end
+	-- 		end
+	-- 	end
+	-- 	add(new_actors, best)
+	-- 	del(actors, best)
+	-- end
+	-- actors = new_actors
 end
 
 function is_solid(x,y)
