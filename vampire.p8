@@ -1225,6 +1225,7 @@ end
 slime = enemy:new({s=11, hurt_sound=10, health=3, jiggle=1})
 
 function slime:update()
+	if (not self:on_camera()) return
 	self.s=11
 	if self.invul>0 then
 		self:fly_when_hit()
@@ -1234,7 +1235,7 @@ function slime:update()
 		self:use_pal()
 		self.max_spd=2
 		if self:die_when_dead() then
-			if self:on_ground() and self:on_camera() then
+			if self:on_ground() then
 				self.spd = 0
 				self.jiggle-=0.1
 				if self.jiggle<=-2 or rnd(100)<5 then
@@ -2601,4 +2602,3 @@ __music__
 00 262a4344
 00 272b4344
 02 282c4344
-
