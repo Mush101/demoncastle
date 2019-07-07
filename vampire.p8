@@ -264,6 +264,7 @@ function cam:update()
 	end
 	for a in all(borders) do
 		if (a.y>=cam.y and a.y<cam.y+112) a:cupdate()
+		if (a.dead) del(borders, a)
 	end
 end
 
@@ -1588,8 +1589,8 @@ function breakable_block:break_me()
 			add_actor(block_bit:new({x=self.x+i*4, y=self.y+j*4, grav=-2+j, acc=(i-0.5)/8, f=i==j}))
 		end
 	end
-	for a in all(actors) do
-		if a.x==self.x and a.depth==-20 then
+	for a in all(borders) do
+		if a.x==self.x then
 			a.dead = true
 		end
 	end
@@ -2051,6 +2052,8 @@ function sort_actors()
 	-- 	del(actors, best)
 	-- end
 	-- actors = new_actors
+	del(actors,cam)
+	add(actors,cam)
 end
 
 function is_solid(x,y)
@@ -2581,3 +2584,4 @@ __music__
 00 262a4344
 00 272b4344
 02 282c4344
+
