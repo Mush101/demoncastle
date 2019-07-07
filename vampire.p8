@@ -2104,6 +2104,7 @@ function _draw()
 			extra="0"
 		end
 		centre_print("time: "..minutes..":"..extra..flr(seconds), 82,7)
+		if (hard_mode) centre_print("hard difficulty"), 92,7)
 	else
 		if blackout_time<=0 then
 			cam:set_position()
@@ -2584,4 +2585,3 @@ __music__
 00 262a4344
 00 272b4344
 02 282c4344
-
