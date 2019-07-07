@@ -184,12 +184,6 @@
     <property name="object_id" type="int" value="0"/>
    </properties>
   </object>
-  <object id="29" x="592" y="192" width="8" height="8">
-   <properties>
-    <property name="hard_mode_only" type="bool" value="false"/>
-    <property name="object_id" type="int" value="0"/>
-   </properties>
-  </object>
   <object id="30" x="552" y="200" width="8" height="8">
    <properties>
     <property name="hard_mode_only" type="bool" value="true"/>
