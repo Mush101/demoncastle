@@ -35,8 +35,8 @@ end
 
 function actor:set_pal()
 	-- local c={5,6,7,15,10}
-	local c=string_to_array("567fa")
-	for i=1,5 do
+	local c=string_to_array("567fabd")
+	for i=1,7 do
 		pal(c[i], self.pal[i])
 	end
 	pal(14,0)
@@ -239,7 +239,7 @@ end
 
 --------------------------------------------------------------------------------
 
-cam = actor:new({speed=0.5, always_update = true, depth=-19})
+cam = actor:new({speed=0.5, always_update = true})
 
 function cam:update()
 	if player.stairs then
@@ -301,7 +301,7 @@ end
 
 player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
 					stair_timer=0, whip_animation=0, whip_cooldown = 0,
-					invul = 0, extra_invul=0, always_update = true, depth=-2,
+					invul = 0, extra_invul=0, always_update = true,
 					legs_s=0})
 
 function player:update()
@@ -976,7 +976,7 @@ end
 
 --------------------------------------------------------------------------------
 
-shooter = enemy:new({s=29, health=3, base_f=true, timer=0, depth=-1, death_sound=11})
+shooter = enemy:new({s=29, health=3, base_f=true, timer=0, death_sound=11})
 
 function shooter:update()
 	if self.invul>0 then
@@ -1344,7 +1344,7 @@ function demon:update()
 		if not self.invis and not death_time then
 			self.timer=(self.timer+0.008)%1
 			self.s=210+self.timer*2
-			play_music(1)
+			play_music(20)
 			self:move()
 			self:hit_player()
 		end
@@ -1385,7 +1385,7 @@ end
 
 --------------------------------------------------------------------------------
 
-platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=0, depth=-5})
+platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=0})
 
 function platform:init()
 	self.origin_x, self.origin_y, self.position = self.x, self.y, 0
@@ -1496,7 +1496,7 @@ end
 
 --------------------------------------------------------------------------------
 
-cam_border_right = actor:new({depth=-20})
+cam_border_right = actor:new()
 
 function cam_border_right:init()
 	add(borders, self)
@@ -1559,7 +1559,7 @@ end
 
 --------------------------------------------------------------------------------
 
-chicken = actor:new({s=61, depth=-10, grav=-2})
+chicken = actor:new({s=61, grav=-2})
 
 function chicken:init()
 	self.y+=8
@@ -1580,7 +1580,7 @@ end
 
 --------------------------------------------------------------------------------
 
-breakable_block = actor:new({breaks=true})
+breakable_block = actor:new({breaks=true, b_bit_s = 49})
 
 function breakable_block:break_me()
 	self.breaks = false
@@ -1588,7 +1588,7 @@ function breakable_block:break_me()
 	self.dead = true
 	for i=0,1 do
 		for j=0,1 do
-			add_actor(block_bit:new({x=self.x+i*4, y=self.y+j*4, grav=-2+j, acc=(i-0.5)/8, f=i==j}))
+			add_actor(block_bit:new({s=self.b_bit_s, x=self.x+i*4, y=self.y+j*4, grav=-2+j, acc=(i-0.5)/8, f=i==j}))
 		end
 	end
 	for a in all(borders) do
@@ -1601,7 +1601,7 @@ end
 
 --------------------------------------------------------------------------------
 
-block_bit = actor:new({s=49, life=30, width=4, height=4, dcc=0, ignore_walls=true, always_update=true})
+block_bit = actor:new({life=30, width=4, height=4, dcc=0, ignore_walls=true, always_update=true})
 
 function block_bit:update()
 	self:momgrav()
@@ -1613,7 +1613,7 @@ end
 
 --------------------------------------------------------------------------------
 
-heart_crystal = actor:new({s=57, invis=true, grav=-2, depth=-10})
+heart_crystal = actor:new({s=57, invis=true, grav=-2})
 
 function heart_crystal:init()
 	self.x-=36
@@ -1722,14 +1722,14 @@ end
 
 levels =
 {
-	{data="05820e1i?+??+??+??+??+Hh7wy?+3S?PERSC:2P?:3B?+1S?S?+1xh+1xh+1x:2h?:3AEARCS?+8:2?hy?w7?+2T?+1C?TC?+1AB?S?S?+1xh+1xh+1xh?+1C?+1CT?zQB?+5ywymy?+2zA+1DA+1D:jA?A+1?T?S?+1xh+1xh+1x:jh?ADA+1DAQA+2B?u+2:ju1+30+15lt+7?A+1B?+1T?NXUZNONON?t+6NXUZMfvfvj+40j3J+6z?A+2?+42?xzBx?+2J+72JNO?L?L?0+5?3?+3zA+1?A+2B?+22?+1xA+1xB?+2e?+42?NOM?L?L?+10?0+3B3zBzA+1:kA?A+3B?2ezAxA+1xA:kB?+1x?+1e?2?NONO?L?L?+20+6s+5?s+4NONONO1+4?ONONONONONOM8+3?+??+??+??+??+HA+5R?+1PA+4:2A?:3B?+3S?+3S?+1S?:2?+3zA+1QA+dR?+5PA+3?QAB?+1T?+3S?+1T?+1zANO1+cAER?+9PAE?A+1QAQB?+3T?+2z:jAQNONONOj+9?C?+8zB?+1C?1+40+15l1+6NONOh+1NONONO?+4BC?+1zB?/ef/?zAQABC?Oj+63j+3NONOy/A/?why/z/w:gNO:2N+5ADBzQAB/uv/zQA+1QA:jD?NONOABzB?3?+1zB/y/h+1y/P/6ywn/P/wMNO+5t+f?ONONOAQA+1B3zQ:nA/O/hywh+1nwhywNON+5J+f?NO?+1NOt+5NONONONONONONONO+5"},
-	{next_start_x=4, next_start_y=58, start_x=16, start_y=82, map_string="the path splits here...", nl_1=3, nl_2=4, offset = -58, data="g5820e35/6/+p0+2h+3n?wh+4n?+10+2wh+3n:20+1?+42?+20:20+4:30+1y3?w:3yx/6+5:e6+e:26/0/6/+p0+2hy?+6mh:0hn?+10+2wh+3n0+1?+32?+30+7h73mhx/6/+l0/6+7456/+f0+2y?+46y?+60+2nwhnmh0+1?+22?+40+7yw73mx/6+h456/+10/6+7kl6+5w236+1w236/+10+2y?+2wh+27?+3wy0+2h+27?w0+1?0+4kc0/+e36+1w236+b:fkl6/+10/1236+1w236+1w236+1wMij01Mij01/0+4k40+45l0+6wnwh7m0?+2;1?+320/+fj01Mij0136+1w236+1w23w23/0/hij01Mij01Mij01M/?/+2gh/?/+2gh/?x?+226h0+2h73?+1mn0+2wy?mn?0?+52?0+f?/gh/?/+2ghj01Mij01MijMij/0?/+2gh/?/+2gh/?/+2gh/?+bx?+126;0hn0+2yw73?+1hn0wh+1y?+2:90?+42?+10+8h0m0+3?/+8gh/?/+2gh/?+50?+qx?2?wy60+2h+273?mhxwnwn?w7:90?+32?+20+8ny?0y0+1?+f:d?+50?+p0+4k40+5wh73?mx;0mh+1n?0+i?mhn0w0+1?+l0?+86e?+fxhy?260+5ywh73?x?wn?+10+i7?n?ym0+1?+7e?+bw0B?+2zB?+2wx?+3zA0+4?+3zx:0n?26h0+71+20+110+151+30+110+21+20+6y?+1ym70+1?+16hye?+1xwy?+6e?wh0AB?zAxy6yhx?+2zA+1x?+2xAB?zAxy26ym0+7j+20xj0j+13j+60j+40+5h76h7m0+1?ewh+1x?+1xh+2e?+4xh+201+3NONONONO1+4x?+2x1+f0+2?+20x?0+1?+13?+c0+41+50+11+1k40+11+1010+21+40+110+1j+gx?+2xj+e0+3?+10+1x0+2?+23?+b0+4j+50+1j+12j+i0/6:36/0+1hyx?+3xwh0+1:2/6/+10+u:30+1?+13?+6PA+1QA+2QA+1R?+62?0:20/+i6/+10+1hyx?+3xwh0/+16/+10+wB?+13?+6QA+2QA+1RS?+62?+1:80/+j6/+10+1mhx?+3x7m0/+16/+10+wAB?+13?+5PA+4R?S?+52?+2:90/+j6/+10+17mx?+3xh70/+16/+10+x5l0+2?+5SAQRS;1?+1T?+42?+3:90/+j6/+10+1hyx?:7?+2xyh0/+16w/0+w?+13?+8TPR?S?+40/+r36/0+1h+1x?+3xw:hn0/+11M/0+wB;0?+13?+bS?+50/+qj0/0+1ywx?+3xn60/+1h/?0+wA+1B?3?+aT?+60+1?x?+1x?/+jg/0+1y?x?+3x6y0+1?+10+D?+g0+1?x?+1x?+k0+1hyx?+3xhn0+1?+10+w?x?x?x?+c:4?+40+1?x?+1x?+k0+1hyx?+2:c?xw70+1?+10+wBx?xBx?+h0+1?x?+1x?+j0+2y+1x?+3xwh0+2?0+wAxzx:0AxB?+6:0?+8z0+1?x?+1x?+j0+2k40+55l0+2?0+wAxAxAxAB?zB?+2zB?+1;a?+2zA+10+1?x?+1x?+i0+1?+12?+2mhnmn3mh0+y1+a?+11+2?+11+50+1?x?+1x?+i0+1?2?+36n6nwn3w0+m8+mo+18+2o+18+v"},
-	{next_start_x=4, next_start_y=194, start_x=16, start_y=82, map_string="the path continues...", nl_1=5, map_marker={60,13}, data="11d2062iA+5B?+1PA+kR?PA:iA+aE:2A0:3A+f:eR?PA+b:2A0A+6B?+1PA+bRPA+3RS?+3PA+7R?C?0A+bEAR?+3A+c0A+7B?+1PA+9R?+1PER?+1S?+4SPA+3R?+2C?0A+2R?PAEAR?+1C?+5PA+b0A+7R?+3PA+6R?+3C?+2T?+4T?+1PER?+3C?0AR?+4C?+3C?+7PA+5:fA+30PA+5R?+5PA+4R?+4C?+cC?+4C?0?+6C?:5?+2C?+8A+90?+1PAEAR?+4e?+2PER?+6C?ey?+9C?+4C?0?+6C?+3C?+1NONONO?PA+80?+3C?+5wx?+3C?+5zBCzxh7?+3zAB?+1C?+4C?0?+6C?+3C?+1:8MNO?+1x?+1P+1EARSPAE0?+3C?+4whxy?+2C?+3zA+2DAxh+1y?zA+4BC?+3zDA0?+1:4?+3:0?C?+2zDB?:9NOM?+1x?+3C?+1S?+1C0?+3C?+4h+1xy?+2C?+1zA+4NONONOt+2NONOADB?zA+30?+5zDB?zA+2B:9MNO?+1x?+3C?+1T?+1C0AB?+1C?+36h+1xh7?zDA+7MNOJ+6NOMA+80?+4NOt+105lt+2NOMB?x?+3C?+4C0A+2BCzB?+1NONOt+cNO?+8NOt+20k40t+2?+4MNOJ+23J+2?NOABx?+3:cC?+2zAD0A+3DA+3MNOJ+dM?+aMJ+32J+4?+4NO?+43?+3MA+1xABzADA+50t+8NO?+u2?+aM?+63?+1NOt+eJ+8M?+u2?+5o+5NO?+63?+1MJ+e?+2PA+7R?+2S?+1S?+1S?+2S?+1whyw:30?+52?+7PA+8R?+33?+5;i?+fPA+4R?+3S?+1T?+1S?+2S?+1mhnw0?+42?+9SPA+4RS?+53?+fy?+4A+3R?+4S?+4S?+2T?+2whn:90?+32?+aS?+1PA+1R?S?+63?+1;0?+cy?e?+2PAR;1?+2:g?e?+1T?+4S?+6my?:90?+22?+bS?+2S?+2S?+73?+dhyx?+3;1?+4wx?+7T?+60+e?+4T?+2T?+2T?+60+4?+ah+1x?+8wxy?+gx?x?+5x?x?+e:0?+7x?x?+bh+1xh7?+5whxy?+fzxBx?+5x?x?+i:6?+3x?x?+bh+1xh+1y?+36h+1xhy?+czA+1xAxB?+4x?x?+c0+4?+4x?x?+bNONOt+7NONO?+aNONOt+4NONO?x?x?0+2?+5:4?+3x?x?+5x?x?+bMNOJ+9NOMy?+2:5?+5wMNOJ+6NOMBx?x?x?x?+2zB?+4x?x?+5x?x?+bNO?+bNOhy?+66hNO?+8NOAxBx?x:0?x?+1zA+2B?:0?+1x?x?+5x?x?+bM?+dMhy?+6h+1M?+aM;bAxAxBx?x?zA+4B?+1x?x?+5x?x?+bNO?+bNOh+17?+46h+1NO?+8NOt+lNO?+2x?x?+bM?+dMh+2y?+2wh+2M?+aMJ+mMo+h"},
-	{next_start_x=140, next_start_y=90, start_x=16, start_y=194, map_string="great ruins border the path...", nl_1=8, nl_2=6, offset = 50, map_marker={49,27}, data="82940a2jB?3?+7S?+1S?+2S?+43?+5S?+4S?+cS?+1S?+1S?+2S?+3:e?+3S?+7S?+10A?+13?+6T?+1S?+2S?+53?+4S?+4T?+cT?+1S?+1S?+2S?+7S?+7S?+10AB?+13?+8S?+2T?+63?+3T?+lS?+1S?+2T?+7S?+7S?+10s+6NO?+4T?+b3;lKu?+e:l?Ku+2?+3S?+1T?+bT?+6:f?S?+10I+5NOMB?+efvfvf?+4:5?+9fvfvf?+3T?+nT?+10?+6NOAB?+1u;lu+2?+8L?L?+gL?L?+w0?+6s+3NOf+1vf?+8L?L?+gL?L?+5zB?+o0?+3NO?I+2NOM?+1L?+9L?L?+c:4?+3L?L?+4:0zA+1B?:0?+m0?+aNO?+1L?+9L?L?+7:0?+8L?L?+3zA+5B?:8?+j0?+5NO?+3M?+1L?+1:4?+7L?L?+6Ku+3?+4L?L?+1NONOs+3NON:9O?+e:m?+30?+aNO?+1L?+4:l?+4L?:5L?+4fvf+2vf?+4L?L?+1MNOI+5NOM?NO?+f0?+1NO?+7M?+1L?+4Ku+2?L?L?+5L?+2L?+5L?L?+1NO?+7NO?M+1?NONOs+5NONO?0?+aNO?+1L?+3fvfvf?L?L?+5L?+2L?+5L?L?+1M?+9M?NO?MNOI+7NOM?0?+bMo+BNO?+7NOoM+1oNO?+9NOo0/6+S:26/0+3:3/6+k:26/0/6+7456/+J0/+36/+l0/6+1w236+2kl6+aw236/+v0/+36+c456/+60/01Mij0136+1w236+1w23w01Mij0136+1w236+1w23w236+7w236/+40/+36+ckl6/+60/gh/?/+2ghj01Mij01MijMgh/?/+2ghj01Mij01MijMij0136w201Mij0136/+10/+36w23w236+7w236/+30?/+7gh/?/+2gh/?/+bgh/?/+2gh/?/+5ghj1Migh/?/+2ghj01/0/+31MijMij0136w201Mij0136/0?/+Gh/?/+9gh/0/+3h/?/+5ghj1Migh/?/+2ghj1/0?+T0+3?/+9h/?/+9h/0AB?+R0+3?+e:g?+60A+3B?+hw7?+1wy?+mzAB?0+3?+4e?+f0A+4B?+d:0?+1why?6:lh+17?+b:0?+7zQA+2B0+3?+4xy:0?+8e?+40A+6B?u+a?+1hNO?hNOy?+1u+3?+1u+6?+2zQA+3:lQA0+3?+4xh7?;l?+5wx?+40s+8f+1vf+1vf+1vf+1s+1NONONOs+3f+1vf?+1f+1vf+1vf?+1s+1050+2s+5?+3s+30+350s+3?+30I+8o+aI+bo+eI+33I+7o+3I+83I+3o+30"},
-	{next_start_x=276, next_start_y=58, start_x=16, start_y=82, map_string="the castle is ahead.", nl_1=7, offset = -24, map_marker={69,22}, data="12940a2dA+tR?+23?+4:2MNO?+6mh+1yh:2NONOM?+32?+1PA+6:2ANA+bRS?PA+bRS?+43?+3NOM?+8w7wN+1:3ONO?+22?+3SPA+5NPA+9R?S?+1SPA+8R?S?+53?+2MNO?+7:g?+1myNONO;b?+22?+4S?SPEA+2N?SPA+6R?+1S?+1S?SPA+1EA+2R?+1S?+63?+1NOM?+awMNONONONONONOS?S?CPA+1N?S?+1PAEARS?+2S?+1T?S?;1?SC?;1?S?+2S?+2;l?+3NONONO?+1NONONO;b?+3NONONO?+4x?S?T?C:1?SPN?T?+3C?+1S?+2S?+3T?+1TC?+1S?+2T?+1NOUZNONONOM?+2NONONO?+2MNONO?+5x?S?+2C?S?N?+5C?+1S?+2T?+7C?+1S?+62wNONONONO?+3x:1?+2NOUZNONO?+6x?T?+2C?T?N?+5C?+1S?+4zA+1B?+2C?+1T?+52?6h+2NONO?+4x?+32?NONO?+7x?+4C?+2N?zAB?+1C?+1T?zB?zA+5BC?+72?wh+2ywNO?+5x?+22?NONONO?+6x?+4C?+2NzA+2B?C?+1zA+4QA+5DAB?+4NONOywh+2n:9M?+5x?+12?NONO6hNO?+5x?+1zA+1DABN+1A+1QA+2DA+3QA+4NONOA:lA+2B?+4NONOh+3y:9M?67?+2x?2?+2NO7wNONO?+3:0?x?zA+2NONONA+fNONONONOA+1B?NONONONOywyNOh+2y?+1x2?e?+2NOmhNO?+3zAxA+3NONON+1t+X040+1t+bNJ+X2J+eN/6+M:26/N:3ONOh+1n?+12:e?+3PA+aN/6/+NN+1OMhn?+12?+5PA+6QA+1N/6+4456+gw236+aw236+1w236+1w2/NONOy?+12?+7SPA+6QN/6+4kl6+5w236+1w236+1wMij36+1w236+3wMij01Mij01Mi/N+1OMn?2?+8S?+1S?+1:fPA+2N/6+1w236+1w236+1wMij01Mij01M/?/+2j01Mij0101M/?/+2gh/?/+2gh/?+1NONONONONO?+5T?+1S?+5N/01Mij01Mij01M/?/+2gh/?/+2gh/?/+4gh/?/+2ghgh/?+cN+1ONONONOM?+8S?+5N/gh/?/+2gh/?/+2gh/?+BNONONONONONONO?+4S?+1NONON?+n:l?+e;i?+a0?+3NONONO?x?+5T?+2x?N+1?+mNO?+5:0?+hz0?+4NONO?+1x?+9x?ANAB?+e:l?NONONONO?+kzA+10?+5NOMB?x?+2e?+4:m?xzANA+2B?+8;0?+3NONONONONONONONO?+7:l?+4zA+20?+6NOABx?+2x?+4zxA+1NA+4B?+9NONONONONO?+1NONONOt+7k40+1A+30?+5NOMA+1xAB?x?+1e?zAxA+1NA+50+15lt+5MNO?+3NONO?+1NO?+1NOJ+62J+1zA+30?+6NOt+fNA+5BJ+13J+5NO?+fNO?+42?+1zA+40?+7MJ+fN"},
-	{next_start_x=140, next_start_y=170, start_x=16, start_y=66, map_string="the castle is ahead.", nl_1=7, offset = -16, map_marker={62,32}, data="11d2062m/6/+p0+1?+8wh+10+3h+4n?+13?+20+3h+2n?+32?+20+1?mh0/+16+9w236+1w236+4456+1w236+1w/0+1?w7h7?+3wh+10:2?+10h+3n?+33?+10+3hn?+42?+3:90:90?+1w0/+16+8wMij01Mij36+3kl6wMij01M/0+1?mh+3y?+2wh0?+10h+1n?+2mh0+4?+10n?+42?+5:90?+1m0/+16+601M/?/+2gh/?/+2j36+4wM/?/+2gh/?+4whywhy?+2w0+3n?+5wh+30?+10?+10+b7?+10/+16+6gh/?/+9j01201M/?+bmh+37?+1w0+3;b?+7wh+20+1?0?+36h+4n?0+1y?+10/+101:22/+4?/+cghigh/?+7:0?+2w7?+2mh+1y?w0+7y?+3wh+10+3?+2wnwhn?+30+1y?+10/+1ghi/+4?+2e?+n6hy?+3why?+10+3:1wh+2n?+5m0+3?6hn6hn?+1:c?+20+1y?+10+1?+6B?+1x?+4e?+b0+1kc0+7?+1h+1y?0?0+1h+1n?+7;a?0:2?0+1hywywn?+50:20y?+10+8AB?x?+4x?+d2?0+4?x?+16hy?+10?+10hy?+4w0+4?0+ak40+2y?+10+8A+2xB?+2zx?+7e?+32?z0+2?+2x?6nwye?0?+10n?+5whywy0+3h+3n?+326h0+1y?6h:8h+10+51+40?zAxB?+2e?+1zxB?+12?+1A0+1?+1wyx?wewyx?0+1:3?0;b?+7wh+1y0+1:3?0h+1n?+42?wy:90wh7wy:90w0+5j+41+50?+1x?zAxAB2?ezA0+1?e6yxwyxwyx?0+450+1?+17?+1ywh0+1?0hn?+426h+27:90h+50+5?+4j+51+e0+9k40+5h73?+2wy6h7w0+55l0+l?+aj+e0+1wh+2n?+226h+10+3yw73?+1wh+1ywh0+3?x?3?+5x?0+Fwh+1n?+226ywh0?0+1ywh73?+1whywh0+3?x?+13?+3:e0/+46/+a0h7wh+5ywh+2y?+3mh+1ywh+10+1mhy?+226hnwn0?0+1hy?h73?+1wywh0+3?x?+23?+10/+56+6456/+10wywh+2y?mh+2n?+bmn:90?wy?+126h+2n?0?0+1y?+1my?3?wh7:aw0+3?x?+33?0+1?/j/x/6+7kl6/+10h+17whn?+2:gwn?+e:90:90?why26ywn?+1:a?0+1:3?0y?+20+8:2?0+3k40+4?+2x/36+3w23:f6+1w2/0wh+1y?+6:5?+40+2?+30+dk40+2?0y?+3wh7?mh+10?0+1n?2?+2x?+4x/j36+1wMij01Mi/0h+1n?+l0?0h+2n?+426h0+3y?+167why?+1wh0?0+1?2?+3x?+4x?/j01M/?/+2gh/?+10y?+n0?0hy?+52?mh0:2?0+1y:4?+1wywywy?+1w0+6?+2x?+4x?/+1h/+1?+70n?+i:4?+3w0+2y?+2:0?+22?+2w0?0+1y?+1mh+10+1y?+1w0+6?+2x?+4x?+7:d?+30?+10+5?+e6h0+2hn?+32?+3w0+3y?+2wh0+1y?+1h0?:3?x?0+1B?+1x?+4x?+b0?+2x?+1x?+3:0?+awh+10:3?0y?05l0+4?h0+3h7?6h0+2y:6?+1h0?+1x?0+1A?+1x?+1e?+1x?+b0?+2x?+1x?+dwhyw0?0y?+23?+5m0?0+9y?+1w0+1?x?0+1AB?x?+1xzBx?zB?+6zA0?+2x?+1x?+20+2?+10+a?0n?+33?+1wy?+10?x?+1x?+1x?0+1y?+1w0+1?x?0+1A+1BxzAxA+1xA+3B?+2zA+20?+2x?+1x?+3x?+3x?x?x?x?+10+2?w7?+23?my?+10?x?+1x?+1x?0+1n?6h0?+1x?0+11+m?+2x?+1x?+3x?+3x?x?x?x?+10+26h+1y?+23?m7?0+bk40+3?x?0+1j+m"},
-	{start_x=16, start_y=50, offset = -28, map_marker={84,22}, data="g5820e40/6+iw20/MNOMhn?26h+2ywM:2NONONONONO?+1NONONO?+h2?+fNONO?+5NONONONOhywh+2NONONO:2N/+76+a456+4wMih/NONOn?26nhnwyhN:3ONONO?+1NONONO?+1NO?+h2?+gMNONO?+5NONONOmhyh+1n?+1NONONO/+736+1w236+1w23kl6+3wM/?+3NOM?26nwy?mywMNONO?+5;1?+5;1?+h2?+hNONO?+7NONO?+1wh+1y?+2;1hNONON/+7j01Mij01Mij36+1w01M/?+5NONOYVWO?+1whNOMy?+rYVWO?+6NONOYVWONONONONO?+5NONONO?+1mn?+3whNONO+7?/gh/?/+2gh/?/+2j01Mih/?+7xh+273?+2h+1MNOy?+rx73?+6wM:2NOMh73?+2h+2NONO?+3NONONO?+9mhNON+7?/+bgh/?+axh+1nw73?+1:gmhNOMy?+rxh73?+46hNONOwh73?+1wh:0h+1NONO?+1NONOh;1n?+bwMNO+7?+oxhy?+1m73?+1hMNOhy?+p6xh+1e3?6ywywMNOM?wh73?+1mh+2NONONONOhy?+bNONON+7u+e?+9xh+1:d7?+1h73?mNOMwhy?+ohxywNONONXUZNONONONONXUZNONONONONOhn?+dNONO+7fvf+4vf+4vfNONONO?+3xywhyewh73?MNOw;0ywy?+d:7?+86hxywxywhn26NONONOwhn?2?+3mh+1y;1?+96NOYVWONONONON+7?L?+4L?+4L?+1NONOM?+3xh7wyxwNONONOMy+1why?+5:7?+fwhx7wxyhn26ywNONOywy?2?+5why?+9hMNOy3?+1wh+1MNO+7?L?+4L?+2e?L?+1x?+1NO?+3xhywhxhMNONONONONXUZ?+j6h+1xywxhy26hywMNOMyhn2?+7h+1y?+76hNOyw73?+1h+1NON+7?L?+1e?+1L?+2x?L?+1x?NOM1+aNONONONOn?26hy?+gNONONONONONONONONONONONONO?:b?+4wy+1?+6h+2MNOyw73?wh+1NO+7?L?+1x?+1Le?+1x?L?+1x?+1NOj+aMNONONOn?26ywhywy?+2why?+2wymhyMNONONONONONONONONONONONONONONONONO?:b?+46h+2NOywh+173?mh+1N+78+vNONONO?+126hywhywhy?whywhymh+17whNONONONONONONONONONONONONONONONONONONONONONONONOywh+173?mh+8OMh+2n?+owh+1y+1?+226M:2N/6+?6/+3NONOh73?+1mh+1ywNO:2N+1Ohn?+rmymy+1?26yNO/6+c45:26/0/6/+PN;iONOh73?+1wywhMNO+1My?+ty?wy26y+1MN:3/36+1w236+6kl6/0:3/36+1w236+5w36+1w236+pw236+3w/NONOh73?+1m7mhMN+1Oy?+tYVWONONONO/j01Mij36+1w0136+1w/0/j01Mij36+1w01Mj01Mij36+1w0136+1w236+5w236+3wMij36+1wMi/NONOh73?+1wywNO+1My?+v3?mhyNON?/gh/?/+2j01Mihj01M/0?/gh/?/+2j01Mih/?/+1gh/?/+2j01Mihj01Mij36+1w01Mij36+1wM/?/+2j01M/?NONONOh73?+1myMN+1Oy?+v73?w:0ywNO?/+6gh/?/+3gh/?0?/+6gh/?/+agh/?/+3gh/?/+2j01Mgh/?/+2j01M/?/+4gh/?+4NONONONXUZNO+1Mhy?+s;a?wh73mhyMN?+f0?/+vgh/?/+6gh/?+bNONOh+1n?26NON+1Oh+1y?+9:7?+hYVWONONONO?+f0?+TNONOn?26hMNO+1NONONXUZNO?+n3mhywNON?+f0B?+Txhy?26h+1NONywywn?26NOM?+mh73mh;0hyNO?+f0A+1B?+Rxn?26h+1NONOywhy?26hMNO?+b:7?+9wh+173mywMN9a?+39:oa9a?+39a0A+5B?+1zB?+czB?+bzB?+gx?26h+1NONONnhn?2?ywNOM?+4ywy?+dwywhNONONOa9a9a9a9a9a9a9a91+aNO?+3:5?+50+4?+3:5?+50+4?+3:5?+5NO1+dy+1?2?wywMNOywy6h+2ywhy?+66yhNONONONONON+1ONXUZNONONONONOj+bM?+9x?+2x?+9x?+2x?+9Mj+ehn26hy?wNOMhywh+1ywh7wh+2y?wywhywMNONONONONO?NX26h+7NO?o+?o+4"},
-	{next_start_x=276, next_start_y=90, start_x=16, start_y=192, offset = 41, map_marker={69,22}, nl_1=7, map_string="the castle is ahead.", data="81d50c31ONOh73?+3NONONONONONONONONONONONONONONONONONONO?+23?+3NONONONONO?:e?+3PA+aN+eO:8Mwy?3?+7PA+2NONONONOA+6R?+4PA+3R?+53?+iPA+9O+eN:9O7wy?3?+7SPA+1NONONOA+3RS?S?+6SPAR?+73?+6:g?+bSPA+1R?+1SPAN+eO:9Mymh+173?+6S?PA+1NONOA+2R?+1S?T?+6T?S?+93?+hS?S?+2:f?S?SO+eNONONONONONO?+2T?+1SPMNOMARS?+2S?+aS?+a3?+gT?S?+3S?TN+eONONONONONO?+6S?NONOS?S?+2T?+aT?+6NONONONONONO?+bS?+3T?+1O+eNONONONONO?+7T?+1NO?T?S?+ox?S?+1S?x?+dT?+6N+d?wh+1NONONOy?+fT?+7:0?+gx?S?+1T?x?+lO+d?+1mh+1NONOMy?+Fx?T?+3x?+h:m?+3N+d?+2wh+1NONOh7?+a:0?+6NXUZNONO?+ex?+5x?+lO+d?+3mNONOMh+1y?+3:0?+4;l?+826NONOM?+2NONO?+7x?+5x?+7NONONONONONONO+e?+5NONOywh7?+6NONO?+3:l?26nwNONOy?+1MNOM?+2NONO?x?+5x?NONO?+1wMNONONONONONON+e?+6NONONONONONOy?xy6x?wNONOy6hMNOMh+1yNONOy?wMNOMyxwNONOyxwMNOMy6hNONONONONONONO+eo+?o+wONOywh+2y?+5S?S?+1SPA+aR?+5PA+9R?+7PA+1QA+6QA+1R?+5PA+c:2N?NOMy?wh+27?+4T?S?+1S?PA+7RS?+7PA+5R?S?+9PA+b?+7A+4QA+6M?ONOywhnwywy?+5S?+1T?+1S?+1PA+1RS?S?+8S?+2S?+2T?+aPA+4QA+3R?+7PA:iA+7QA+1N?NOMh7wywh+1y?+5T?+4S?+2S?+1T?S?+8T?+2S?+fS?SPA+2R?S?+9PAQA+7RM?ONOhywh7mh+17?+4:0?+5T?+2S?+3T?+cT?+fS?T?S?S?+1T?+aPA+1R?+1PA+1R?N?NONOh7wy+2wy?:l?+dT?+yT?+2T?S?+fS?+4S?+1M?ONONOYVWONONONONONO?+NT?+fT?+4S?+1N?h+1ywhy?3?wywNONONO?+??+9T?+1M?ywhywh7?3?myMNONO?+x:0?+HN?nwhy6h+1y?3?wNONO?+hzB?+bzAB?+kNO?+2:4?+4NO?+aM?6hywh+37?3mMNOM?+gzANO?+9zANONO?+e;0?+2NOM?+7MNO?+9N?why?wywhNONONONO?+5zB?:l?+6;lzANOM?+7zA:lA+1MNONO?+fNONO?+7NONO?+6:0?+1M?ONONONONONONONOM?+4NONONO?+1NONONONO?+3NOYVWONONONONONO?+3:5?+5NONONOM?+7MNONONO?+5N?NONONONONONONONOo+4MNONOMo+1MNONONOMo+3MNO73mhNONONONOMo+9MNONONOo+7NONONONOYVWONO?"}
+	{data="000000001i?+??+??+??+??+Hh7wy?+3S?PERSC:2P?:3B?+1S?S?+1xh+1xh+1x:2h?:3AEARCS?+8:2?hy?w7?+2T?+1C?TC?+1AB?S?S?+1xh+1xh+1xh?+1C?+1CT?zQB?+5ywymy?+2zA+1DA+1D:jA?A+1?T?S?+1xh+1xh+1x:jh?ADA+1DAQA+2B?u+2:ju1+30+15lt+7?A+1B?+1T?NXUZNONON?t+6NXUZMfvfvj+40j3J+6z?A+2?+42?xzBx?+2J+72JNO?L?L?0+5?3?+3zA+1?A+2B?+22?+1xA+1xB?+2e?+42?NOM?L?L?+10?0+3B3zBzA+1:kA?A+3B?2ezAxA+1xA:kB?+1x?+1e?2?NONO?L?L?+20+6s+5?s+4NONONO1+4?ONONONONONOM8+3?+??+??+??+??+HA+5R?+1PA+4:2A?:3B?+3S?+3S?+1S?:2?+3zA+1QA+dR?+5PA+3?QAB?+1T?+3S?+1T?+1zANO1+cAER?+9PAE?A+1QAQB?+3T?+2z:jAQNONONOj+9?C?+8zB?+1C?1+40+15l1+6NONOh+1NONONO?+4BC?+1zB?/ef/?zAQABC?Oj+63j+3NONOy/A/?why/z/w:gNO:2N+5ADBzQAB/uv/zQA+1QA:jD?NONOABzB?3?+1zB/y/h+1y/P/6ywn/P/wMNO+5t+f?ONONOAQA+1B3zQ:nA/O/hywh+1nwhywNON+5J+f?NO?+1NOt+5NONONONONONONONO+5"},
+	{next_start_x=4, next_start_y=58, start_x=16, start_y=82, map_string="the path splits here...", nl_1=3, nl_2=4, offset = -58, data="g5820e2835/6/+p0+2h+3n?wh+4n?+10+2wh+3n:20+1?+42?+20:20+4:30+1y3?w:3yx/6+5:e6+e:26/0/6/+p0+2hy?+6mh:0hn?+10+2wh+3n0+1?+32?+30+7h73mhx/6/+l0/6+7456/+f0+2y?+46y?+60+2nwhnmh0+1?+22?+40+7yw73mx/6+h456/+10/6+7kl6+5w236+1w236/+10+2y?+2wh+27?+3wy0+2h+27?w0+1?0+4kc0/+e36+1w236+b:fkl6/+10/1236+1w236+1w236+1wMij01Mij01/0+4k40+45l0+6wnwh7m0?+2;1?+320/+fj01Mij0136+1w236+1w23w23/0/hij01Mij01Mij01M/?/+2gh/?/+2gh/?x?+226h0+2h73?+1mn0+2wy?mn?0?+52?0+f?/gh/?/+2ghj01Mij01MijMij/0?/+2gh/?/+2gh/?/+2gh/?+bx?+126;0hn0+2yw73?+1hn0wh+1y?+2:90?+42?+10+8h0m0+3?/+8gh/?/+2gh/?+50?+qx?2?wy60+2h+273?mhxwnwn?w7:90?+32?+20+8ny?0y0+1?+f:d?+50?+p0+4k40+5wh73?mx;0mh+1n?0+i?mhn0w0+1?+l0?+86e?+fxhy?260+5ywh73?x?wn?+10+i7?n?ym0+1?+7e?+bw0B?+2zB?+2wx?+3zA0+4?+3zx:0n?26h0+71+20+110+151+30+110+21+20+6y?+1ym70+1?+16hye?+1xwy?+6e?wh0AB?zAxy6yhx?+2zA+1x?+2xAB?zAxy26ym0+7j+20xj0j+13j+60j+40+5h76h7m0+1?ewh+1x?+1xh+2e?+4xh+201+3NONONONO1+4x?+2x1+f0+2?+20x?0+1?+13?+c0+41+50+11+1k40+11+1010+21+40+110+1j+gx?+2xj+e0+3?+10+1x0+2?+23?+b0+4j+50+1j+12j+i0/6:36/0+1hyx?+3xwh0+1:2/6/+10+u:30+1?+13?+6PA+1QA+2QA+1R?+62?0:20/+i6/+10+1hyx?+3xwh0/+16/+10+wB?+13?+6QA+2QA+1RS?+62?+1:80/+j6/+10+1mhx?+3x7m0/+16/+10+wAB?+13?+5PA+4R?S?+52?+2:90/+j6/+10+17mx?+3xh70/+16/+10+x5l0+2?+5SAQRS;1?+1T?+42?+3:90/+j6/+10+1hyx?:7?+2xyh0/+16w/0+w?+13?+8TPR?S?+40/+r36/0+1h+1x?+3xw:hn0/+11M/0+wB;0?+13?+bS?+50/+qj0/0+1ywx?+3xn60/+1h/?0+wA+1B?3?+aT?+60+1?x?+1x?/+jg/0+1y?x?+3x6y0+1?+10+D?+g0+1?x?+1x?+k0+1hyx?+3xhn0+1?+10+w?x?x?x?+c:4?+40+1?x?+1x?+k0+1hyx?+2:c?xw70+1?+10+wBx?xBx?+h0+1?x?+1x?+j0+2y+1x?+3xwh0+2?0+wAxzx:0AxB?+6:0?+8z0+1?x?+1x?+j0+2k40+55l0+2?0+wAxAxAxAB?zB?+2zB?+1;a?+2zA+10+1?x?+1x?+i0+1?+12?+2mhnmn3mh0+y1+a?+11+2?+11+50+1?x?+1x?+i0+1?2?+36n6nwn3w0+m8+mo+18+2o+18+v"},
+	{next_start_x=4, next_start_y=194, start_x=16, start_y=82, map_string="the path continues...", nl_1=5, map_marker={60,13}, data="11d20d122iA+5B?+1PA+kR?PA:iA+aE:2A0:3A+f:eR?PA+b:2A0A+6B?+1PA+bRPA+3RS?+3PA+7R?C?0A+bEAR?+3A+c0A+7B?+1PA+9R?+1PER?+1S?+4SPA+3R?+2C?0A+2R?PAEAR?+1C?+5PA+b0A+7R?+3PA+6R?+3C?+2T?+4T?+1PER?+3C?0AR?+4C?+3C?+7PA+5:fA+30PA+5R?+5PA+4R?+4C?+cC?+4C?0?+6C?:5?+2C?+8A+90?+1PAEAR?+4e?+2PER?+6C?ey?+9C?+4C?0?+6C?+3C?+1NONONO?PA+80?+3C?+5wx?+3C?+5zBCzxh7?+3zAB?+1C?+4C?0?+6C?+3C?+1:8MNO?+1x?+1P+1EARSPAE0?+3C?+4whxy?+2C?+3zA+2DAxh+1y?zA+4BC?+3zDA0?+1:4?+3:0?C?+2zDB?:pNOM?+1x?+3C?+1S?+1C0?+3C?+4h+1xy?+2C?+1zA+4NONONOt+2NONOADB?zA+30?+5zDB?zA+2B:pMNO?+1x?+3C?+1T?+1C0AB?+1C?+36h+1xh7?zDA+7MNOJ+6NOMA+80?+4NOt+105lt+2NOMB?x?+3C?+4C0A+2BCzB?+1NONOt+cNO?+8NOt+20k40t+2?+4MNOJ+23J+2?NOABx?+3:cC?+2zAD0A+3DA+3MNOJ+dM?+aMJ+32J+4?+4NO?+43?+3MA+1xABzADA+50t+8NO?+u2?+aM?+63?+1NOt+eJ+8M?+u2?+5o+5NO?+63?+1MJ+e?+2PA+7R?+2S?+1S?+1S?+2S?+1whyw:30?+52?+7PA+8R?+33?+5;i?+fPA+4R?+3S?+1T?+1S?+2S?+1mhnw0?+42?+9SPA+4RS?+53?+fy?+4A+3R?+4S?+4S?+2T?+2whn:90?+32?+aS?+1PA+1R?S?+63?+1;0?+cy?e?+2PAR;1?+2:g?e?+1T?+4S?+6my?:90?+22?+bS?+2S?+2S?+73?+dhyx?+3;1?+4wx?+7T?+60+e?+4T?+2T?+2T?+60+4?+ah+1x?+8wxy?+gx?x?+5x?x?+e:0?+7x?x?+bh+1xh7?+5whxy?+fzxBx?+5x?x?+i:6?+3x?x?+bh+1xh+1y?+36h+1xhy?+czA+1xAxB?+4x?x?+c0+4?+4x?x?+bNONOt+7NONO?+aNONOt+4NONO?x?x?0+2?+5:4?+3x?x?+5x?x?+bMNOJ+9NOMy?+2:5?+5wMNOJ+6NOMBx?x?x?x?+2zB?+4x?x?+5x?x?+bNO?+bNOhy?+66hNO?+8NOAxBx?x:0?x?+1zA+2B?:0?+1x?x?+5x?x?+bM?+dMhy?+6h+1M?+aM;bAxAxBx?x?zA+4B?+1x?x?+5x?x?+bNO?+bNOh+17?+46h+1NO?+8NOt+lNO?+2x?x?+bM?+dMh+2y?+2wh+2M?+aMJ+mMo+h"},
+	{next_start_x=140, next_start_y=90, start_x=16, start_y=194, map_string="the path splits again...", nl_1=8, nl_2=6, offset = 50, map_marker={49,27}, data="85b30b532jB?3?+7S?+1S?+2S?+43?+5S?+4S?+cS?+1S?+1S?+2S?+3:e?+3S?+7S?+10A?+13?+6T?+1S?+2S?+53?+4S?+4T?+cT?+1S?+1S?+2S?+7S?+7S?+10AB?+13?+8S?+2T?+63?+3T?+lS?+1S?+2T?+7S?+7S?+10s+6NO?+4T?+b3;lKu?+e:l?Ku+2?+3S?+1T?+bT?+6:f?S?+10I+5NOMB?+efvfvf?+4:5?+9fvfvf?+3T?+nT?+10?+6NOAB?+1u;lu+2?+8L?L?+gL?L?+w0?+6s+3NOf+1vf?+8L?L?+gL?L?+5zB?+o0?+3NO?I+2NOM?+1L?+9L?L?+c:4?+3L?L?+4:0zA+1B?:0?+m0?+aNO?+1L?+9L?L?+7:0?+8L?L?+3zA+5B?:8?+j0?+5NO?+3M?+1L?+1:4?+7L?L?+6Ku+3?+4L?L?+1NONOs+3NON:pO?+e:m?+30?+aNO?+1L?+4:l?+4L?:5L?+4fvf+2vf?+4L?L?+1MNOI+5NOM?NO?+f0?+1NO?+7M?+1L?+4Ku+2?L?L?+5L?+2L?+5L?L?+1NO?+7NO?M+1?NONOs+5NONO?0?+aNO?+1L?+3fvfvf?L?L?+5L?+2L?+5L?L?+1M?+9M?NO?MNOI+7NOM?0?+bMo+BNO?+7NOoM+1oNO?+9NOo0/6+S:26/0+3:3/6+k:26/0/6+7456/+J0/+36/+l0/6+1w236+2kl6+aw236/+v0/+36+c456/+60/01Mij0136+1w236+1w23w01Mij0136+1w236+1w23w236+7w236/+40/+36+ckl6/+60/gh/?/+2ghj01Mij01MijMgh/?/+2ghj01Mij01MijMij0136w201Mij0136/+10/+36w23w236+7w236/+30?/+7gh/?/+2gh/?/+bgh/?/+2gh/?/+5ghj1Migh/?/+2ghj01/0/+31MijMij0136w201Mij0136/0?/+Gh/?/+9gh/0/+3h/?/+5ghj1Migh/?/+2ghj1/0?+T0+3?/+9h/?/+9h/0AB?+R0+3?+e:g?+60A+3B?+hw7?+1wy?+mzAB?0+3?+4e?+f0A+4B?+d:0?+1why?6:lh+17?+b:0?+7zQA+2B0+3?+4xy:0?+8e?+40A+6B?u+a?+1hNO?hNOy?+1u+3?+1u+6?+2zQA+3:lQA0+3?+4xh7?;l?+5wx?+40s+8f+1vf+1vf+1vf+1s+1NONONOs+3f+1vf?+1f+1vf+1vf?+1s+1050+2s+5?+3s+30+350s+3?+30I+8o+aI+bo+eI+33I+7o+3I+83I+3o+30"},
+	{next_start_x=276, next_start_y=58, start_x=16, start_y=82, map_string="the castle is ahead.", nl_1=7, offset = -24, map_marker={69,22}, data="14a90a492dA+tR?+23?+4:2MNO?+6mh+1yh:2NONOM?+32?+1PA+6:2ANA+bRS?PA+bRS?+43?+3NOM?+8w7wN+1:3ONO?+22?+3SPA+5NPA+9R?S?+1SPA+8R?S?+53?+2MNO?+7:g?+1myNONO;b?+22?+4S?SPEA+2N?SPA+6R?+1S?+1S?SPA+1EA+2R?+1S?+63?+1NOM?+awMNONONONONONOS?S?CPA+1N?S?+1PAEARS?+2S?+1T?S?;1?SC?;1?S?+2S?+2;l?+3NONONO?+1NONONO;b?+3NONONO?+4x?S?T?C:1?SPN?T?+3C?+1S?+2S?+3T?+1TC?+1S?+2T?+1NXUZNONONOM?+2NONONO?+2MNONO?+5x?S?+2C?S?N?+5C?+1S?+2T?+7C?+1S?+62wNONONONO?+3x:1?+2NOUZNONO?+6x?T?+2C?T?N?+5C?+1S?+4zA+1B?+2C?+1T?+52?6h+2NONO?+4x?+32?NONO?+7x?+4C?+2N?zAB?+1C?+1T?zB?zA+5BC?+72?wh+2ywNO?+5x?+22?NONONO?+6x?+4C?+2NzA+2B?C?+1zA+4QA+5DAB?+4NONOywh+2n:pM?+5x?+12?NONO6hNO?+5x?+1zA+1DABN+1A+1QA+2DA+3QA+4NONOA:lA+2B?+4NONOh+3y:pM?67?+2x?2?+2NO7wNONO?+3:0?x?zA+2NONONA+fNONONONOA+1B?NONONONOywyNOh+2y?+1x2?e?+2NOmhNO?+3zAxA+3NONON+1t+X040+1t+bNJ+X2J+eN/6+M:26/N:3ONOh+1n?+12:e?+3PA+aN/6/+NN+1OMhn?+12?+5PA+6QA+1N/6+4456+gw236+aw236+1w236+1w2/NONOy?+12?+7SPA+6QN/6+4kl6+5w236+1w236+1wMij36+1w236+3wMij01Mij01Mi/N+1OMn?2?+8S?+1S?+1:fPA+2N/6+1w236+1w236+1wMij01Mij01M/?/+2j01Mij0101M/?/+2gh/?/+2gh/?+1NONONONONO?+5T?+1S?+5N/01Mij01Mij01M/?/+2gh/?/+2gh/?/+4gh/?/+2ghgh/?+cN+1ONONONOM?+8S?+5N/gh/?/+2gh/?/+2gh/?+BNONONONONONONO?+4S?+1NONON?+n:l?+56e?+6;i?+a0?+3NONONO?x?+5T?+2x?N+1?+ke?NO?+1eywh:0xB?+7e?+6z0?+4NONO?+1x?+9x?ANAB?+e:l?NONONONO?xh+1nxA+2B?+4xy?+3zA+10?+5NOMB?x?+2e?+4:m?xzANA+2B?+4e?+2;0?+1zANONONONONONONONOA+5B?:lxhn?ezA+20?+6NOABx?+2x?+4zxA+1NA+4B?+2xy?ezA+1NONONONONO?+1NONONOt+7k40+1A+30?+5NOMA+1xAB?x?+1e?zAxA+1NA+50+15lt+5MNO?+3NONO?+1NO?+1NOJ+62J+1zA+30?+6NOt+fNA+5BJ+13J+5NO?+fNO?+42?+1zA+40?+7MJ+fN"},
+	{next_start_x=140, next_start_y=170, start_x=16, start_y=66, map_string="the castle is ahead.", nl_1=7, offset = -16, map_marker={62,32}, data="156707562m/6/+p0+1?+8wh+10+3h+4n?+13?+20+3h+2n?+32?+20+1?mh0/+16+9w236+1w236+4456+1w236+1w/0+1?w7h7?+3wh+10:2?+10h+3n?+33?+10+3hn?+42?+3:90:90?+1w0/+16+8wMij01Mij36+3kl6wMij01M/0+1?mh+3y?+2wh0?+10h+1n?+2mh0+4?+10n?+42?+5:90?+1m0/+16+601M/?/+2gh/?/+2j36+4wM/?/+2gh/?+4whywhy?+2w0+3n?+5wh+30?+10?+10+b7?+10/+16+6gh/?/+9j01201M/?+bmh+37?+1w0+3;b?+7wh+20+1?0?+36h+4n?0+1y?+10/+101:22/+4?/+cghigh/?+7:0?+2w7?+2mh+1y?w0+7y?+3wh+10+3?+2wnwhn?+30+1y?+10/+1ghi/+4?+2e?+n6hy?+3why?+10+3:1wh+2n?+5m0+3?6hn6hn?+1:c?+20+1y?+10+1?+6B?+1x?+4e?+b0+1kc0+7?+1h+1y?0?0+1h+1n?+7;a?0:2?0+1hywywn?+50:20y?+10+8AB?x?+4x?+d2?0+4?x?+16hy?+10?+10hy?+4w0+4?0+ak40+2y?+10+8A+2xB?+2zx?+7e?+32?z0+2?+2x?6nwye?0?+10n?+5whywy0+3h+3n?+326h0+1y?6h:8h+10+51+40?zAxB?+2e?+1zxB?+12?+1A0+1?+1wyx?wewyx?0+1:3?0;b?+7wh+1y0+1:3?0h+1n?+42?wy:90wh7wy:90w0+5j+41+50?+1x?zAxAB2?ezA0+1?e6yxwyxwyx?0+450+1?+17?+1ywh0+1?0hn?+426h+27:90h+50+5?+4j+51+e0+9k40+5h73?+2wy6h7w0+55l0+l?+aj+e0+1wh+2n?+226h+10+3yw73?+1wh+1ywh0+3?x?3?+5x?0+Fwh+1n?+226ywh0?0+1ywh73?+1whywh0+3?x?+13?+3:e0/+46/+a0h7wh+5ywh+2y?+3mh+1ywh+10+1mhy?+226hnwn0?0+1hy?h73?+1wywh0+3?x?+23?+10/+56+6456/+10wywh+2y?mh+2n?+bmn:90?wy?+126h+2n?0?0+1y?+1my?3?wh7:aw0+3?x?+33?0+1?/j/x/6+7kl6/+10h+17whn?+2:gwn?+e:90:90?why26ywn?+1:a?0+1:3?0y?+20+8:2?0+3k40+4?+2x/36+3w23:f6+1w2/0wh+1y?+6:5?+40+2?+30+dk40+2?0y?+3wh7?mh+10?0+1n?2?+2x?+4x/j36+1wMij01Mi/0h+1n?+l0?0h+2n?+426h0+3y?+167why?+1wh0?0+1?2?+3x?+4x?/j01M/?/+2gh/?+10y?+n0?0hy?+52?mh0:2?0+1y:4?+1wywywy?+1w0+6?+2x?+4x?/+1h/+1?+70n?+i:4?+3w0+2y?+2:0?+22?+2w0?0+1y?+1mh+10+1y?+1w0+6?+2x?+4x?+7:d?+30?+10+5?+e6h0+2hn?+32?+3w0+3y?+2wh0+1y?+1h0?:3?x?0+1B?+1x?+4x?+b0?+2x?+1x?+3:0?+awh+10:3?0y?05l0+4?h0+3h7?6h0+2y:6?+1h0?+1x?0+1A?+1x?+1e?+1x?+b0?+2x?+1x?+dwhyw0?0y?+23?+5m0?0+9y?+1w0+1?x?0+1AB?x?+1xzBx?zB?+6zA0?+2x?+1x?+20+2?+10+a?0n?+33?+1wy?+10?x?+1x?+1x?0+1y?+1w0+1?x?0+1A+1BxzAxA+1xA+3B?+2zA+20?+2x?+1x?+3x?+3x?x?x?x?+10+2?w7?+23?my?+10?x?+1x?+1x?0+1n?6h0?+1x?0+11+m?+2x?+1x?+3x?+3x?x?x?x?+10+26h+1y?+23?m7?0+bk40+3?x?0+1j+m"},
+	{start_x=16, start_y=50, offset = -28, map_marker={84,22}, data="g5820e2840/6+iw20/MNOMhn?26h+2ywM:2NONONONONO?+1NONONO?+h2?+fNONO?+5NONONONOhywh+2NONONO:2N/+76+a456+4wMih/NONOn?26nhnwyhN:3ONONO?+1NONONO?+1NO?+h2?+gMNONO?+5NONONOmhyh+1n?+1NONONO/+736+1w236+1w23kl6+3wM/?+3NOM?26nwy?mywMNONO?+5;1?+5;1?+h2?+hNONO?+7NONO?+1wh+1y?+2;1hNONON/+7j01Mij01Mij36+1w01M/?+5NONOYVWO?+1whNOMy?+rYVWO?+6NONOYVWONONONONO?+5NONONO?+1mn?+3whNONO+7?/gh/?/+2gh/?/+2j01Mih/?+7xh+273?+2h+1MNOy?+rx73?+6wM:2NOMh73?+2h+2NONO?+3NONONO?+9mhNON+7?/+bgh/?+axh+1nw73?+1:gmhNOMy?+rxh73?+46hNONOwh73?+1wh:0h+1NONO?+1NONOh;1n?+bwMNO+7?+oxhy?+1m73?+1hMNOhy?+p6xh+1e3?6ywywMNOM?wh73?+1mh+2NONONONOhy?+bNONON+7u+e?+9xh+1:d7?+1h73?mNOMwhy?+ohxywNONONXUZNONONONONXUZNONONONONOhn?+dNONO+7fvf+4vf+4vfNONONO?+3xywhyewh73?MNOw;0ywy?+d:7?+86hxywxywhn26NONONOwhn?2?+3mh+1y;1?+96NOYVWONONONON+7?L?+4L?+4L?+1NONOM?+3xh7wyxwNONONOMy+1why?+5:7?+fwhx7wxyhn26ywNONOywy?2?+5why?+9hMNOy3?+1wh+1MNO+7?L?+4L?+2e?L?+1x?+1NO?+3xhywhxhMNONONONONXUZ?+j6h+1xywxhy26hywMNOMyhn2?+7h+1y?+76hNOyw73?+1h+1NON+7?L?+1e?+1L?+2x?L?+1x?NOM1+aNONONONOn?26hy?+gNONONONONONONONONONONONONO?:b?+4wy+1?+6h+2MNOyw73?wh+1NO+7?L?+1x?+1Le?+1x?L?+1x?+1NOj+aMNONONOn?26ywhywy?+2why?+2wymhyMNONONONONONONONONONONONONONONONONO?:b?+46h+2NOywh+173?mh+1N+78+vNONONO?+126hywhywhy?whywhymh+17whNONONONONONONONONONONONONONONONONONONONONONONONOywh+173?mh+8OMh+2n?+owh+1y+1?+226M:2N/6+?6/+3NONOh73?+1mh+1ywNO:2N+1Ohn?+rmymy+1?26yNO/6+c45:26/0/6/+PN;iONOh73?+1wywhMNO+1My?+ty?wy26y+1MN:3/36+1w236+6kl6/0:3/36+1w236+5w36+1w236+pw236+3w/NONOh73?+1m7mhMN+1Oy?+tYVWONONONO/j01Mij36+1w0136+1w/0/j01Mij36+1w01Mj01Mij36+1w0136+1w236+5w236+3wMij36+1wMi/NONOh73?+1wywNO+1My?+v3?mhyNON?/gh/?/+2j01Mihj01M/0?/gh/?/+2j01Mih/?/+1gh/?/+2j01Mihj01Mij36+1w01Mij36+1wM/?/+2j01M/?NONONOh73?+1myMN+1Oy?+v73?w:0ywNO?/+6gh/?/+3gh/?0?/+6gh/?/+agh/?/+3gh/?/+2j01Mgh/?/+2j01M/?/+4gh/?+4NONONONXUZNO+1Mhy?+s;a?wh73mhyMN?+f0?/+vgh/?/+6gh/?+bNONOh+1n?26NON+1Oh+1y?+9:7?+hYVWONONONO?+f0?+TNONOn?26hMNO+1NONONXUZNO?+n3mhywNON?+f0B?+Txhy?26h+1NONywywn?26NOM?+mh73mh;0hyNO?+f0A+1B?+Rxn?26h+1NONOywhy?26hMNO?+b:7?+9wh+173mywMN9a?+39:oa9a?+39a0A+5B?+1zB?+czB?+bzB?+gx?26h+1NONONnhn?2?ywNOM?+4ywy?+dwywhNONONOa9a9a9a9a9a9a9a91+aNO?+3:5?+50+4?+3:5?+50+4?+3:5?+5NO1+dy+1?2?wywMNOywy6h+2ywhy?+66yhNONONONONON+1ONXUZNONONONONOj+bM?+9x?+2x?+9x?+2x?+9Mj+ehn26hy?wNOMhywh+1ywh7wh+2y?wywhywMNONONONONO?NX26h+7NO?o+?o+4"},
+	{next_start_x=276, next_start_y=90, start_x=16, start_y=192, offset = 41, map_marker={69,22}, nl_1=7, map_string="the castle is ahead.", data="81d20d1231ONOh73?+3NONONONONONONONONONONONONONONONONONONO?+23?+3NONONONONO?:e?+3PA+aN+eO:8Mwy?3?+7PA+2NONONONOA+6R?+4PA+3R?+53?+iPA+9O+eN:9O7wy?3?+7SPA+1NONONOA+3RS?S?+6SPAR?+73?+6:g?+bSPA+1R?+1SPAN+eO:9Mymh+173?+6S?PA+1NONOA+2R?+1S?T?+6T?S?+93?+hS?S?+2:f?S?SO+eNONONONONONO?+2T?+1SPMNOMARS?+2S?+aS?+a3?+gT?S?+3S?TN+eONONONONONO?+6S?NONOS?S?+2T?+aT?+6NONONONONONO?+bS?+3T?+1O+eNONONONONO?+7T?+1NO?T?S?+ox?S?+1S?x?+dT?+6N+d?wh+1NONONOy?+fT?+7:0?+gx?S?+1T?x?+lO+d?+1mh+1NONOMy?+Fx?T?+3x?+h:m?+3N+d?+2wh+1NONOh7?+a:0?+6NXUZNONO?+ex?+5x?+lO+d?+3mNONOMh+1y?+3:0?+4;l?+826NONOM?+2NONO?+7x?+5x?+7NONONONONONONO+e?+5NONOywh7?+6NONO?+3:l?26nwNONOy?+1MNOM?+2NONO?x?+5x?NONO?+1wMNONONONONONON+e?+6NONONONONONOy?xy6x?wNONOy6hMNOMh+1yNONOy?wMNOMyxwNONOyxwMNOMy6hNONONONONONONO+eo+?o+wONOywh+2y?+5S?S?+1SPA+aR?+5PA+9R?+7PA+1QA+6QA+1R?+5PA+c:2N?NOMy?wh+27?+4T?S?+1S?PA+7RS?+7PA+5R?S?+9PA+b?+7A+4QA+6M?ONOywhnwywy?+5S?+1T?+1S?+1PA+1RS?S?+8S?+2S?+2T?+aPA+4QA+3R?+7PA:iA+7QA+1N?NOMh7wywh+1y?+5T?+4S?+2S?+1T?S?+8T?+2S?+fS?SPA+2R?S?+9PAQA+7RM?ONOhywh7mh+17?+4:0?+5T?+2S?+3T?+cT?+fS?T?S?S?+1T?+aPA+1R?+1PA+1R?N?NONOh7wy+2wy?:l?+dT?+yT?+2T?S?+fS?+4S?+1M?ONONOYVWONONONONONO?+NT?+fT?+4S?+1N?h+1ywhy?3?wywNONONO?+??+9T?+1M?ywhywh7?3?myMNONO?+x:0?+HN?nwhy6h+1y?3?wNONO?+hzB?+bzAB?+kNO?+2:4?+4NO?+aM?6hywh+37?3mMNOM?+gzANO?+9zANONO?+e;0?+2NOM?+7MNO?+9N?why?wywhNONONONO?+5zB?:l?+6;lzANOM?+7zA:lA+1MNONO?+fNONO?+7NONO?+6:0?+1M?ONONONONONONONOM?+4NONONO?+1NONONONO?+3NOYVWONONONONONO?+3:5?+5NONONOM?+7MNONONO?+5N?NONONONONONONONOo+4MNONOMo+1MNONONOMo+3MNO73mhNONONONOMo+9MNONONOo+7NONONONOYVWONO?"}
 }
 
 function _init()
@@ -1737,7 +1737,7 @@ function _init()
 
 	--hard_mode = false
 
-	hurt_pal, player_pal =string_to_array("2987a"),string_to_array("1d2f")
+	hurt_pal, player_pal =string_to_array("2982928"),string_to_array("1d2f")
 
 	--player.y=82
 	player:use_slaves()
@@ -1782,7 +1782,7 @@ function clear_level()
 	end
 end
 
-entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), platform:new({yw=-24}), pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key, medusa_spawner, next_level_marker, next_level_marker:new({num2=true}), slime, slimeboss, lock, summoner}
+entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), platform:new({yw=-24}), pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key, medusa_spawner, next_level_marker, next_level_marker:new({num2=true}), slime, slimeboss, lock, summoner, breakable_block:new({b_bit_s=33})}
 
 function load_level(level, respawning)
 	cls()
@@ -1824,7 +1824,7 @@ function load_level(level, respawning)
 	borders={}
 
 	if (level.map_string) map_string = level.map_string
-	enemy_pal, width, cursor, x, y, chain, add_val = string_to_array(sub(s,2,6)), two_char_to_int(sub(s,7,8)), 9, 0, 0, 0, 64
+	enemy_pal, width, cursor, x, y, chain, add_val = string_to_array(sub(s,2,8)), two_char_to_int(sub(s,9,10)), 11, 0, 0, 0, 64
 	while cursor<#s or chain!=0 do
 		if chain<=0 then
 			char=sub(s,cursor,cursor)
@@ -1973,7 +1973,7 @@ function _update60()
 			darkness=5-level_start_timer/5
 		else
 			level_start, level_start_timer, darkness = false, 0, 0
-			play_music(level_music)
+			play_music(level_music,0b11)
 		end
 		return
 	end
@@ -2244,33 +2244,33 @@ function darker()
 end
 
 __gfx__
-0000660600006606000066060006606000ff660600006606000066060000000000aaaa00000000000000000000000000000770000066a0000000770000005505
-0006666000066660000666600066660000ff66600006666000066660000000000aaaaaa0000770000000000000000000007aa7000666aa000007777000055550
-0066fff00066fff000666ff0066fff0000f6fff00066fff00066fff0000000000aaaaaa000766700000000000077770007aaaa70666aa6a07707777000057770
-0066fff00066fff000666ff0ff6fff0000f6fff00066fff00066fff0000000000aaaeee0007a67000777700007aaaa7007aaaa70666aa7aa7705777000557770
-067766700677667006666660ff76670006f7667006776ff0067766700000000076aaaea007aa700000aaa7007aaaaaa707aaaa70666aaaa00766557000665570
-6f77777f06f77770066677700f77770006777770067ff770067f777000000000776aaea700a7700000aaa67076aaaa67076aa6707666aa000076660000666600
-6ff7777f06fff7700667fff00777770006777770067777700677ffff000000007777777700a7000000776670766666670766667007766aa00066660000667777
-0ff55500005ff50000555ff0055555000055550000555550005555ff000000007a7a7aaa00700000000077000777777000777700007770000066660000666657
-00555500005555000055550006775500007555500000000000555000004440007a777a667a777a66060550600006000600060006006666000066660000677600
-00755700000775000077566066677550567756600000000005677500049aa4007aaa7aa67aaa7aa6060550600050555500005555065555500067760000777700
-0677077000077700007776606600775056600660000000005666675049999a4007aa7aa607aa7aa6655555560560565600055656655575550007770007770770
-6660066000066000066705555550077050000555000000005666665049999940077777a6077777a6655555565666555500566555555577550007600066600760
-56000660000660000660000000000670000000000000000056666650499999400a67a7a60aa677a6656556565666555000566556555555500006700067000670
-0550055500055500056600000000066000000000000000000566650004999400aaa7a7aa0aaa77aa066556605665550005665566555500600006670006700667
-0000000000000000005600000000056600000000000000000055500000444000aa67a67a0aa6707a005555000605550005055560555000000000000000000000
-0000000000000000000500000000005500000000000000000000000000000000aaa67a670aaa6707006006000050500000505000055555500000000000000000
-0500000005000000088000000000000000000000006670000000000000000000a000000a000a000000aaaaaa7700a00000077000055000000000000000000000
-5650000059500000899800000000000000000000066677000000000000800000aa0770aa00aa0000000aaaa07770aa000007700056650000000666600aaaa000
-0500000005000000899800000000000000000000666776700000000008880000aaa77aaa0aaa77000000aa000777aaa0a007700a56650000000600600a00a000
-0000000000000000088000000000000000000000666775770000000000800000aaa77aaaaaa777007777777000777aaaaa0770aa05500000000600600a00a000
-0000000000000000000000000000000000000000666777700000000000000000aa0770aa00777aaa77777770aaa77700aaa77aaa00000000000600600a00a000
-0000000000000000000000000000000000000000566677000000000000000000a007700a0777aaa00000aa000aaa7700aaa77aaa00000000000d00d009009000
-0000000000000000000000000000000000000000055667700000000000000000000770007770aa00000aaaa000aa0000aa0770aa00000000000dddd009999000
-0000000000000000000000000000000000000000005550000000000000000000000770007700a00000aaaaaa000a0000a000000a000000000000000000000000
-09900990077700000990000002202200022022000220220002202200005665000660000002202200004994000000000000000000000000000000000000000000
+0000660600006606000066060006606000ff660600006606000066060000000000aaaa00000000000000000000000000000bb00000dda0000000770000005505
+0006666000066660000666600066660000ff66600006666000066660000000000aaaaaa0000bb000000000000000000000baab000dddaa000007777000055550
+0066fff00066fff000666ff0066fff0000f6fff00066fff00066fff0000000000aaaaaa000bddb000000000000bbbb000baaaab0dddaada07707777000057770
+0066fff00066fff000666ff0ff6fff0000f6fff00066fff00066fff0000000000aaaeee000badb000bbbb0000baaaab00baaaab0dddaabaa7705777000557770
+067766700677667006666660ff76670006f7667006776ff00677667000000000bdaaaea00baab00000aaab00baaaaaab0baaaab0dddaaaa00766557000665570
+6f77777f06f77770066677700f77770006777770067ff770067f777000000000bbdaaeab00abb00000aaadb0bdaaaadb0bdaadb0bdddaa000076660000666600
+6ff7777f06fff7700667fff00777770006777770067777700677ffff00000000bbbbbbbb00ab000000bbddb0bddddddb0bddddb00bbddaa00066660000667777
+0ff55500005ff50000555ff0055555000055550000555550005555ff00000000bababaaa00b000000000bb000bbbbbb000bbbb0000bbb0000066660000666657
+0055550000555500005555000677550000755550000000000055500000444000babbbaddbabbbadd060550600006000600060006006666000066660000677600
+00755700000775000077566066677550567756600000000005677500049aa400baaabaadbaaabaad060550600050555500005555065555500067760000777700
+0677077000077700007776606600775056600660000000005666675049999a400baabaad0baabaad655555560560565600055656655575550007770007770770
+66600660000660000667055555500770500005550000000056666650499999400bbbbbad0bbbbbad655555565666555500566555555577550007600066600760
+56000660000660000660000000000670000000000000000056666650499999400adbabad0aadbbad656556565666555000566556555555500006700067000670
+0550055500055500056600000000066000000000000000000566650004999400aaababaa0aaabbaa066556605665550005665566555500600006670006700667
+0000000000000000005600000000056600000000000000000055500000444000aadbadba0aadb0ba005555000605550005055560555000000000000000000000
+0000000000000000000500000000005500000000000000000000000000000000aaadbadb0aaadb0b006006000050500000505000055555500000000000000000
+0500000007770000088000000000000000000000006670000000000000000000a000000a000a000000aaaaaabb00a000000bb000055000000000000000000000
+5650000076660000899800000000000000000000066677000000000000800000aa0bb0aa00aa0000000aaaa0bbb0aa00000bb00056650000000666600aaaa000
+0500000066650000899800000000000000000000666776700000000008880000aaabbaaa0aaabb000000aa000bbbaaa0a00bb00a56650000000600600a00a000
+0000000066500000088000000000000000000000666775770000000000800000aaabbaaaaaabbb00bbbbbbb000bbbaaaaa0bb0aa05500000000600600a00a000
+0000000000000000000000000000000000000000666777700000000000000000aa0bb0aa00bbbaaabbbbbbb0aaabbb00aaabbaaa00000000000600600a00a000
+0000000000000000000000000000000000000000566677000000000000000000a00bb00a0bbbaaa00000aa000aaabb00aaabbaaa00000000000d00d009009000
+0000000000000000000000000000000000000000055667700000000000000000000bb000bbb0aa00000aaaa000aa0000aa0bb0aa00000000000dddd009999000
+0000000000000000000000000000000000000000005550000000000000000000000bb000bb00a00000aaaaaa000a0000a000000a000000000000000000000000
+09900990077700000990000002202200022022000220220002202200006666000660000002202200009999000000000000000000000000000000000000000000
 977897787eee00009aa900002ee288202882ee20288288202882882006666660600600002882882009999990808080808080080000000007000666600aaaa000
-97789778eee200009aa900002ee8882028eeee2028888e202888882056776665600600002888e82049779994808080808880088000990970000622600a88a000
+97789778eee200009aa900002ee8882028eeee2028888e202888882066776665600600002888e82099779994808080808880088000990970000622600a88a000
 08800880ee200000099000002e8888202eeee820288eee202888882066776665066600002888882099779994888080808880888809449440000622600a88a000
 0000000000000000000000002e8888202eee88202eeeee2028888e2066666655000560600288820099999944080080808080088064444446000622600a88a000
 0000000000000000000000000288820002e8820002eee200028ee20056666555000056560028200049999444080008808080080060444406000d22d009889000
@@ -2349,21 +2349,21 @@ __gfx__
 055550050005655005555550000000000000000000008800008800009000f4442004444422222222222f2222222222222222f440000222244222222910111111
 00000000000055000055550000000000000000000000000000000000940f440420044244f2222f22222222222222222222224400022222222222222910111111
 0000000000000000000110000000000000011000888880008888200094000000004044444222222222222222222222222fff4000022222222222442900000000
-0000000000000077001100000001000000110000888820008882000049440440440444444f22200000000000022ffffff4444000202020202222222911111000
-00000077000007aa0171000000110000017100008882000088820000090442442444444444ff02244444444220f4442444440002200000002222222911111000
-000077aa00007aaa0171000001710000017100008882000088820000094444444444200044440000000000000024244244400022220f42022222222911111000
-0007aaaa00007aaa1761000017610000176100008882000088820000094244444442000002440f44444442442022244444000222220402022222229400000000
-007aaaaa0007aaaa17610000166100111761000088882000888820000944444242000000002404044f4422402044444240000000000442022244229010000000
-07aaaaaa0007aaaa1661001116651122166100118888820088888200094442000000002000240000000000000024424404242424040402044222229010000000
-07aaaaaa007aaaaa1665112216552222166511222822880028228800494400000000000002444444424424242444444042424240440000044422229010000000
-aaaaaaa7aaaa67002222556122222551222255610000008800220088944002000002000002444442242242222424000000000000444444440022229000000000
-aaaaaa67aaa667002222255122222211222225510000088800220888942000000000000004000022400000000000200000222220004444000022229400011111
-aaaa666766666700222222112222221022222211220008880088088894000000020000002440f400000000200000000002222200000000000002222900011111
-66666667666677002222221020022100222222102200088800880888940000000000000024404400000000000002220002222200000002000002222900011111
-66666677666677002202221022222100202222108880028800888288942002000000200044404020022222222222200022222000020000000202442900000000
-66667777666777002002210022221000220221008888882800888828942200000000000024004420222224222222200224422002000000200002222900000001
-7777777077777000222221002222100022222100088888280008882849422000020002244000402042244224442200222222200f000020002000222900000001
-77777000777000002222100022221000222210000088888200088882094422000000224400000420404444442444002222220000000000000000222900000001
+00000000000000bb001100000001000000110000888820008882000049440440440444444f22200000000000022ffffff4444000202020202222222911111000
+000000bb00000baa0171000000110000017100008882000088820000090442442444444444ff02244444444220f4442444440002200000002222222911111000
+0000bbaa0000baaa0171000001710000017100008882000088820000094444444444200044440000000000000024244244400022220f42022222222911111000
+000baaaa0000baaa1761000017610000176100008882000088820000094244444442000002440f44444442442022244444000222220402022222229400000000
+00baaaaa000baaaa17610000166100111761000088882000888820000944444242000000002404044f4422402044444240000000000442022244229010000000
+0baaaaaa000baaaa1661001116651122166100118888820088888200094442000000002000240000000000000024424404242424040402044222229010000000
+0baaaaaa00baaaaa1665112216552222166511222822880028228800494400000000000002444444424424242444444042424240440000044422229010000000
+aaaaaaabaaaadb002222556122222551222255610000008800220088944002000002000002444442242242222424000000000000444444440022229000000000
+aaaaaadbaaaddb002222255122222211222225510000088800220888942000000000000004000022400000000000200000222220004444000022229400011111
+aaaadddbdddddb00222222112222221022222211220008880088088894000000020000002440f400000000200000000002222200000000000002222900011111
+dddddddbddddbb002222221020022100222222102200088800880888940000000000000024404400000000000002220002222200000002000002222900011111
+ddddddbbddddbb002202221022222100202222108880028800888288942002000000200044404020022222222222200022222000020000000202442900000000
+ddddbbbbdddbbb002002210022221000220221008888882800888828942200000000000024004420222224222222200224422002000000200002222900000001
+bbbbbbb0bbbbb000222221002222100022222100088888280008882849422000020002244000402042244224442200222222200f000020002000222900000001
+bbbbb000bbb000002222100022221000222210000088888200088882094422000000224400000420404444442444002222220000000000000000222900000001
 00111100001111102222100022221000222210008888800088882000094442222222444000204020440424444444022222222220000000000222222900000000
 01222210012222712222100020221000222210008888200088820000094244444444240000424444444444444444422222442222222222222222222911011111
 01222221122222112221000022210000222100008882000088820000922444244244400004222442444000000044442222222222222222222222229411011111
@@ -2567,14 +2567,14 @@ __sfx__
 010e00001b020160201b020160201b020160201b020160201d0201a0201d020210201d0201a0201d020210201e0201a0201e0201a0201e0201a0201e0201a0201f0201a0201f020210201f0201a0201f02021020
 010e00001b020160201b0201f0201d0201a0201d020210201f0201b0201f02022020210201d020210202402022020210201f0201e0201b0201a0201802016020150201102015020110200e020110201502011020
 0003000015540125300d5201c5001c550225402a53000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500
-010800002105021030210402103023040230302404024030210502103021040210302304023030240402403023050230301f0401f0301f0401f0301c0401c0302104021040210402104021040210302102221012
-010800002105021030210402103023040230302404024030210502103021040210302304023030240402403026050260302304023030290402903028040280302404024040240322402226040260302804028030
-01080000290502903024040240302b0402b0302d0402d0302b0502b0502b0502b0502b0402b0322b0222b0122c0502c03028040280302d0402d0302f0402f030300503004030032300322d0402d0302f0402f030
-01080000300503003030040300302f0402f0302d0402d0302c0402c0302804028030280402803028040280302905029030280402803026040260302404024030230502304023030230221f0401f0401f0321f022
-01080000150301503015020150101c0301c0301c0201c010180301803018020180101503015030150201501017030170301703017030170301703017020170101503015030150301503015030150301502015010
-01080000150301503015020150101c0301c0301c0201c010180301803018020180101503015030150201501017030170301703017030170301703017020170101c0301c0301c0301c0301c0301c0301c0201c010
-010800001d0301d0301d0201d0101c0301c0301c0201c010180301803018020180101703017030170201701015030150301502015010140301403014020140101103011030110201101010030100301001010020
-01080000180301803018020180101503015030150201501015030150301502015010100301003010020100101403014030140301403014030140301402014010100301003010020100100b0300b0300b0200b010
+010a00002105021030210402103023040230302404024030210502103021040210302304023030240402403023050230301f0401f0301f0401f0301c0401c0302104021040210402104021040210302102221012
+010a00002105021030210402103023040230302404024030210502103021040210302304023030240402403026050260302304023030290402903028040280302404024040240322402226040260302804028030
+010a0000290502903024040240302b0402b0302d0402d0302b0502b0502b0502b0502b0402b0322b0222b0122c0502c03028040280302d0402d0302f0402f030300503004030032300322d0402d0302f0402f030
+010a0000300503003030040300302f0402f0302d0402d0302c0402c0302804028030280402803028040280302905029030280402803026040260302404024030230502304023030230221f0401f0401f0321f022
+010a0000150301503015020150101c0301c0301c0201c010180301803018020180101503015030150201501017030170301703017030170301703017020170101503015030150301503015030150301502015010
+010a0000150301503015020150101c0301c0301c0201c010180301803018020180101503015030150201501017030170301703017030170301703017020170101c0301c0301c0301c0301c0301c0301c0201c010
+010a00001d0301d0301d0201d0101c0301c0301c0201c010180301803018020180101703017030170201701015030150301502015010140301403014020140101103011030110201101010030100301001010020
+010a0000180301803018020180101503015030150201501015030150301502015010100301003010020100101403014030140301403014030140301402014010100301003010020100100b0300b0300b0200b010
 __music__
 03 0e424344
 01 130f4344
@@ -2600,4 +2600,3 @@ __music__
 00 2f334344
 00 30344344
 02 31354344
-
