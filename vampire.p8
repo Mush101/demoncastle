@@ -154,7 +154,7 @@ end
 function actor:add_slave(a)
 	if not self.slaves then return end
 	add(self.slaves, a)
-	a.master = self
+	a.master, a.pal = self, self.pal
 end
 
 function actor:goto_master()
@@ -1131,7 +1131,7 @@ end
 
 --------------------------------------------------------------------------------
 
-axe_knight_legs = enemy:new({s=24,timer=0})
+axe_knight_legs = enemy:new({s=24,timer=0,pal_type=1})
 
 function axe_knight_legs:update()
 	self:goto_master()
@@ -1282,7 +1282,7 @@ end
 
 --------------------------------------------------------------------------------
 
-summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0})
+summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0, invis=true})
 
 function summoner:init()
 	slimeboss.init(self)
@@ -1301,7 +1301,7 @@ function summoner:update()
 		self:gravity()
 		self.health=0
 	else
-		self.y=176+sin(p_timer)*3
+		self.y,self.invis=176+sin(p_timer)*3,false
 		if self:die_when_dead() then
 			self:hit_player()
 		else
@@ -1559,16 +1559,14 @@ end
 
 --------------------------------------------------------------------------------
 
-chicken = actor:new({s=61, grav=-2})
+chicken = actor:new({s=61, grav=-2, invis=true})
 
 function chicken:init()
 	self.y+=8
 end
 
 function chicken:update()
-	if self:is_in_wall() then
-		self.invis = true
-	else
+	if not self:is_in_wall() then
 		self.invis = false
 		self:gravity()
 		if self:intersects(player, true) then
@@ -1758,10 +1756,9 @@ function _init()
 	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
-	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness = 0, 0, {}, 20,  0, string_to_array("001121562493d52e"), 0
+	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness, e_add = 0, 0, {}, 20,  0, string_to_array("001121562493d52e"), 0, 0.075
 	--old darkness: "000520562493152e"
 	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0,0,0
-
 	player:update()
 end
 
@@ -1796,8 +1793,7 @@ function load_level(level, respawning)
 	s = level.data
 	start_x, start_y = level.start_x or next_start_x, level.start_y or next_start_y
 	next_start_x, next_start_y = level.next_start_x or next_start_x, level.next_start_y or next_start_y
-	next_level = level.next_level or 1
-	nl_1, nl_2 = level.nl_1 or nl_1, level.nl_2 or nl_2
+	next_level, nl_1, nl_2 =level.next_level or 1, level.nl_1 or nl_1, level.nl_2 or nl_2
 	level_offset = level.offset or 0
 
 	if current_level==7 and back_entry then
@@ -1835,6 +1831,7 @@ function load_level(level, respawning)
 				if char==":" or hard_mode then
 					entity = entity_dict[char_to_int(num)+1]:new():level_up()
 					entity.x,entity.y=x*8, y*8
+					entity:use_pal()
 					entity:init()
 					add_actor(entity)
 				end
@@ -1990,15 +1987,16 @@ function _update60()
 		-- end
 		e_timer=(e_timer+0.01)%1
 		if got_stones==0 then
-			p_width-=0.25 --might want to half this and the following
+			p_width-=0.125 --might want to half this and the following
 			if good_end then
-				e_rad-=0.15
+				e_rad-=0.075
 				for i in all(e_stones) do
 					i:death_particle()
 				end
 				--p_width-=0.15
 			else
-				e_rad+=0.15
+				e_rad+=e_add
+				e_add-=0.0001
 				if e_rad>40 then
 					final_boss.y-=2
 					final_boss.s=210
