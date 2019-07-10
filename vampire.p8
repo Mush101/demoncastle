@@ -1307,6 +1307,7 @@ function summoner:update()
 		else
 			final_boss = demon:new():init()
 			add_actor(final_boss)
+			--play_music(-1)
 		end
 	end
 	self.f=false
@@ -1371,15 +1372,17 @@ end
 
 --------------------------------------------------------------------------------
 
-ending_stone = actor:new({s=58, ignore_walls=true})
+ending_stone = actor:new({s=58, always_update=true})
 
 function ending_stone:update()
 	local timer = e_timer+self.num/3
-	if e_rad<35 then
-		self.x, self.y=move_towards(cam.x+60+sin(timer)*e_rad,self.x,2),move_towards(cam.y+36+cos(timer)*e_rad,self.y,2) --save tokens here (replace cam.x/y with absolute values)
-	else
+	if portal_failed then
 		self.s=55
 		self:gravity()
+	else
+		--self.x, self.y=move_towards(cam.x+60+sin(timer)*p_width,self.x,2),move_towards(cam.y+36+cos(timer)*p_width,self.y,8) --save tokens here (replace cam.x/y with absolute values)
+		local w = p_width-3*sin(p_timer)
+		self.x, self.y=cam.x+60+sin(timer)*w,cam.y+36+cos(timer)*w
 	end
 end
 
@@ -1756,7 +1759,7 @@ function _init()
 	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
-	got_stones, e_timer, e_stones, e_rad, blackout_time, darker_pal, darkness, e_add = 0, 0, {}, 20,  0, string_to_array("001121562493d52e"), 0, 0.075
+	got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add = 2, 0.25, {}, 0, string_to_array("001121562493d52e"), 0, 0.01
 	--old darkness: "000520562493152e"
 	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0,0,0
 	player:update()
@@ -1914,7 +1917,7 @@ function _update60()
 			if hard_mode then
 				player.health, player_max_health=4,4
 			end
-			load_level(2) --start in first level
+			load_level(7) --start in first level
 			sfx(3)
 			darkness=5
 		end
@@ -1976,37 +1979,39 @@ function _update60()
 	end
 	--end of the game
 	if ending_sequence then
-		if e_timer<0.01 and got_stones>0 then
-			local es = ending_stone:new({x=player.x,y=player.y,num=got_stones})
-			add(e_stones, es)
-			add_actor(es)
-			got_stones-=1
-		end
-		-- for a in all(e_stones) do
-		-- 	a:update()
+		-- if e_timer<0.01 and got_stones>0 then
+		-- 	local es = ending_stone:new({x=player.x,y=player.y,num=got_stones})
+		-- 	add(e_stones, es)
+		-- 	add_actor(es)
+		-- 	got_stones-=1
 		-- end
-		e_timer=(e_timer+0.01)%1
-		if got_stones==0 then
-			p_width-=0.1 --might want to half this and the following
+		e_timer=(e_timer+e_add)%1
+		if not stones_out then
+			for i=1,got_stones do
+				local es = ending_stone:new({num=i})
+				add(e_stones, es)
+				add_actor(es)
+			end
+			stones_out=true
+		else
+			p_width-=0.05
 			if good_end then
-				e_rad-=0.075
-				for i in all(e_stones) do
-					i:death_particle()
-				end
-				--p_width-=0.15
+				e_add+=0.000025
+				p_width-=0.05
+				if (p_width<24) final_boss.invis=not final_boss.invis
 			else
-				e_rad+=e_add
-				e_add-=0.0001
-				if e_rad>40 then
+				e_add-=0.000025
+				if p_width<16 or portal_failed then
 					final_boss.y-=2
 					final_boss.s=210
-					final_boss.timer+=0.01
+					--final_boss.timer+=0.01
 					final_boss:update_slaves()
 					p_width+=2
+					portal_failed=true
 				end
 			end
 		end
-		if e_rad<=2 or p_width>128 then
+		if p_width<=12 or p_width>128 then
 			level_end, game_end=true,true
 		end
 		--return
@@ -2106,6 +2111,8 @@ function _draw()
 		end
 		centre_print("time: "..minutes..":"..extra..flr(seconds), 82,7)
 		if (hard_mode) centre_print("hard difficulty", 96,7)
+		centre_print(got_stones.."/3  ", 116,7)
+		spr(58,68,114)
 	else
 		if blackout_time<=0 then
 			cam:set_position()
