@@ -1307,6 +1307,7 @@ function summoner:update()
 		else
 			final_boss = demon:new():init()
 			add_actor(final_boss)
+			play_music(24)
 			--play_music(-1)
 		end
 	end
@@ -1345,7 +1346,6 @@ function demon:update()
 		if not self.invis and not death_time then
 			self.timer=(self.timer+0.008)%1
 			self.s=210+self.timer*2
-			play_music(20)
 			self:move()
 			self:hit_player()
 		end
@@ -2606,4 +2606,4 @@ __music__
 00 2f334344
 00 30344344
 02 31354344
-
+02 36424344
