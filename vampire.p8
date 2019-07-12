@@ -37,7 +37,7 @@ function actor:set_pal()
 	for i=1,7 do
 		pal(base_pal[i], self.pal[i])
 	end
-	pal(14,0)
+	--pal(14,0)
 end
 
 function actor:on_ground(fully)
@@ -351,7 +351,7 @@ function player:update()
 					if self:is_in_wall() then
 						self.y-=2
 					end
-					if self:on_ground() and btnp(4) and not between_levels then
+					if self:on_ground() and zp and not between_levels then
 						self.grav=-player_jump_height
 					end
 				end
@@ -426,7 +426,7 @@ function player:update()
 		self:dismount_stairs()
 	end
 
-	if btnp(5) and self.whip_animation == 0 and self.whip_cooldown == 0 and self.health>0 and not between_levels then
+	if xp and self.whip_animation == 0 and self.whip_cooldown == 0 and self.health>0 and not between_levels then
 		self.whip_animation = 0.1
 		sfx(4)
 	end
@@ -1735,8 +1735,7 @@ function _init()
 
 	--hard_mode = false
 
-	hurt_pal, player_pal =string_to_array("2982928"),string_to_array("1d2f")
-	base_pal=string_to_array("567fabd")
+	hurt_pal, player_pal,base_pal=string_to_array("2982928"),string_to_array("1d2f"),string_to_array("567fabd")
 
 	--player.y=82
 	player:use_slaves()
@@ -1891,6 +1890,8 @@ end
 --------------------------------------------------------------------------------
 
 function _update60()
+	xp,zp=btn(5) and not pbx,btn(4) and not pbz
+	pbx,pbz=btn(5),btn(4)
 	if (not level_end) map_markers[progression+2]=nil
 	p_timer=(p_timer+0.01)%1
 
@@ -1910,7 +1911,7 @@ function _update60()
 			hard_mode = not hard_mode
 			sfx(2)
 		end
-		if btnp(4) or btnp(5) then
+		if zp or xp then
 			difficulty_menu = false
 			if hard_mode then
 				player.health, player_max_health=4,4
@@ -2089,7 +2090,7 @@ function _draw()
 			extra="0"
 		end
 		centre_print("time: "..minutes..":"..extra..flr(seconds), 82,7)
-		--if (hard_mode) centre_print("hard difficulty", 96,7)
+		if (hard_mode) centre_print("hard difficulty", 96,7)
 		centre_print(got_stones.."/3  ", 116,7)
 		spr(58,68,114)
 	else
@@ -2118,7 +2119,6 @@ function _draw()
 	for i=1,darkness do
 		darker()
 	end
-	print(""..stat(1),0,0,7)
 end
 
 function draw_portal()
@@ -2232,9 +2232,9 @@ __gfx__
 0000660600006606000066060006606000ff660600006606000066060000000000aaaa00000000000000000000000000000bb00000dda0000000770000005505
 0006666000066660000666600066660000ff66600006666000066660000000000aaaaaa0000bb000000000000000000000baab000dddaa000007777000055550
 0066fff00066fff000666ff0066fff0000f6fff00066fff00066fff0000000000aaaaaa000bddb000000000000bbbb000baaaab0dddaada07707777000057770
-0066fff00066fff000666ff0ff6fff0000f6fff00066fff00066fff0000000000aaaeee000badb000bbbb0000baaaab00baaaab0dddaabaa7705777000557770
-067766700677667006666660ff76670006f7667006776ff00677667000000000bdaaaea00baab00000aaab00baaaaaab0baaaab0dddaaaa00766557000665570
-6f77777f06f77770066677700f77770006777770067ff770067f777000000000bbdaaeab00abb00000aaadb0bdaaaadb0bdaadb0bdddaa000076660000666600
+0066fff00066fff000666ff0ff6fff0000f6fff00066fff00066fff0000000000aaafff000badb000bbbb0000baaaab00baaaab0dddaabaa7705777000557770
+067766700677667006666660ff76670006f7667006776ff00677667000000000bdaaafa00baab00000aaab00baaaaaab0baaaab0dddaaaa00766557000665570
+6f77777f06f77770066677700f77770006777770067ff770067f777000000000bbdaafab00abb00000aaadb0bdaaaadb0bdaadb0bdddaa000076660000666600
 6ff7777f06fff7700667fff00777770006777770067777700677ffff00000000bbbbbbbb00ab000000bbddb0bddddddb0bddddb00bbddaa00066660000667777
 0ff55500005ff50000555ff0055555000055550000555550005555ff00000000bababaaa00b000000000bb000bbbbbb000bbbb0000bbb0000066660000666657
 0055550000555500005555000677550000755550000000000055500000444000babbbaddbabbbadd060550600006000600060006006666000066660000677600
@@ -2587,3 +2587,4 @@ __music__
 00 30344344
 02 31354344
 02 36424344
+
