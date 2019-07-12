@@ -305,9 +305,8 @@ player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
 					legs_s=0})
 
 function player:update()
-	self.prev_x, self.prev_y = self.x, self.y
+	self.prev_x, self.prev_y, self.pal = self.x, self.y,player_pal
 	-- if self.invul<=0 and self.extra_invul==0 then
-	self.pal = player_pal
 	-- end
 	--movement inputs
 	if self.health<=0 then
@@ -497,7 +496,7 @@ function player:update()
 end
 
 function player:checkpoint()
-	check_x, check_y, check_stairs, check_f, check_stair_dir, check_s = self.x, self.y, self.stairs, self.f, self.stair_dir, self.s
+	check_x, check_y, check_stairs, check_f, check_stair_dir = self.x, self.y, self.stairs, self.f, self.stair_dir
 end
 
 function player:on_ground()
@@ -1810,8 +1809,8 @@ function load_level(level, respawning)
 		player:update_slaves()
 	else
 		player.health=player_max_health
-		player.x, player.y, player.stairs, player.f, player.stair_dir, player.s = check_x, check_y, check_stairs, check_f, check_stair_dir, check_s
-		player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal = 0, false, 0, 0, false, false
+		player.x, player.y, player.stairs, player.f, player.stair_dir = check_x, check_y, check_stairs, check_f, check_stair_dir
+		player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal, player.s = 0, false, 0, 0, false, false, 1
 	end
 
 	cam:jump_to()
