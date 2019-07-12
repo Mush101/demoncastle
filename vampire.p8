@@ -34,10 +34,8 @@ function actor:draw()
 end
 
 function actor:set_pal()
-	-- local c={5,6,7,15,10}
-	local c=string_to_array("567fabd")
 	for i=1,7 do
-		pal(c[i], self.pal[i])
+		pal(base_pal[i], self.pal[i])
 	end
 	pal(14,0)
 end
@@ -1738,6 +1736,7 @@ function _init()
 	--hard_mode = false
 
 	hurt_pal, player_pal =string_to_array("2982928"),string_to_array("1d2f")
+	base_pal=string_to_array("567fabd")
 
 	--player.y=82
 	player:use_slaves()
@@ -2015,9 +2014,11 @@ function _update60()
 		end
 		--return
 	end
-	sort_actors()
+	--sort_actors
+	del(actors,cam)
+	add(actors,cam)
 	for a in all(actors) do
-		if (a.y>=cam.y and a.y<cam.y+112) or a.always_update then
+		if a.always_update or (a.y>=cam.y and a.y<cam.y+112) then
 			a:update()
 			if a.enemy and a.health<=0 and not a:on_camera() then
 				a.dead = true
@@ -2038,27 +2039,6 @@ end
 
 function add_actor(a)
 	add(actors, a)
-end
-
-function sort_actors()
-	-- new_actors = {}
-	-- while #actors>0 do
-	-- 	local best
-	-- 	for a in all(actors) do
-	-- 		if not best then
-	-- 			best = a
-	-- 		else
-	-- 			if a.depth>best.depth then
-	-- 				best = a
-	-- 			end
-	-- 		end
-	-- 	end
-	-- 	add(new_actors, best)
-	-- 	del(actors, best)
-	-- end
-	-- actors = new_actors
-	del(actors,cam)
-	add(actors,cam)
 end
 
 function is_solid(x,y)
@@ -2109,7 +2089,7 @@ function _draw()
 			extra="0"
 		end
 		centre_print("time: "..minutes..":"..extra..flr(seconds), 82,7)
-		if (hard_mode) centre_print("hard difficulty", 96,7)
+		--if (hard_mode) centre_print("hard difficulty", 96,7)
 		centre_print(got_stones.."/3  ", 116,7)
 		spr(58,68,114)
 	else
@@ -2138,6 +2118,7 @@ function _draw()
 	for i=1,darkness do
 		darker()
 	end
+	print(""..stat(1),0,0,7)
 end
 
 function draw_portal()
