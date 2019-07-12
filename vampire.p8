@@ -1758,7 +1758,7 @@ function _init()
 	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
-	got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add = 2, 0.25, {}, 0, string_to_array("001121562493d52e"), 0, 0.01
+	got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add = 0, 0.25, {}, 0, string_to_array("001121562493d52e"), 0, 0.01
 	--old darkness: "000520562493152e"
 	level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0,0,0
 	player:update()
@@ -1800,24 +1800,6 @@ function load_level(level, respawning)
 
 	if current_level==7 and back_entry then
 		start_x, start_y=540, 186
-	end
-
-	if not respawning then
-		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
-		player:checkpoint()
-		cam.special_goal = false
-		player:update_slaves()
-	else
-		player.health=player_max_health
-		player.x, player.y, player.stairs, player.f, player.stair_dir = check_x, check_y, check_stairs, check_f, check_stair_dir
-		player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal, player.s = 0, false, 0, 0, false, false, 1
-	end
-
-	cam:jump_to()
-	cam:y_move()
-	cam:update()
-	if between_levels then
-		cam.x=flr(player.x/136)*136
 	end
 	borders={}
 
@@ -1864,6 +1846,24 @@ function load_level(level, respawning)
 		play_music(level_music)
 	else
 		play_music(-1)
+	end
+
+	if not respawning then
+		player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
+		player:checkpoint()
+		cam.special_goal = false
+	else
+		player.health=player_max_health
+		player.x, player.y, player.stairs, player.f, player.stair_dir = check_x, check_y, check_stairs, check_f, check_stair_dir
+		player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal, player.s = 0, false, 0, 0, false, false, 1
+	end
+	player:update_slaves()
+
+	cam:jump_to()
+	cam:y_move()
+	cam:update()
+	if between_levels then
+		cam.x=flr(player.x/136)*136
 	end
 
 	-- sort_actors()
@@ -1916,7 +1916,7 @@ function _update60()
 			if hard_mode then
 				player.health, player_max_health=4,4
 			end
-			load_level(7) --start in first level
+			load_level(2) --start in first level
 			sfx(3)
 			darkness=5
 		end
