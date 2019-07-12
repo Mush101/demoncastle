@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
+--demon castle
+--by mush
 actor={x=0, y=0, width=8, height=8, grav=0, spd=0, max_spd=2, acc=0, dcc=1, depth=0}
 function actor:new(a)
 self.__index=self
