@@ -1,19 +1,13 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
-
---------------------------------------------------------------------------------
 actor={x=0, y=0, width=8, height=8, grav=0, spd=0, max_spd=2, acc=0, dcc=1, depth=0}
-
 function actor:new(a)
 self.__index=self
 return setmetatable(a or {}, self)
 end
-
 function actor:update() end
-
 function actor:init() end
-
 function actor:draw()
 if self.invis then return end
 if self.s then
@@ -23,28 +17,21 @@ end
 spr(self.s, self.x, self.y, 1, 1, self.f)
 pal()
 end
--- if draw_bounding_boxes then
--- rect(self.x,self.y, self.x+self.width-1, self.y+self.height-1,7)
--- end
 if self.slaves then
 for s in all(self.slaves) do
 s:draw()
 end
 end
 end
-
 function actor:set_pal()
 for i=1,7 do
 pal(base_pal[i], self.pal[i])
 end
---pal(14,0)
 end
-
 function actor:on_ground(fully)
 local a,b=is_solid(self.x, self.y+self.height+1), is_solid(self.x+self.width-1, self.y+self.height+1)
 if fully then return a and b else return a or b end
 end
-
 function actor:gravity()
 self.y+=self.grav
 self.grav = min(self.grav,terminal_velocity)
@@ -63,15 +50,10 @@ self.y=feet_y-self.height
 else
 self.y = flr(self.y/8)*8+8
 end
--- self.grav = self.grav * -0.2
--- if abs(self.grav)<1 then
--- self.grav = 0
--- end
 self.grav = 0
 end
 end
 end
-
 function actor:is_in_wall(part)
 xs = {}
 for i=self.x, self.x+self.width-1, 8 do
@@ -83,13 +65,6 @@ for i=self.y, self.y+self.height-1, 8 do
 add(ys, i)
 end
 add(ys, self.y+self.height-1)
-
--- if part == "ceil" then
--- ys = {self.y}
--- elseif part == "floor" then
--- ys = {self.y+self.height-1}
--- end
-
 for i in all(xs) do
 for j in all(ys) do
 if is_solid(i, j) then
@@ -102,30 +77,18 @@ end
 end
 return false
 end
-
 function actor:momgrav()
 self:momentum()
 self:gravity()
 end
-
 function actor:momentum()
---accelerate
 self.spd+=self.acc
---decelerate
 self.spd=move_towards(0, self.spd, self.dcc)
--- if self.spd>self.max_spd then
--- self.spd=self.max_spd
--- elseif self.spd<-self.max_spd then
--- self.spd=-self.max_spd
--- end
 self.spd=mid(-self.max_spd, self.spd, self.max_spd)
 self.x+=self.spd
---when this moves us into a wall:
 if not self.ignore_walls then
 if self:is_in_wall() then
---position exactly on pixel.
 self.x=flr(self.x)
---move out of the wall.
 while self:is_in_wall() do
 if self.spd>0 then
 self.x-=1
@@ -137,66 +100,50 @@ self.spd=0
 end
 end
 end
-
 function actor:use_slaves()
 self.slaves = {}
 end
-
 function actor:update_slaves()
 if not self.slaves then return end
 for s in all(self.slaves) do
 s:update()
 end
 end
-
 function actor:add_slave(a)
 if not self.slaves then return end
 add(self.slaves, a)
 a.master, a.pal = self, self.pal
 end
-
 function actor:goto_master()
 if not self.master then return end
 self.x = self.master.x
 self.y = self.master.y
 end
-
 function actor:offscreen()
 return self.x<cam.x-self.width-32 or self.x>cam.x+128+32
 end
-
 function actor:on_camera()
 return self.x+self.width>=cam.x and self.x<cam.x+128 and self.y+self.height>=cam.y and self.y<cam.y+112
 end
-
 function actor:hitbox_overlaps(a)
---convert to or.
 if self.x+self.width<a.x then return false end
 if a.x+a.width<self.x then return false end
 if self.y+self.height<a.y then return false end
 if a.y+a.height<self.y then return false end
 return true
 end
-
---checks exact pixel collisions (potentially recursive on slaves)
 function actor:intersects(b, r)
---must pass simple test first.
 if self:hitbox_overlaps(b) then
---hitbox only collision.
 if not self.s or not b.s then
 return true
 end
---scratchpad area
 rectfill(0,0,16,8,0)
---draw both sprites to screen
 spr(self.s,0,0,1,1,self.f)
 spr(b.s,8,0,1,1,b.f)
---calculate differences.
 x_dif,y_dif=b.x-self.x, b.y-self.y
 for x=max(0,x_dif),min(7,7+x_dif) do
 for y=max(0,y_dif),min(7,7+y_dif) do
 a_pix, b_pix=pget(x,y), pget(8+x-x_dif,y-y_dif)
---if two pixels overlap...
 if a_pix!=0 and b_pix!=0 then
 return true
 end
@@ -210,23 +157,19 @@ end
 end
 return false
 end
-
 function actor:hit(attacker)
 if self.master then
 self.master:hit(attacker)
 end
 end
-
 function actor:use_pal()
 if self.pal_type == 1 then
 self.pal = enemy_pal
 end
 end
-
 function actor:death_particle()
 add_actor(death_particle:new({x=self.x+rnd(self.width),y=self.y+rnd(self.height)}))
 end
-
 function actor:level_up()
 if self.max_health then
 self.max_health+=progression
@@ -234,15 +177,10 @@ self.health+=progression
 end
 return self
 end
-
---------------------------------------------------------------------------------
-
 cam = actor:new({speed=0.5, always_update = true})
-
 function cam:update()
 if player.stairs then
 self.speed=0.5
---only transition screen on stairs.
 local y_prev = self.y
 self:y_move()
 if self.y!=y_prev then
@@ -265,7 +203,6 @@ if (a.y>=cam.y and a.y<cam.y+112) a:cupdate()
 if (a.dead) del(borders, a)
 end
 end
-
 function cam:set_goal()
 if self.special_goal then
 self.special_goal = false
@@ -273,12 +210,10 @@ else
 self.goal_x = player.x-60
 end
 end
-
 function cam:jump_to()
 self:set_goal()
 self.x=self.goal_x
 end
-
 function cam:y_move()
 if player.y<=104 then
 self.y=0
@@ -286,7 +221,6 @@ else
 self.y=112
 end
 end
-
 function cam:set_position()
 camera(self.x, self.y-16)
 if not between_levels then
@@ -294,19 +228,12 @@ clip(0,0,128,112)
 camera(self.x, self.y)
 end
 end
-
---------------------------------------------------------------------------------
-
 player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
 stair_timer=0, whip_animation=0, whip_cooldown = 0,
 invul = 0, extra_invul=0, always_update = true,
 legs_s=0})
-
 function player:update()
 self.prev_x, self.prev_y, self.pal = self.x, self.y,player_pal
--- if self.invul<=0 and self.extra_invul==0 then
--- end
---movement inputs
 if self.health<=0 then
 self:death_particle()
 end
@@ -317,17 +244,7 @@ if self.invul==0 and self.extra_invul==0 then
 self.invis=false
 end
 if not self.stairs then
---move on the ground
 if self.invul == 0 then
---crouching is dummied out
--- if btn(3) and (self:on_ground() or self.ducking) and false then
--- -- if not self.ducking then
--- -- self.y+=2
--- -- end
--- -- self.ducking = true
--- -- -- self.spd=0
--- -- self.acc=0
--- else
 if self.health>0 then
 if btn(1) and not btn(0) then
 self.acc=1
@@ -342,11 +259,6 @@ end
 else
 self.acc=0
 end
--- end
-
--- if self.ducking then
--- self.height=12
--- else
 self.height=14
 if self:is_in_wall() then
 self.y-=2
@@ -355,7 +267,6 @@ if self:on_ground() and zp and not between_levels then
 self.grav=-player_jump_height
 end
 end
--- end
 self:momgrav()
 if abs(self.spd)<0.1 then
 self.animation = 1.9
@@ -370,12 +281,10 @@ self:fly_when_hit()
 self:momgrav()
 end
 end
---stairs behaviour
 if self.stairs then
 if self.invul>0 then
 self:flash_when_hit()
 end
--- self.ducking = false
 self.spd=0
 local up, down = 1, 0
 if self.stair_dir then
@@ -402,7 +311,6 @@ else
 self.x+=2
 end
 self.animation+=1
---code duplication.
 if self.y%4==0 then
 sfx(5)
 else
@@ -425,12 +333,10 @@ end
 end
 self:dismount_stairs()
 end
-
 if xp and self.whip_animation == 0 and self.whip_cooldown == 0 and self.health>0 and not between_levels then
 self.whip_animation = 0.1
 sfx(4)
 end
-
 if self:on_ground() then
 self.animation += abs(self.spd)/10
 end
@@ -439,9 +345,7 @@ self.s = flr(self.animation)
 if self.s == 3 then
 self.s = 1
 end
-
 self.legs_s = self.s
-
 if self.whip_cooldown>0 then
 self.whip_cooldown-=1
 self.s = 6
@@ -452,7 +356,6 @@ else
 if self.whip_animation>0 then
 self.whip_animation+=0.25
 if self.whip_animation<2 then
---self.whip_animation+=whip_speed
 end
 if self.whip_animation>=4 then
 self.whip_cooldown = 10
@@ -462,8 +365,6 @@ self.s = 3 + flr(self.whip_animation)
 end
 end
 end
-
---move between screens when the player moves off on stairs.
 if self.stairs then
 if self.y<-8 then
 self.y += 224
@@ -475,28 +376,22 @@ self.x -= level_offset*8
 cam:jump_to()
 end
 end
-
 if self.x<cam.x then
 self.x = cam.x
 end
-
 if not self.stairs and self.y>=cam.y+104 then
 self.health=0
 end
-
 if self.health<=0 and self.invul==0 then
 death_time=death_time or 90
 play_music(5)
 self.invis, self.spd, self.acc=true,0,0
 end
-
 self:update_slaves()
 end
-
 function player:checkpoint()
 check_x, check_y, check_stairs, check_f, check_stair_dir = self.x, self.y, self.stairs, self.f, self.stair_dir
 end
-
 function player:on_ground()
 for a in all(actors) do
 if a.supporting_player then
@@ -505,7 +400,6 @@ end
 end
 return actor.on_ground(self)
 end
-
 function player:mount_stairs_down()
 local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+16)/8)
 for add=-1,1 do
@@ -528,7 +422,6 @@ self.stair_timer=-10
 end
 end
 end
-
 function player:mount_stairs_up()
 local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+10)/8)
 for add=-1,1 do
@@ -551,7 +444,6 @@ self.stair_timer=10
 end
 end
 end
-
 function player:dismount_stairs()
 if self.y%8 != 2 then return end
 if self.y>=208 then return end
@@ -570,9 +462,7 @@ if not get_flag_at(pos_x, pos_y, 1) then
 self.stairs = false
 end
 end
-
 player_legs = actor:new({s=16, height=6, extends_hitbox=true})
-
 function player_legs:update()
 self:goto_master()
 self.pal= self.master.pal
@@ -585,12 +475,10 @@ if self.master.f != self.master.stair_dir then
 self.s +=1
 end
 end
--- if not self.master:on_ground() and not self.master.stairs or self.master.ducking then
 if not self.master:on_ground() and not self.master.stairs then
 self.s = 20
 end
 end
-
 function player:hit(attacker)
 if self.invul == 0 and self.extra_invul==0 and self.health>0 then
 sfx(12)
@@ -606,7 +494,6 @@ self.spd, self.f=0.5, false
 end
 end
 end
-
 function player:fly_when_hit()
 if self.spd>0 then
 self.spd = self.max_spd
@@ -615,7 +502,6 @@ self.spd = -self.max_spd
 end
 self:flash_when_hit()
 end
-
 function player:flash_when_hit()
 if self.invul>0 then
 self.invul-=1
@@ -625,11 +511,7 @@ self.extra_invul-=1
 end
 self.invis = not self.invis
 end
-
---------------------------------------------------------------------------------
-
 whip = actor:new({s=32, dir=0, dist=2, dir_change=0, width=3, height=3})
-
 function whip:update()
 self.prev_x=self.x
 self.prev_y=self.y
@@ -680,7 +562,6 @@ end
 end
 self:update_slaves()
 end
-
 function whip:setup(length)
 self.length = length
 if length>0 then
@@ -690,11 +571,7 @@ next_whip:setup(length-1)
 self:add_slave(next_whip)
 end
 end
-
---------------------------------------------------------------------------------
-
 enemy = actor:new({enemy = true, health = 1, pal_type = 1, dcc=0, base_max_spd=0.25, f=true, invul=0})
-
 function enemy:fly_when_hit()
 if self:on_ground() then
 self.invul-=0.5
@@ -716,7 +593,6 @@ if self.health<=0 then
 self:death_particle()
 end
 end
-
 function enemy:hit(attacker)
 if self.health<=0 then
 return
@@ -742,15 +618,12 @@ sfx(self.hurt_sound)
 end
 end
 end
-
 function enemy:die_when_dead()
 if self.health<=0 then
 self.dead=true
 end
 return not self.dead
 end
-
---was an enemy function
 function actor:hit_player(anyway)
 if anyway or (self.invul == 0 and self.health>0) then
 if self:intersects(player, true) then
@@ -764,15 +637,10 @@ end
 end
 end
 end
-
 function enemy:boss_health()
 boss_health,boss_max_health = self.health,self.max_health
 end
-
---------------------------------------------------------------------------------
-
 zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9})
-
 function zombie:init()
 self:use_slaves()
 self:add_slave(zombie_legs:new())
@@ -781,14 +649,11 @@ self.y+=2
 self.f=true
 self:update_slaves()
 end
-
---this code needs rewriting
 function zombie:update()
 if self:offscreen() then
 self:update_slaves()
 return
 end
---self.f = self.x>player.x
 if self.invul>0 then
 self:fly_when_hit()
 else
@@ -802,27 +667,20 @@ end
 self:use_pal()
 end
 end
-
 self:momgrav()
-
 if self.invul<=0 then
 if abs(self.spd)<=0 or not (self:on_ground(true) and self.grav>=0) then
---self.grav=-player_jump_height
 self:on_edge()
 end
 self:hit_player()
 end
-
 self:update_slaves()
 end
-
 function zombie:on_edge()
 self.f = not self.f
 self.spd = -self.spd
 end
-
 zombie_legs = enemy:new({animation = 0, enemy=true, extends_hitbox=true})
-
 function zombie_legs:update()
 self:goto_master()
 self.y+=8
@@ -832,25 +690,7 @@ self.animation = self.animation%2
 self.s = 30+self.animation
 self.pal = self.master.pal
 end
-
---------------------------------------------------------------------------------
-
--- running_zombie = zombie:new({s=14, leg_spd = 0.2, base_max_spd=1, health=1})
---
--- function running_zombie:use_pal()
--- self.pal = enemy_pal
--- end
---
--- function running_zombie:on_edge()
--- if self:on_ground() then
--- self.grav=-2
--- end
--- end
-
---------------------------------------------------------------------------------
-
 death_particle = actor:new({size=3, always_update = true})
-
 function death_particle:update()
 self.y-=0.5
 self.size-=0.4
@@ -858,20 +698,13 @@ if self.size<=0 then
 self.dead=true
 end
 end
-
 function death_particle:draw()
 circfill(self.x,self.y,self.size,7)
 end
-
---------------------------------------------------------------------------------
-
 bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=1, base_max_spd=1, hurt_sound=10, wing_timer=0})
-
 function bat:init()
--- self.f=true
 self:use_pal()
 end
-
 function bat:update()
 if self:offscreen() then return end
 if self.invul>0 then
@@ -890,19 +723,16 @@ self:use_pal()
 if self:die_when_dead() then
 if self.awake then
 self.f = self.x>player.x
-
 if self.f then
 self.acc = -0.05
 else
 self.acc = 0.05
 end
-
 if self.y>player.y then
 self.grav_acc = -0.05
 else
 self.grav_acc = 0.05
 end
-
 self:momgrav()
 self:hit_player()
 self:animate()
@@ -916,16 +746,11 @@ if self.y<cam.y+4 then
 self.y=cam.y+4
 end
 end
-
 function bat:animate()
 self.wing_timer=(self.wing_timer+0.2)%2
 self.s = 27+self.wing_timer
 end
-
---------------------------------------------------------------------------------
-
 batboss = bat:new({health=6, s=194, death_sound=13, max_health=6})
-
 function batboss:update()
 bat.update(self)
 self:animate()
@@ -935,13 +760,11 @@ self.x = cam.x
 end
 self.x=min(self.x,cam.x+120)
 end
--- self.x=max(self.x,176)
 self:update_slaves()
 if current_level==2 or current_level==6 then
 self:boss_health()
 end
 end
-
 function batboss:init()
 self:use_pal()
 self.wing_timer=0
@@ -950,17 +773,12 @@ self:add_slave(batwing:new())
 self:add_slave(batwing:new({f=false}))
 self:update_slaves()
 end
-
 function batboss:animate()
 self.wing_timer=(self.wing_timer+0.1)%2
 self.wing_s = 192+self.wing_timer
 self:update_slaves()
 end
-
---------------------------------------------------------------------------------
-
 batwing = enemy:new()
-
 function batwing:update()
 self:goto_master()
 self.s, self.pal = self.master.wing_s, self.master.pal
@@ -970,11 +788,7 @@ else
 self.x-=8
 end
 end
-
---------------------------------------------------------------------------------
-
 shooter = enemy:new({s=29, health=3, base_f=true, timer=0, death_sound=11})
-
 function shooter:update()
 if self.invul>0 then
 self:fly_when_hit()
@@ -995,11 +809,7 @@ end
 end
 self.f=self.base_f
 end
-
---------------------------------------------------------------------------------
-
 fireball = actor:new({s=34, spd=1, height=4})
-
 function fireball:update()
 self:animate()
 self:use_pal()
@@ -1016,41 +826,10 @@ player:hit(self)
 self.dead=true
 end
 end
-
 function fireball:animate()
 self.s, self.f = 84-self.s, self.d
 end
-
---------------------------------------------------------------------------------
-
 axe = fireball:new({s=41, timer=0, pal_type=1, spd=1, anim_dir=1})
-
--- function axe:update()
--- if self.invul<=0 then
--- if self:die_when_dead() then
--- self:animate()
--- self:use_pal()
--- if self:offscreen() then
--- self.dead = true
--- end
--- if self.di==nil then
--- self.di=self.f
--- end
--- if self.di then
--- self.x-=self.spd
--- else
--- self.x+=self.spd
--- end
--- if self:hit_player() then
--- self.dead = true
--- end
--- end
--- else
--- self:fly_when_hit()
--- self:gravity()
--- end
--- end
-
 function axe:animate()
 self.timer+=1
 if self.timer>6 then
@@ -1063,38 +842,29 @@ self.timer=0
 end
 self:use_pal()
 end
-
---------------------------------------------------------------------------------
-
 axe_knight=enemy:new({s=8, height=16, health=5, max_health=5, base_max_spd=0.5, goal=32, throw_timer=0, hand_timer=0, death_sound=11})
-
 function axe_knight:init()
 self:use_slaves()
 self:add_slave(axe_knight_legs:new())
 self:add_slave(axe_knight_hand:new())
 self:update_slaves()
 end
-
 function axe_knight:update()
 if self:on_camera() then
 if self.invul<=0 then
 if self:die_when_dead() then
 self.invis=false
 self:use_pal()
-
 self.max_spd=self.base_max_spd
-
 if self.x>player.x then
 self.f,self.acc=true, -0.02
 else
 self.f,self.acc=false, 0.02
 end
-
 local dist = abs(self.x-player.x)
 if dist<self.goal then
 self.acc*=-1
 end
-
 if self.hand_timer>0 then
 self.hand_timer-=1
 if self.hand_timer==11 then
@@ -1104,32 +874,24 @@ f:update()
 self.throw_timer=60
 end
 else
-
 if self.throw_timer==0 then
 self.hand_timer=15
 end
-
 self.throw_timer=max(0, self.throw_timer-rnd(2))
 end
-
 self:hit_player()
 end
 else
 self:fly_when_hit()
 end
 self:momentum()
---self:gravity()
 self:update_slaves()
 end
 if current_level==3 then
 self:boss_health()
 end
 end
-
---------------------------------------------------------------------------------
-
 axe_knight_legs = enemy:new({s=24,timer=0,pal_type=1})
-
 function axe_knight_legs:update()
 self:goto_master()
 self.y+=8
@@ -1139,11 +901,7 @@ if self.timer>4 then
 self.timer,self.s=0,49-self.s
 end
 end
-
---------------------------------------------------------------------------------
-
 axe_knight_hand = enemy:new()
-
 function axe_knight_hand:update()
 self:goto_master()
 self.f, self.invis, self.pal = self.master.f, self.master.invis, self.master.pal
@@ -1159,11 +917,7 @@ else
 self.invis=true
 end
 end
-
---------------------------------------------------------------------------------
-
 medusa = enemy:new({s=13, timer=0, ignore_walls=true, hurt_sound=10, always_update=true})
-
 function medusa:init()
 self.x=cam.x+127
 self.c_y = max(player.y+rnd(16)-8, cam.y+16)
@@ -1172,7 +926,6 @@ if rnd(10)<5 then
 self.timer=0.5
 end
 end
-
 function medusa:update()
 if self:offscreen() then
 self.dead = true
@@ -1190,11 +943,7 @@ self.timer=(self.timer+0.01)%1
 self.y=self.c_y+sin(self.timer)*12
 end
 end
-
---------------------------------------------------------------------------------
-
 medusa_spawner = actor:new({timer=60})
-
 function medusa_spawner:update()
 if player.x<self.x and player.x>self.x-256 then
 self.timer+=1
@@ -1206,11 +955,7 @@ add_actor(m)
 end
 end
 end
-
---------------------------------------------------------------------------------
-
 slime = enemy:new({s=11, hurt_sound=10, health=3, jiggle=1})
-
 function slime:update()
 if (not self:on_camera()) return
 self.s=11
@@ -1238,18 +983,13 @@ self:hit_player()
 end
 end
 end
-
---------------------------------------------------------------------------------
-
 slimeboss = slime:new({health=6, s=208, death_sound=13, max_health=6, height=16, width=16})
-
 function slimeboss:init(extra)
 self:use_slaves()
 self:add_slave(mirror:new():flip())
 self:add_slave(slimebelly:new():init(extra))
 self:boss_health()
 end
-
 function slimeboss:update()
 slime.update(self)
 if self.x<=cam.x+1 then
@@ -1260,31 +1000,23 @@ self.f=false
 self:update_slaves()
 self:boss_health()
 end
-
 slimebelly = enemy:new({extends_hitbox=true})
-
 function slimebelly:init(extra)
 self:use_slaves()
 self:add_slave(mirror:new())
 if (extra) self:add_slave(slimebelly:new():init())
 return self
 end
-
 function slimebelly:update()
 self:goto_master()
 self.s, self.pal, self.invis, self.master.dontflip = self.master.s+16, self.master.pal, self.master.invis, true
 self.y+=8
 self:update_slaves()
 end
-
---------------------------------------------------------------------------------
-
 summoner = enemy:new({s=229, health=6, max_health=6, width=16, height=16, timer=0, invis=true})
-
 function summoner:init()
 slimeboss.init(self)
 end
-
 function summoner:update()
 self:boss_health()
 if (self:offscreen()) return
@@ -1305,24 +1037,18 @@ else
 final_boss = demon:new():init()
 add_actor(final_boss)
 play_music(24)
---play_music(-1)
 end
 end
 self.f=false
 self:update_slaves()
 end
-
---------------------------------------------------------------------------------
-
 demon = enemy:new({s=210, health=9, max_health=9, timer=0, width=16, height=24, x=400, y=128})
-
 function demon:init()
 slimeboss.init(self, true)
 self:add_slave(demon_hand:new())
 self:add_slave(demon_hand:new({f=false}))
 return self
 end
-
 function demon:update()
 self:boss_health()
 if (self:offscreen()) return
@@ -1350,14 +1076,11 @@ end
 self.f=false
 self:update_slaves()
 end
-
 function demon:move()
 if (ending_sequence) return
 self.y=140+max(-0.5, sin(self.timer))*30
 end
-
 demon_hand = enemy:new({s=240})
-
 function demon_hand:update()
 local m=-1
 if (self.f) m=1
@@ -1366,33 +1089,23 @@ self:goto_master()
 self.x += m*(cos(timer)*-15+16)+4
 self.y += cos(timer)*8+20
 end
-
---------------------------------------------------------------------------------
-
 ending_stone = actor:new({s=58, always_update=true})
-
 function ending_stone:update()
 local timer = e_timer+self.num/3
 if portal_failed then
 self.s=55
 self:gravity()
 else
---self.x, self.y=move_towards(cam.x+60+sin(timer)*p_width,self.x,2),move_towards(cam.y+36+cos(timer)*p_width,self.y,8) --save tokens here (replace cam.x/y with absolute values)
 local w = p_width-3*sin(p_timer)
 self.x, self.y=cam.x+60+sin(timer)*w,cam.y+36+cos(timer)*w
 end
 end
-
---------------------------------------------------------------------------------
-
 platform = actor:new({width=16, height=3, s=48, speed = 0.005, xw=0, yw=0})
-
 function platform:init()
 self.origin_x, self.origin_y, self.position = self.x, self.y, 0
 self:use_slaves()
 self:add_slave(mirror:new())
 end
-
 function platform:update()
 self.supporting_player = false
 if player.x>self.x-8 and player.x<self.x+self.width then
@@ -1401,11 +1114,8 @@ player.y, player.grav = self.y-14, 0
 self.supporting_player = true
 end
 end
-
 local prev_x, prev_y = self.x, self.y
-
 self:move()
-
 if self.supporting_player then
 plr_prev_x, plr_prev_y = player.x, player.y
 player.x+=self.x-prev_x
@@ -1415,11 +1125,8 @@ player.x, player.y = plr_prev_x, plr_prev_y
 end
 player:update_slaves()
 end
-
 self:update_slaves()
-
 end
-
 function platform:draw()
 local prev_x = self.x
 if self.supporting_player then
@@ -1430,78 +1137,35 @@ actor.draw(self)
 self.x = prev_x
 self:update_slaves()
 end
-
 function platform:move()
 self.position = (self.position+self.speed) % 1
 self.x, self.y = self.origin_x + self.xw * sin(self.position), self.origin_y + self.yw * sin(self.position)
 end
-
---------------------------------------------------------------------------------
-
--- fall_platform = platform:new({pal_type=2, always_update=true, timer=0, flicker_timer=0, falling_timer=0})
---
--- function fall_platform:move()
--- self.change_x = 0
--- self.change_y = 0
--- self.flicker_timer = max(self.flicker_timer-1, 0)
--- self.invis = self.flicker_timer%2!=0
--- if self.supporting_player then
--- self.falling_timer+=1
--- if self.falling_timer>=10 then
--- self.falling = true
--- end
--- self.timer = 0
--- else
--- self.timer+=1
--- self.falling_timer=0
--- end
--- if self.falling then
--- self:gravity()
--- if self.timer>60 then
--- self.falling, self.flicker_timer = false, 20
--- self.x, self.y = self.origin_x, self.origin_y
--- end
--- end
--- end
-
---------------------------------------------------------------------------------
-
 pendulum = platform:new({xw=0, yw=0, speed = 0.003})
-
 function pendulum:init()
 platform.init(self)
 self.length = self.y-self:get_top()
 end
-
 function pendulum:move()
 self.position = (self.position+self.speed) % 1
 local p = sin(self.position)/15
 self.x, self.y = self.origin_x + self.length * sin(p), self:get_top() + self.length * cos(p)
 end
-
 function pendulum:draw()
-
 for i=-1,1 do
 line(self.origin_x+8+i, self:get_top(), self.x+8+i, self.y+8, 6-abs(i))
 end
-
 for i=0,1 do
 circfill(self.x+8, self.y+6, 10-i*3, 9+i)
 end
 end
-
 function pendulum:get_top()
 return self.y-self.y%112
 end
-
---------------------------------------------------------------------------------
-
 cam_border_right = actor:new()
-
 function cam_border_right:init()
 add(borders, self)
 end
-
 function cam_border_right:cupdate()
 if (self.key_rule and player.y>self.y+16) return
 if self.x+8>=player.x then
@@ -1510,17 +1174,12 @@ else
 self:kill()
 end
 end
-
 function cam_border_right:kill()
 if self:on_camera() and abs(self.x-player.x)<16 then
 self.dead=true
 end
 end
-
---------------------------------------------------------------------------------
-
 cam_border_left = cam_border_right:new()
-
 function cam_border_left:cupdate()
 if self.x<=player.x then
 cam.x = max(cam.x, self.x)
@@ -1528,11 +1187,7 @@ else
 self:kill()
 end
 end
-
---------------------------------------------------------------------------------
-
 boss_cam = cam_border_left:new()
-
 function boss_cam:cupdate()
 if player.x>=self.x then
 cam.goal_x,cam.special_goal = self.x, true
@@ -1541,30 +1196,20 @@ play_music(6)
 end
 end
 end
-
---------------------------------------------------------------------------------
-
 mirror = actor:new({extends_hitbox=true})
-
 function mirror:update()
 self:goto_master()
 self.x+=8
-self.s, self.pal, self.invis = self.master.s, self.master.pal, self.master.invis --code duplication? slimebelly?
+self.s, self.pal, self.invis = self.master.s, self.master.pal, self.master.invis
 end
-
 function mirror:flip()
 self.f=true
 return self
 end
-
---------------------------------------------------------------------------------
-
 chicken = actor:new({s=61, grav=-2, invis=true})
-
 function chicken:init()
 self.y+=8
 end
-
 function chicken:update()
 if not self:is_in_wall() then
 self.invis = false
@@ -1575,11 +1220,7 @@ sfx(2)
 end
 end
 end
-
---------------------------------------------------------------------------------
-
 breakable_block = actor:new({breaks=true, b_bit_s = 49})
-
 function breakable_block:break_me()
 self.breaks = false
 mset(self.x/8, self.y/8, 0)
@@ -1596,11 +1237,7 @@ end
 end
 sfx(8)
 end
-
---------------------------------------------------------------------------------
-
 block_bit = actor:new({life=30, width=4, height=4, dcc=0, ignore_walls=true, always_update=true})
-
 function block_bit:update()
 self:momgrav()
 self.life-=1
@@ -1608,15 +1245,10 @@ if self.life<=0 then
 self.dead = true
 end
 end
-
---------------------------------------------------------------------------------
-
 heart_crystal = actor:new({s=57, invis=true, grav=-2})
-
 function heart_crystal:init()
 self.x-=36
 end
-
 function heart_crystal:update()
 if not self:on_camera() then return end
 if self.invis then
@@ -1642,46 +1274,31 @@ self:collect()
 end
 end
 end
-
 function heart_crystal:collect()
 sfx(3)
 health_go_up = true
 level_end = true
 play_music(-1)
 end
-
 function heart_crystal:be_chicken() end
-
---------------------------------------------------------------------------------
-
 stone_sealing = heart_crystal:new({s=58, anyway=true})
-
 function stone_sealing:collect()
 sfx(3)
 got_stones+=1
 got_level_item = true
 end
-
 function stone_sealing:be_chicken()
 if got_level_item then
 self.dead = true
 add_actor(chicken:new({x=self.x, y=self.y}))
 end
 end
-
---------------------------------------------------------------------------------
-
 key = stone_sealing:new({s=56})
-
 function key:collect()
 sfx(3)
 got_key, got_level_item = true, true
 end
-
---------------------------------------------------------------------------------
-
 next_level_marker=actor:new()
-
 function next_level_marker:update()
 if (not self:on_camera()) return
 self.lv=nl_1
@@ -1696,11 +1313,7 @@ next_level, level_end = self.lv, true
 progression+=1
 end
 end
-
---------------------------------------------------------------------------------
-
 lock=actor:new()
-
 function lock:update()
 if self:intersects(player) then
 if got_key then
@@ -1715,9 +1328,6 @@ end
 self.dead = true
 end
 end
-
---------------------------------------------------------------------------------
-
 levels =
 {
 {data="000000001i?+??+??+??+??+Hh7wy?+3S?PERSC:2P?:3B?+1S?S?+1xh+1xh+1x:2h?:3AEARCS?+8:2?hy?w7?+2T?+1C?TC?+1AB?S?S?+1xh+1xh+1xh?+1C?+1CT?zQB?+5ywymy?+2zA+1DA+1D:jA?A+1?T?S?+1xh+1xh+1x:jh?ADA+1DAQA+2B?u+2:ju1+30+15lt+7?A+1B?+1T?NXUZNONON?t+6NXUZMfvfvj+40j3J+6z?A+2?+42?xzBx?+2J+72JNO?L?L?0+5?3?+3zA+1?A+2B?+22?+1xA+1xB?+2e?+42?NOM?L?L?+10?0+3B3zBzA+1:kA?A+3B?2ezAxA+1xA:kB?+1x?+1e?2?NONO?L?L?+20+6s+5?s+4NONONO1+4?ONONONONONOM8+3?+??+??+??+??+HA+5R?+1PA+4:2A?:3B?+3S?+3S?+1S?:2?+3zA+1QA+dR?+5PA+3?QAB?+1T?+3S?+1T?+1zANO1+cAER?+9PAE?A+1QAQB?+3T?+2z:jAQNONONOj+9?C?+8zB?+1C?1+40+15l1+6NONOh+1NONONO?+4BC?+1zB?/ef/?zAQABC?Oj+63j+3NONOy/A/?why/z/w:gNO:2N+5ADBzQAB/uv/zQA+1QA:jD?NONOABzB?3?+1zB/y/h+1y/P/6ywn/P/wMNO+5t+f?ONONOAQA+1B3zQ:nA/O/hywh+1nwhywNON+5J+f?NO?+1NOt+5NONONONONONONONO+5"},
@@ -1729,39 +1339,18 @@ levels =
 {start_x=16, start_y=50, offset = -28, map_marker={84,22}, data="g5820e2840/6+iw20/MNOMhn?26h+2ywM:2NONONONONO?+1NONONO?+h2?+fNONO?+5NONONONOhywh+2NONONO:2N/+76+a456+4wMih/NONOn?26nhnwyhN:3ONONO?+1NONONO?+1NO?+h2?+gMNONO?+5NONONOmhyh+1n?+1NONONO/+736+1w236+1w23kl6+3wM/?+3NOM?26nwy?mywMNONO?+5;1?+5;1?+h2?+hNONO?+7NONO?+1wh+1y?+2;1hNONON/+7j01Mij01Mij36+1w01M/?+5NONOYVWO?+1whNOMy?+rYVWO?+6NONOYVWONONONONO?+5NONONO?+1mn?+3whNONO+7?/gh/?/+2gh/?/+2j01Mih/?+7xh+273?+2h+1MNOy?+rx73?+6wM:2NOMh73?+2h+2NONO?+3NONONO?+9mhNON+7?/+bgh/?+axh+1nw73?+1:gmhNOMy?+rxh73?+46hNONOwh73?+1wh:0h+1NONO?+1NONOh;1n?+bwMNO+7?+oxhy?+1m73?+1hMNOhy?+p6xh+1e3?6ywywMNOM?wh73?+1mh+2NONONONOhy?+bNONON+7u+e?+9xh+1:d7?+1h73?mNOMwhy?+ohxywNONONXUZNONONONONXUZNONONONONOhn?+dNONO+7fvf+4vf+4vfNONONO?+3xywhyewh73?MNOw;0ywy?+d:7?+86hxywxywhn26NONONOwhn?2?+3mh+1y;1?+96NOYVWONONONON+7?L?+4L?+4L?+1NONOM?+3xh7wyxwNONONOMy+1why?+5:7?+fwhx7wxyhn26ywNONOywy?2?+5why?+9hMNOy3?+1wh+1MNO+7?L?+4L?+2e?L?+1x?+1NO?+3xhywhxhMNONONONONXUZ?+j6h+1xywxhy26hywMNOMyhn2?+7h+1y?+76hNOyw73?+1h+1NON+7?L?+1e?+1L?+2x?L?+1x?NOM1+aNONONONOn?26hy?+gNONONONONONONONONONONONONO?:b?+4wy+1?+6h+2MNOyw73?wh+1NO+7?L?+1x?+1Le?+1x?L?+1x?+1NOj+aMNONONOn?26ywhywy?+2why?+2wymhyMNONONONONONONONONONONONONONONONONO?:b?+46h+2NOywh+173?mh+1N+78+vNONONO?+126hywhywhy?whywhymh+17whNONONONONONONONONONONONONONONONONONONONONONONONOywh+173?mh+8OMh+2n?+owh+1y+1?+226M:2N/6+?6/+3NONOh73?+1mh+1ywNO:2N+1Ohn?+rmymy+1?26yNO/6+c45:26/0/6/+PN;iONOh73?+1wywhMNO+1My?+ty?wy26y+1MN:3/36+1w236+6kl6/0:3/36+1w236+5w36+1w236+pw236+3w/NONOh73?+1m7mhMN+1Oy?+tYVWONONONO/j01Mij36+1w0136+1w/0/j01Mij36+1w01Mj01Mij36+1w0136+1w236+5w236+3wMij36+1wMi/NONOh73?+1wywNO+1My?+v3?mhyNON?/gh/?/+2j01Mihj01M/0?/gh/?/+2j01Mih/?/+1gh/?/+2j01Mihj01Mij36+1w01Mij36+1wM/?/+2j01M/?NONONOh73?+1myMN+1Oy?+v73?w:0ywNO?/+6gh/?/+3gh/?0?/+6gh/?/+agh/?/+3gh/?/+2j01Mgh/?/+2j01M/?/+4gh/?+4NONONONXUZNO+1Mhy?+s;a?wh73mhyMN?+f0?/+vgh/?/+6gh/?+bNONOh+1n?26NON+1Oh+1y?+9:7?+hYVWONONONO?+f0?+TNONOn?26hMNO+1NONONXUZNO?+n3mhywNON?+f0B?+Txhy?26h+1NONywywn?26NOM?+mh73mh;0hyNO?+f0A+1B?+Rxn?26h+1NONOywhy?26hMNO?+b:7?+9wh+173mywMN9a?+39:oa9a?+39a0A+5B?+1zB?+czB?+bzB?+gx?26h+1NONONnhn?2?ywNOM?+4ywy?+dwywhNONONOa9a9a9a9a9a9a9a91+aNO?+3:5?+50+4?+3:5?+50+4?+3:5?+5NO1+dy+1?2?wywMNOywy6h+2ywhy?+66yhNONONONONON+1ONXUZNONONONONOj+bM?+9x?+2x?+9x?+2x?+9Mj+ehn26hy?wNOMhywh+1ywh7wh+2y?wywhywMNONONONONO?NX26h+7NO?o+?o+4"},
 {next_start_x=276, next_start_y=90, start_x=16, start_y=192, offset = 41, map_marker={69,22}, nl_1=7, map_string="the castle is ahead.", data="81d20d1231ONOh73?+3NONONONONONONONONONONONONONONONONONONO?+23?+3NONONONONO?+1:e?+3PA+aN+dO:8Mwy?3?+7PA+2NONONONOA+6R?+4PA+3R?+53?+jPA+9O+dN:pO7wy?3?+7SPA+1NONONOA+3RS?S?+6SPAR?+73?+6:g?+cSPA+1R?+1SPAN+dO:pMymh+173?+6S?PA+1NONOA+2R?+1S?T?+6T?S?+93?+iS?S?+2:f?S?SO+dNONONONONONO?+2T?+1SPMNOMARS?+2S?+aS?+a3?+hT?S?+3S?TN+dONONONONONO?+6S?NONOS?S?+2T?+aT?+6NONONONONONO?+cS?+3T?+1O+dNONONONONO?+7T?+1NO?T?S?+ox?S?+1S?x?+eT?+6N+c?wh+1NONONOy?+fT?+7:0?+gx?S?+1T?x?+mO+c?+1mh+1NONOMy?+Fx?T?+3x?+i:m?+3N+c?+2wh+1NONOh7?+a:0?+6NXUZNONO?+ex?+5x?+mO+c?+3mNONOMh+1y?+3:0?+4;l?+826NONOM?+2NONO?+7x?+5x?+7NONONONONONONO?O+c?+5NONOywh7?+6NONO?+3:l?26nwNONOy?+1MNOM?+2NONO?x?+5x?NONO?+1wMNONONONONONOM?N+c?+6NONONONONONOy?xy6x?wNONOy6hMNOMh+1yNONOy?wMNOMyxwNONOyxwMNOMy6hNONONONONONONOyO+co+?o+wONOywh+2y?+5S?S?+1SPA+aR?+5PA+9R?+7PA+1QA+6QA+1R?+5PA+c:2N?NOMy?wh+27?+4T?S?+1S?PA+7RS?+7PA+5R?S?+9PA+b?+7A+4QA+6M?ONOywhnwywy?+5S?+1T?+1S?+1PA+1RS?S?+8S?+2S?+2T?+aPA+4QA+3R?+7PA:iA+7QA+1N?NOMh7wywh+1y?+5T?+4S?+2S?+1T?S?+8T?+2S?+fS?SPA+2R?S?+9PAQA+7RM?ONOhywh7mh+17?+4:0?+5T?+2S?+3T?+cT?+fS?T?S?S?+1T?+aPA+1R?+1PA+1R?N?NONOh7wy+2wy?:l?+dT?+yT?+2T?S?+fS?+4S?+1M?ONONOYVWONONONONONO?+NT?+fT?+4S?+1N?h+1ywhy?3?wywNONONO?+??+9T?+1M?ywhywh7?3?myMNONO?+x:0?+HN?nwhy6h+1y?3?wNONO?+hzB?+bzAB?+kNO?+2:4?+4NO?+aM?6hywh+37?3mMNOM?+gzANO?+9zANONO?+e;0?+2NOM?+7MNO?+9N?why?wywhNONONONO?+5zB?:l?+6;lzANOM?+7zA:lA+1MNONO?+fNONO?+7NONO?+6:0?+1M?ONONONONONONONOM?+4NONONO?+1NONONONO?+3NOYVWONONONONONO?+3:5?+5NONONOM?+7MNONONO?+5N?NONONONONONONONOo+4MNONOMo+1MNONONOMo+3MNO73mhNONONONOMo+9MNONONOo+7NONONONOYVWONO?"}
 }
-
 function _init()
---almost all of the properties can be shoved in one long list. tokens!
-
---hard_mode = false
-
 hurt_pal, player_pal,base_pal=string_to_array("2982928"),string_to_array("1d2f"),string_to_array("567fabd")
-
---player.y=82
 player:use_slaves()
 player:add_slave(player_legs)
---player:use_pal()
---player:update_slaves()
---player_sword:use_slaves()
---player:add_slave(player_sword)
---player_sword:add_slave(player_sword_tip)
-
 player.whip = whip:new()
 player:add_slave(player.whip)
 player.whip:setup(10)
-
---next_start_x, next_start_y = 4, 58
-
 terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer, boss_health, boss_max_health = 4, 0.15, 2.5, 6, 6, 0, 0,0
---boss_max_health = 6
-
---draw_bounding_boxes = false
 got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add = 0, 0.25, {}, 0, string_to_array("001121562493d52e"), 0, 0.01
---old darkness: "000520562493152e"
 level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 0, -20, true, true, 0, false, 0,0, {{38,17}}, 0,0,0
 player:update()
 end
-
 function string_to_array(s)
 a = {}
 for i=1,#s+1 do
@@ -1769,7 +1358,6 @@ add(a, char_to_int(char_at(s,i)))
 end
 return a
 end
-
 function clear_level()
 actors = {player, cam}
 for i=0,127 do
@@ -1778,9 +1366,7 @@ mset(i,j,0)
 end
 end
 end
-
 entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), platform:new({yw=-24}), pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key, medusa_spawner, next_level_marker, next_level_marker:new({num2=true}), slime, slimeboss, lock, summoner, breakable_block:new({b_bit_s=33})}
-
 function load_level(level, respawning)
 cls()
 clear_level()
@@ -1795,12 +1381,10 @@ start_x, start_y = level.start_x or next_start_x, level.start_y or next_start_y
 next_start_x, next_start_y = level.next_start_x or next_start_x, level.next_start_y or next_start_y
 next_level, nl_1, nl_2 =level.next_level or 1, level.nl_1 or nl_1, level.nl_2 or nl_2
 level_offset = level.offset or 0
-
 if current_level==7 and back_entry then
 start_x, start_y=540, 186
 end
 borders={}
-
 if (level.map_string) map_string = level.map_string
 enemy_pal, width, cursor, x, y, chain, add_val = string_to_array(sub(s,2,8)), two_char_to_int(sub(s,9,10)), 11, 0, 0, 0, 64
 while cursor<#s or chain!=0 do
@@ -1838,14 +1422,12 @@ x=0
 y+=1
 end
 end
-
 level_music = char_to_int(sub(s,1,1))
 if between_levels then
 play_music(level_music)
 else
 play_music(-1)
 end
-
 if not respawning then
 player.x, player.y, player.acc, player.spd, player.grav, player.f = start_x, start_y, 0, 0, 0, false
 player:checkpoint()
@@ -1856,20 +1438,13 @@ player.x, player.y, player.stairs, player.f, player.stair_dir = check_x, check_y
 player.invul, player.invis, player.mom, player.grav, player.invis, cam.special_goal, player.s = 0, false, 0, 0, false, false, 1
 end
 player:update_slaves()
-
 cam:jump_to()
 cam:y_move()
 cam:update()
 if between_levels then
 cam.x=flr(player.x/136)*136
 end
-
--- sort_actors()
--- for a in all(actors) do
--- a:update()
--- end
 end
-
 function char_to_int(c)
 for i=0,63 do
 if char_at("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?",i+1) == c then
@@ -1877,35 +1452,27 @@ return i
 end
 end
 end
-
 function two_char_to_int(string)
 local num1, num2 = char_to_int(char_at(string,1)), char_to_int(char_at(string,2))
 return num2+num1*32
 end
-
 function char_at(s,i)
 return sub(s,i,i)
 end
-
---------------------------------------------------------------------------------
-
 function _update60()
 xp,zp=btn(5) and not pbx,btn(4) and not pbz
 pbx,pbz=btn(5),btn(4)
 if (not level_end) map_markers[progression+2]=nil
 p_timer=(p_timer+0.01)%1
-
 if death_time then
 death_time-=1
 if death_time<=0 then
---respawning
 death_time=nil
 load_level(current_level, true)
 level_start=true
 deaths+=1
 end
 end
-
 if difficulty_menu then
 if btnp(3) or btnp(2) then
 hard_mode = not hard_mode
@@ -1916,7 +1483,7 @@ difficulty_menu = false
 if hard_mode then
 player.health, player_max_health=4,4
 end
-load_level(2) --start in first level
+load_level(2)
 sfx(3)
 darkness=5
 end
@@ -1976,14 +1543,7 @@ play_music(level_music,0b11)
 end
 return
 end
---end of the game
 if ending_sequence then
--- if e_timer<0.01 and got_stones>0 then
--- local es = ending_stone:new({x=player.x,y=player.y,num=got_stones})
--- add(e_stones, es)
--- add_actor(es)
--- got_stones-=1
--- end
 e_timer=(e_timer+e_add)%1
 if not stones_out then
 for i=1,got_stones do
@@ -2003,7 +1563,6 @@ e_add-=0.000025
 if p_width<16 or portal_failed then
 final_boss.y-=2
 final_boss.s=210
---final_boss.timer+=0.01
 final_boss:update_slaves()
 p_width+=2
 portal_failed=true
@@ -2013,9 +1572,7 @@ end
 if p_width<=12 or p_width>128 then
 level_end, game_end=true,true
 end
---return
 end
---sort_actors
 del(actors,cam)
 add(actors,cam)
 for a in all(actors) do
@@ -2030,36 +1587,29 @@ end
 end
 end
 end
-
 function play_music(num)
 if playing_music!=num then
 music(num)
 playing_music=num
 end
 end
-
 function add_actor(a)
 add(actors, a)
 end
-
 function is_solid(x,y)
---ignore tiles above the camera.
 if y<cam.y then
 y=cam.y
 end
 return get_flag_at(x,y,0)
 end
-
 function get_flag_at(x,y,flag)
 x/=8
 y/=8
 return get_flag(x,y,flag)
 end
-
 function get_flag(x,y,flag)
 return fget(mget(x,y),flag)
 end
-
 function move_towards(goal, current, speed)
 if goal+speed<current then
 return current-speed
@@ -2069,15 +1619,10 @@ else
 return goal
 end
 end
-
---beware of floating point overflow!
 function distance_between(x1,y1,x2,y2)
 local xd, yd = abs(x1-x2), abs(y1-y2)
 return sqrt(xd*xd + yd*yd)
 end
-
---------------------------------------------------------------------------------
-
 function _draw()
 if darkness!=0 and prev_darkness==darkness and not game_end then return end
 prev_darkness=darkness
@@ -2097,7 +1642,6 @@ else
 if blackout_time<=0 then
 cam:set_position()
 map(0,0,0,0,128,32)
-
 if (difficulty_menu) draw_basic_menu() return
 draw_portal()
 for a in all(actors) do
@@ -2108,37 +1652,24 @@ map(0,0,0,0,128,32,0b1000)
 camera()
 clip()
 end
-
 if between_levels then
 draw_level_select_gui()
 else
 draw_hud()
 end
 end
-
 for i=1,darkness do
 darker()
 end
 end
-
 function draw_portal()
 if (p_width<=0) return
 camera()
 local w = p_width-3*sin(p_timer)
 circfill(63,36,w+1,1)
 circfill(63,36,w,0)
--- rectfill(63-p_width,0,64+p_width,95,0)
--- for i=0,16 do
--- for j=0,95 do
--- if sin(p_timer+j/128)*8+8>i then
--- pset(i+p_width+64,j,0)
--- pset(63-p_width-i,95-j,0)
--- end
--- end
--- end
 cam:set_position()
 end
-
 function draw_hud()
 line(0,112,127,112,5)
 print("player", 1, 114, 7)
@@ -2155,7 +1686,6 @@ end
 for i=0,boss_health-1 do
 spr(62, 120-i*5, 120)
 end
---draw_stat()
 local s = {}
 if got_key then
 s = {56}
@@ -2169,7 +1699,6 @@ spr(i, cursor, 114)
 cursor+=10
 end
 end
-
 function draw_basic_menu()
 clip()
 centre_print("normal",72,7)
@@ -2178,56 +1707,41 @@ local xd, yd=0,0
 if (hard_mode) xd=4 yd=10
 spr(180,40+xd,72+yd)
 spr(181,79-xd,72+yd)
--- print("mush101.itch.io", 68,122,5)
 centre_print("mush101.itch.io", 118,5)
 end
-
 function draw_level_select_gui()
---draw border
 local cols = {0,8,0}
 if not game_end then
 for i = 1,3 do
 rect(i-1,63+i,128-i,128-i,cols[i])
 end
 end
---draw map
 rectfill(0,0,127,63,0)
 sspr(56,96,64,32,32,8)
---string
 centre_print(map_string,50,7)
 local p_m,num=nil,-1
 for m in all(map_markers) do
 m1,m2=m[1],m[2]
 if p_m and (num<progression or p_timer%0.2<0.1) then
--- p1,p2=p_m[1],p_m[2]
--- for i=0,1,0.2 do
--- pset(p1+i*(m1-p1),p2+i*(m2-p2))
--- end
 line(m1,m2,p_m[1],p_m[2])
 end
 num+=1
---circfill(m1,m2,2,0)
 circfill(m1,m2,1,8)
 p_m=m
 end
 end
-
 function centre_print(str, y, col)
 print(str,64-2*#str,y,col)
 end
-
 function darker()
 for i= 0x6000, 0x7fff do
 local two = peek(i)
 local second = two % 16
 local first = lshr(two - second, 4) % 16
-
 first, second = darker_pal[first+1], darker_pal[second+1]
-
 poke(i, shl(first,4) + second)
 end
 end
-
 __gfx__
 0000660600006606000066060006606000ff660600006606000066060000000000aaaa00000000000000000000000000000bb00000dda0000000770000005505
 0006666000066660000666600066660000ff66600006666000066660000000000aaaaaa0000bb000000000000000000000baab000dddaa000007777000055550
