@@ -723,7 +723,7 @@ function enemy:hit(attacker)
 	end
 	if self.invul == 0 then
 		self.health-=1
-		self.invul=8
+		self.invul=12
 		self.grav=-1.5
 		self.acc=0
 		if not self.dontflip then
@@ -2587,4 +2587,3 @@ __music__
 00 30344344
 02 31354344
 02 36424344
-
