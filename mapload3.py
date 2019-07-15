@@ -47,10 +47,17 @@ else:
                 num = 63  # Empty tile
             new_tiles.append(num)
 
+        # Read and add the music and colour palette properties.
+        music = data["properties"]["music"]
+        out_str = music
+        colour_pal = data["properties"]["colour_pal"]
+        out_str += colour_pal
+
         # Get the width and put it at the start of the output string
         width = data["layers"][0]["width"]
-        out_str = num_to_char(width)
+        out_str += num_to_char(width)
 
+        # Convert the tiles into a 2D list.
         tiles = [[]]
         x = 0
         y = 0
@@ -62,6 +69,46 @@ else:
                 y += 1
                 if y < 28:
                     tiles.append([])
+
+        # Convert the map data to a string.
+        x = 0
+        y = 0
+        sprite_bank = 0
+        for y in range(28):
+            for x in range(width):
+                tile = tiles[y][x]
+                if tile != -1:
+                    # A '/' indicates that I've moved between the 2nd and 3rd pages of sprites (sprite banks)
+                    if (tile >= 64 and sprite_bank == 0) or (tile <= 60 and sprite_bank == 64):
+                        sprite_bank = 64 - sprite_bank
+                        out_str += "/"
+
+                    # Determine how far and wide this section spans
+                    best_width = 0  # (A width of 0 *extra* means that it's really 1 wide.)
+                    best_height = 0
+                    best_size = 1
+                    for w in range(63):
+                        for h in range(27):
+                            if x + w < width and y + h < 28:
+                                uniform = True
+                                for i in range(w):
+                                    for j in range(h):
+                                        if tiles[y + j][x + i] != tile:
+                                            uniform = False
+                                            break
+                                if uniform:
+                                    size = (w + 1) * (h + 1)
+                                    if size > best_size:
+                                        best_size = size
+                                        best_width = w
+                                        best_height = h
+                    if best_width > 0:
+                        out_str += "+" + num_to_one_char(best_width)
+                    if best_height > 0:
+                        out_str += "-" + num_to_one_char(best_height)
+                    out_str += num_to_one_char(tile % 64)
+
+        print(out_str)
 
         # # Load the entities in
         # entity_list = []

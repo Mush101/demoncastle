@@ -674,6 +674,16 @@
         }],
  "nextobjectid":39,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "colour_pal":"5820e28",
+     "music":"g"
+    },
+ "propertytypes":
+    {
+     "colour_pal":"string",
+     "music":"string"
+    },
  "renderorder":"right-down",
  "tiledversion":"1.0.3",
  "tileheight":8,
