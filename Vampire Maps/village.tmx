@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="101" height="28" tilewidth="8" tileheight="8" nextobjectid="39">
+ <properties>
+  <property name="colour_pal" value=""/>
+  <property name="music" value=""/>
+ </properties>
  <tileset firstgid="1" source="Vampire.tsx"/>
  <layer name="Tile Layer 1" width="101" height="28">
   <data encoding="csv">
