@@ -100,49 +100,51 @@ else:
                         out_str += "/"
 
                     # Determine how far and wide this section spans
-                    best_width = 0  # (A width of 0 *extra* means that it's really 1 wide.)
+                    best_width = 0
                     best_height = 0
                     best_size = 1
-                    for h in range(27):
-                        for w in range(64):
-                            if x + w < width and y + h < 28:
-                                uniform = True
-                                for i in range(w):
+                    for h in range(1, 27):
+                        for w in range(1, 64):
+                            if h != 2 and w != 2:
+                                if x + w <= width and y + h <= 28:
+                                    uniform = True
+                                    for i in range(w):
+                                        if uniform:
+                                            for j in range(h):
+                                                if tiles[y + j][x + i] != tile:
+                                                    uniform = False
+                                                    break
+
                                     if uniform:
-                                        for j in range(h):
-                                            if tiles[y + j][x + i] != tile:
-                                                uniform = False
-                                                break
-                                if uniform:
-                                    size = (w + 1) * (h + 1)
-                                    if size > best_size:
-                                        best_size = size
-                                        best_width = w
-                                        best_height = h
-                    if best_width > 0:
+                                        size = (w + 1) * (h + 1)
+                                        if size > best_size:
+                                            best_size = size
+                                            best_width = w
+                                            best_height = h
+                    if best_width > 1:
                         out_str += "+" + num_to_one_char(best_width)
 
-                    if best_height > 0:
+                    if best_height > 1:
                         out_str += "-" + num_to_one_char(best_height)
 
                     out_str += num_to_one_char(tile % 64)
 
-                    if best_width == 0:
-                        if best_height == 0:
-                            tiles[y][x] = -1
-                        else:
-                            for j in range(y, y + best_height):
-                                tiles[j][x] = -1
-                    elif best_height == 0:
-                        for i in range(x, x + best_width):
-                            tiles[y][i] = -1
-                    else:
-                        for i in range(x, x + best_width):
-                            for j in range(y, y + best_height):
-                                tiles[j][i] = -1
+                    # if best_width == 0:
+                    #     if best_height == 0:
+                    #         tiles[y][x] = -1
+                    #     else:
+                    #         for j in range(y, y + best_height):
+                    #             tiles[j][x] = -1
+                    # elif best_height == 0:
+                    #     for i in range(x, x + best_width):
+                    #         tiles[y][i] = -1
+                    # else:
+                    for i in range(x, x + best_width):
+                        for j in range(y, y + best_height):
+                            tiles[j][i] = -1
 
                     print(show_tiles(tiles))
-                    time.sleep(0.1)
+                    #time.sleep(0.1)
 
         print(out_str)
 
