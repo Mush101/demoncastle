@@ -1,6 +1,7 @@
 import json
 import sys
 import math
+import time
 
 
 def num_to_char(num):
@@ -29,6 +30,18 @@ def get_chain_output(chain_length):
         chain_char = "z"
         chain_length -= 32
     return chain_char + num_to_one_char(chain_length)
+
+
+def show_tiles(tiles_to_print):
+    s = ""
+    for row in tiles_to_print:
+        for t in row:
+            if t == -1:
+                s += "#"
+            else:
+                s += num_to_one_char(t % 64)
+        s += "\n"
+    return s
 
 
 if len(sys.argv) <= 1:
@@ -70,6 +83,8 @@ else:
                 if y < 28:
                     tiles.append([])
 
+        print(show_tiles(tiles))
+
         # Convert the map data to a string.
         x = 0
         y = 0
@@ -78,6 +93,7 @@ else:
             for x in range(width):
                 tile = tiles[y][x]
                 if tile != -1:
+                    # print(str(x) + "," + str(y))
                     # A '/' indicates that I've moved between the 2nd and 3rd pages of sprites (sprite banks)
                     if (tile >= 64 and sprite_bank == 0) or (tile <= 60 and sprite_bank == 64):
                         sprite_bank = 64 - sprite_bank
@@ -87,15 +103,16 @@ else:
                     best_width = 0  # (A width of 0 *extra* means that it's really 1 wide.)
                     best_height = 0
                     best_size = 1
-                    for w in range(63):
-                        for h in range(27):
+                    for h in range(27):
+                        for w in range(64):
                             if x + w < width and y + h < 28:
                                 uniform = True
                                 for i in range(w):
-                                    for j in range(h):
-                                        if tiles[y + j][x + i] != tile:
-                                            uniform = False
-                                            break
+                                    if uniform:
+                                        for j in range(h):
+                                            if tiles[y + j][x + i] != tile:
+                                                uniform = False
+                                                break
                                 if uniform:
                                     size = (w + 1) * (h + 1)
                                     if size > best_size:
@@ -104,9 +121,28 @@ else:
                                         best_height = h
                     if best_width > 0:
                         out_str += "+" + num_to_one_char(best_width)
+
                     if best_height > 0:
                         out_str += "-" + num_to_one_char(best_height)
+
                     out_str += num_to_one_char(tile % 64)
+
+                    if best_width == 0:
+                        if best_height == 0:
+                            tiles[y][x] = -1
+                        else:
+                            for j in range(y, y + best_height):
+                                tiles[j][x] = -1
+                    elif best_height == 0:
+                        for i in range(x, x + best_width):
+                            tiles[y][i] = -1
+                    else:
+                        for i in range(x, x + best_width):
+                            for j in range(y, y + best_height):
+                                tiles[j][i] = -1
+
+                    print(show_tiles(tiles))
+                    time.sleep(0.1)
 
         print(out_str)
 
