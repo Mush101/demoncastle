@@ -1252,9 +1252,10 @@ end
 
 function slimeboss:update()
 	slime.update(self)
-	if self.x<=cam.x+1 then
-		self.x = cam.x+1
-	end
+	-- if self.x<=cam.x+1 then
+	-- 	self.x = cam.x+1
+	-- end
+	self.x = max(self.x, cam.x+1)
 	self.s+=197
 	self.f=false
 	self:update_slaves()
