@@ -631,7 +631,7 @@
                  "properties":
                     {
                      "hard_mode_only":true,
-                     "object_id":11
+                     "object_id":10
                     },
                  "propertytypes":
                     {
@@ -642,7 +642,7 @@
                  "type":"",
                  "visible":true,
                  "width":8,
-                 "x":64,
+                 "x":192,
                  "y":64
                 }, 
                 {
@@ -665,6 +665,48 @@
                  "width":8,
                  "x":184,
                  "y":0
+                }, 
+                {
+                 "height":8,
+                 "id":37,
+                 "name":"",
+                 "properties":
+                    {
+                     "hard_mode_only":false,
+                     "object_id":2
+                    },
+                 "propertytypes":
+                    {
+                     "hard_mode_only":"bool",
+                     "object_id":"int"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":120,
+                 "y":112
+                }, 
+                {
+                 "height":8,
+                 "id":38,
+                 "name":"",
+                 "properties":
+                    {
+                     "hard_mode_only":true,
+                     "object_id":10
+                    },
+                 "propertytypes":
+                    {
+                     "hard_mode_only":"bool",
+                     "object_id":"int"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":160,
+                 "y":32
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -672,7 +714,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":37,
+ "nextobjectid":39,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.3",
