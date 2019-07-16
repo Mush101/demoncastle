@@ -1534,8 +1534,8 @@ end
 boss_cam = cam_border_left:new()
 
 function boss_cam:cupdate()
-	if player.x>=self.x then
-		cam.goal_x,cam.special_goal = self.x, true
+	if (player.x>=self.x) or self.active then
+		cam.goal_x,cam.special_goal, self.active = self.x, true, true
 		if not level_end and not death_time then
 			play_music(6)
 		end
@@ -1791,17 +1791,13 @@ function load_level(level, respawning)
 	end
 	current_level = level
 	level = levels[level]
-	s = level.data
-	start_x, start_y = level.start_x or next_start_x, level.start_y or next_start_y
-	next_start_x, next_start_y = level.next_start_x or next_start_x, level.next_start_y or next_start_y
-	next_level, nl_1, nl_2,level_offset =level.next_level or 1, level.nl_1 or nl_1, level.nl_2 or nl_2, level.offset or 0
+	s, start_x, start_y, next_start_x, next_start_y, next_level, nl_1, nl_2,level_offset, borders = level.data, level.start_x or next_start_x, level.start_y or next_start_y, level.next_start_x or next_start_x, level.next_start_y or next_start_y, level.next_level or 1, level.nl_1 or nl_1, level.nl_2 or nl_2, level.offset or 0, {}
 
 	if current_level==7 and back_entry then
 		start_x, start_y=540, 186
 	elseif current_level==5 and lower_route then
 		start_y=34
 	end
-	borders={}
 
 	if (level.map_string) map_string = level.map_string
 	enemy_pal, width, cursor, x, y, chain, add_val = string_to_array(sub(s,2,8)), two_char_to_int(sub(s,9,10)), 11, 0, 0, 0, 64
