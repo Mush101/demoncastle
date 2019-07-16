@@ -626,27 +626,6 @@
                 }, 
                 {
                  "height":8,
-                 "id":35,
-                 "name":"",
-                 "properties":
-                    {
-                     "hard_mode_only":true,
-                     "object_id":10
-                    },
-                 "propertytypes":
-                    {
-                     "hard_mode_only":"bool",
-                     "object_id":"int"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":8,
-                 "x":192,
-                 "y":64
-                }, 
-                {
-                 "height":8,
                  "id":36,
                  "name":"",
                  "properties":
@@ -706,7 +685,7 @@
                  "visible":true,
                  "width":8,
                  "x":160,
-                 "y":32
+                 "y":64
                 }],
          "opacity":1,
          "type":"objectgroup",
