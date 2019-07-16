@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
+--demon castle
+--by mush
 a={b=0,c=0,d=8,e=8,f=0,g=0,h=2,i=0,j=1,k=0}
 function a:l(m)
 self.__index=self
@@ -2113,4 +2115,3 @@ __music__
 02 36424344
 04 37424344
 04 38424344
-
