@@ -1770,20 +1770,17 @@ function string_to_array(s)
 	return a
 end
 
-function clear_level()
-	actors = {player, cam}
-	for i=0,127 do
-		for j=0,27 do
-			mset(i,j,0)
-		end
-	end
-end
-
 entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), platform:new({yw=-24}), pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key, medusa_spawner, next_level_marker, next_level_marker:new({num2=true}), slime, slimeboss, lock, summoner, breakable_block:new({b_bit_s=33})}
 
 function load_level(level, respawning)
 	cls()
-	clear_level()
+	--clear_level
+	actors = {player, cam}
+	-- for i=0,127 do
+	-- 	for j=0,27 do
+	-- 		mset(i,j,0)
+	-- 	end
+	-- end
 	between_levels, p_width = level==1, 0
 	if level==6 then
 		back_entry=true
