@@ -726,7 +726,7 @@ function whip:update()
 	end
 	if not self.invis then
 		for a in all(actors) do
-			if a.enemy and self:intersects(a, true) then
+			if a.enemy and self:intersects(a, true) and player.health>0 then
 				a:hit(player)
 			elseif a.breaks and self:intersects(a) then
 				a:break_me()
@@ -962,7 +962,9 @@ function bat:update()
 				self:hit_player()
 				self:animate()
 			end
-			if distance_between(self.x,self.y,player.x,player.y)<32 then
+
+			local xd, yd = abs(self.x-player.x), abs(self.y-player.y)
+			if sqrt(xd*xd + yd*yd)<32 then
 				self.awake = true
 			end
 		end
@@ -2076,8 +2078,10 @@ function _update60()
 		--return
 	end
 	--sort_actors
+	del(actors, player)
 	del(actors,cam)
-	add(actors,cam)
+	add_actor(player)
+	add_actor(cam)
 	for a in all(actors) do
 		if a.always_update or (a.y>=cam.y and a.y<cam.y+112) then
 			a:update()
@@ -2127,12 +2131,6 @@ function move_towards(goal, current, speed)
 	end
 end
 
---beware of floating point overflow!
-function distance_between(x1,y1,x2,y2)
-	local xd, yd = abs(x1-x2), abs(y1-y2)
-	return sqrt(xd*xd + yd*yd)
-end
-
 --------------------------------------------------------------------------------
 
 function _draw()
@@ -2173,7 +2171,7 @@ function _draw()
 			for a in all(actors) do
 				a:draw()
 			end
-			player:draw()
+			--player:draw()
 			map(0,0,0,0,128,32,0b1000)
 			camera()
 			clip()
