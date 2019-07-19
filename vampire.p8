@@ -1811,7 +1811,7 @@ function _init()
 
 	--next_start_x, next_start_y = 4, 58
 
-	terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer, boss_health, boss_max_health, got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add, level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 4, 0.15, 2.5, 6, 6, 0, 0,0, 0, 0.25, {}, 0, string_to_array("001121562493d52e"), 0, 0.01,0, -20, true, true, 0, false, 0,0, {{-38,17,0}}, 0,0,0
+	terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer, boss_health, boss_max_health, got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add, level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 4, 0.15, 2.5, 6, 6, 0, 0,0, 0, 0.25, {}, 0, {string_to_array("001521562443d52e"),string_to_array("0001101512250112"),string_to_array("0000000101110001")}, 0, 0.01,0, -20, true, true, 0, false, 0,0, {{-38,17,0}}, 0,0,0
 	--boss_max_health = 6
 
 	--draw_bounding_boxes = false
@@ -1973,7 +1973,7 @@ function _update60()
 			end
 			load_level(2) --start in first level
 			sfx(3)
-			darkness=5
+			darkness, blackout_time=5, 20
 		end
 		return
 	end
@@ -2004,10 +2004,10 @@ function _update60()
 		return
 	end
 	if level_end then
-		if level_end_timer<=40 then
+		if level_end_timer<=80 then
 			level_end_timer+=1
 		else
-			level_start, level_end, level_end_timer, got_level_item= true, false, 0, false
+			level_start, level_end, level_end_timer, got_level_item = true, false, 0, false
 			if not game_end then
 				load_level(next_level)
 			else
@@ -2019,13 +2019,11 @@ function _update60()
 		if (not ending_sequence) return
 	elseif game_end then
 		darkness-=0.1
-		--if darkness>=0 then
-			if good_end then
-				play_music(26)
-			else
-				play_music(25)
-			end
-		--end
+		if good_end then
+			play_music(26)
+		else
+			play_music(25)
+		end
 		return
 	end
 	if level_start then
@@ -2106,10 +2104,7 @@ end
 
 function is_solid(x,y)
 	--ignore tiles above the camera.
-	if y<cam.y then
-		y=cam.y
-	end
-	return get_flag_at(x,y,0)
+	return get_flag_at(x,max(y, cam.y),0)
 end
 
 function get_flag_at(x,y,flag)
@@ -2141,9 +2136,10 @@ end
 --------------------------------------------------------------------------------
 
 function _draw()
-	if darkness!=0 and prev_darkness==darkness and not game_end then return end
-	prev_darkness=darkness
+	--if darkness!=0 and prev_darkness==darkness and not game_end then return end
+	--prev_darkness=darkness
 	cls()
+	if (darkness>=4) return
 	if game_end and not level_end then
 		draw_level_select_gui()
 		centre_print("deaths: "..deaths, 72,7)
@@ -2190,9 +2186,7 @@ function _draw()
 		end
 	end
 
-	for i=1,darkness do
-		darker()
-	end
+	if (darkness>=1) darker()
 end
 
 function draw_portal()
@@ -2292,7 +2286,7 @@ function darker()
 		local second = two % 16
 		local first = lshr(two - second, 4) % 16
 
-		first, second = darker_pal[first+1], darker_pal[second+1]
+		first, second = darker_pal[flr(darkness)][first+1], darker_pal[flr(darkness)][second+1]
 
 		poke(i, shl(first,4) + second)
 	end
