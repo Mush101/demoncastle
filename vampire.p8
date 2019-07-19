@@ -3,6 +3,12 @@ version 18
 __lua__
 
 --------------------------------------------------------------------------------
+
+-- Every object in this game is classed as an actor.
+
+-- Lua uses a prototype system for objects, so an actor is defined here,
+-- so that I can use it to create other objects later as subclasses.
+
 actor={x=0, y=0, width=8, height=8, grav=0, spd=0, max_spd=2, acc=0, dcc=1, depth=0}
 
 function actor:new(a)
@@ -10,22 +16,28 @@ function actor:new(a)
 	return setmetatable(a or {}, self)
 end
 
+-- While the following two methods don't do anything, they're important.
+-- Subclasses of the actor object use these, so they get defined here first.
 function actor:update() end
-
 function actor:init() end
 
+-- Most actors use this default draw function.
 function actor:draw()
+	-- Don't draw the actor if its invis property is set.
 	if self.invis then return end
+	-- Only draw the actor if it has a sprite set.
 	if self.s then
+		-- Set a colour palette if the actor uses one.
 		if self.pal then
 			self:set_pal()
 		end
+		-- Draw the sprite at the actor's location, flipping it if needed.
 		spr(self.s, self.x, self.y, 1, 1, self.f)
+		-- Reset the palette after drawing the object.
 		pal()
 	end
-	-- if draw_bounding_boxes then
-	-- 	rect(self.x,self.y, self.x+self.width-1, self.y+self.height-1,7)
-	-- end
+	-- Some actors use 'slaves' (see the function 'actor:use_slaves()')
+	-- If this actor uses them, we draw those next.
 	if self.slaves then
 		for s in all(self.slaves) do
 			s:draw()
@@ -33,99 +45,113 @@ function actor:draw()
 	end
 end
 
+-- Applies a 7-colour palette to the actor.
+-- Different actors can use different colours from the colour palette.
+-- This is why many sprites in the sprite sheet are coloured so oddly.
 function actor:set_pal()
 	for i=1,7 do
 		pal(base_pal[i], self.pal[i])
 	end
-	--pal(14,0)
 end
 
+-- Determine whether the actor is touching the ground.
+-- If 'fully' is true, then it will only return true if the actor
+-- is entirely on the ground.
 function actor:on_ground(fully)
 	local a,b=is_solid(self.x, self.y+self.height+1), is_solid(self.x+self.width-1, self.y+self.height+1)
 	if fully then return a and b else return a or b end
 end
 
+-- Performs the effects of gravity upon an actor.
 function actor:gravity()
+	-- The 'grav' property of an actor defines its vertical acceleration.
+	-- A negative number means that the actor is travelling upwards.
 	self.y+=self.grav
+	-- The global property 'termianl_velocity' defines the fastest an
+	-- actor can fall.
+	-- This pervents an actor from clipping through the floor, for example.
 	self.grav = min(self.grav,terminal_velocity)
+	-- Some actors are 'flying'.
+	-- These actors define their own maximum gravity and acceleration.
 	if self.flying then
 		self.grav+=self.grav_acc
 		self.grav = mid(-self.max_grav, self.grav, self.max_grav)
 	else
 		self.grav+=grav_acc
 	end
+	-- Most actors are affected by the tragic concept of walls.
 	if not self.ignore_walls then
+		-- After an actor is moved due to gravity, it checks whether it ended
+		-- up inside a wall.
 		if self:is_in_wall() then
 			if self.grav>0 then
+				-- If the actor was moving downwards, it is placed above
+				-- the tile it clipped inside.
 				local feet_y = self.y+self.height
 				feet_y = flr(feet_y/8)*8
 				self.y=feet_y-self.height
 			else
+				-- If the actor was moving upwards, it is placed below.
 				self.y = flr(self.y/8)*8+8
 			end
-			-- self.grav = self.grav * -0.2
-			-- if abs(self.grav)<1 then
-			-- 	self.grav = 0
-			-- end
+			-- Either way, its gravity acceleration is reset to 0.
 			self.grav = 0
 		end
 	end
 end
 
-function actor:is_in_wall(part)
+-- Determines whether the actor is currently in a wall.
+-- This method is universal, so works for objects of varying widths and heights.
+function actor:is_in_wall()
+	-- First, we define a set of x coordinates, 8 points apart.
 	xs = {}
 	for i=self.x, self.x+self.width-1, 8 do
 		add(xs, i)
 	end
+	-- We also include a point at the far width of the object.
 	add(xs, self.x+self.width-1)
+
+	-- We do the same for the y points.
 	ys = {}
 	for i=self.y, self.y+self.height-1, 8 do
 		add(ys, i)
 	end
 	add(ys, self.y+self.height-1)
 
-	-- if part == "ceil" then
-	-- 	ys = {self.y}
-	-- elseif part == "floor" then
-	-- 	ys = {self.y+self.height-1}
-	-- end
-
+	-- Once we have these points, we can check each pair of x and y.
 	for i in all(xs) do
 		for j in all(ys) do
 			if is_solid(i, j) then
 				return true
 			end
 		end
-		if is_solid(i, self.y+self.height-1) then
-			return true
-		end
 	end
+	-- Since the points we defined are all 8 pixels apart, and the size of a
+	-- single tile is 8 pixels, we can determine whether the actor is in a wall
+	-- just by checking these points.
 	return false
 end
 
-function actor:momgrav()
-	self:momentum()
-	self:gravity()
-end
-
+-- Move the actor based on its speed and accelration values.
 function actor:momentum()
-	--accelerate
+	-- Accelerate the actor by its 'acc' value.
 	self.spd+=self.acc
-	--decelerate
+	-- Then, slow the actor by moving its speed closer to 0, based on its
+	-- deceleration. 'dcc' is deceleration because 'acc' is acceleration...
 	self.spd=move_towards(0, self.spd, self.dcc)
-	-- if self.spd>self.max_spd then
-	-- 	self.spd=self.max_spd
-	-- elseif self.spd<-self.max_spd then
-	-- 	self.spd=-self.max_spd
-	-- end
+	-- The speed has to be clamped between the max and min speeds.
+	-- The in-built 'mid()' function does this on its own, which is helpful.
 	self.spd=mid(-self.max_spd, self.spd, self.max_spd)
+	-- Then the actor is actually moved by its 'spd'.
 	self.x+=self.spd
-	--when this moves us into a wall:
+	-- Like with gravity, some actors have to obey the mortal laws of walls.
 	if not self.ignore_walls then
+		-- After the actor is moved, the actor checks to see
+		-- whether it is now in a wall.
 		if self:is_in_wall() then
-			--position exactly on pixel.
+			-- The actor is moved to be exactly on a pixel.
 			self.x=flr(self.x)
-			--move out of the wall.
+			-- Then the actor moves backwards until it is no longer in a wall.
 			while self:is_in_wall() do
 				if self.spd>0 then
 					self.x-=1
@@ -133,15 +159,28 @@ function actor:momentum()
 					self.x+=1
 				end
 			end
+			-- Then the object has its speed set back to zero.
 			self.spd=0
 		end
 	end
 end
 
+-- This function exists solely to reduce tokens used by calling the method
+-- momentum(), then the method gravity().
+function actor:momgrav()
+	self:momentum()
+	self:gravity()
+end
+
+-- The 'slaves' system used in this game allows for an actor to have slave
+-- actors which act as an extention of the actor itself.
+-- This is especially helpful for game objects which are larger than 8x8 pixels.
+-- Calling this function initialises the use of slaves for an object.
 function actor:use_slaves()
 	self.slaves = {}
 end
 
+-- In order to update its slaves, an actor using slaves calls this method.
 function actor:update_slaves()
 	if not self.slaves then return end
 	for s in all(self.slaves) do
@@ -149,28 +188,33 @@ function actor:update_slaves()
 	end
 end
 
+-- This method adds a slave to an actor using htem.
 function actor:add_slave(a)
 	if not self.slaves then return end
 	add(self.slaves, a)
 	a.master, a.pal = self, self.pal
 end
 
+-- This function sets a slave object's location to its master actor.
 function actor:goto_master()
 	if not self.master then return end
 	self.x = self.master.x
 	self.y = self.master.y
 end
 
+-- Checks whether the actor is far enough off screen to not be worth updating.
 function actor:offscreen()
 	return self.x<cam.x-self.width-32 or self.x>cam.x+128+32
 end
 
+-- Determines whether an actor is within the current bounds of the camera.
 function actor:on_camera()
 	return self.x+self.width>=cam.x and self.x<cam.x+128 and self.y+self.height>=cam.y and self.y<cam.y+112
 end
 
+-- Performs a quick check to see whether two actors' bounding boxes overlap.
+-- This means we don't need to do exact pixel collision between all actors.
 function actor:hitbox_overlaps(a)
-	--convert to or.
 	if self.x+self.width<a.x then return false end
 	if a.x+a.width<self.x then return false end
 	if self.y+self.height<a.y then return false end
@@ -178,55 +222,66 @@ function actor:hitbox_overlaps(a)
 	return true
 end
 
---checks exact pixel collisions (potentially recursive on slaves)
+-- Check whether two actors are touching, using exact pixel collision.
 function actor:intersects(b, r)
-	--must pass simple test first.
+	-- First, check the bounding boxes.
 	if self:hitbox_overlaps(b) then
-		--hitbox only collision.
+		-- If either object has no sprite set, we rely just on bounding boxes.
 		if not self.s or not b.s then
 			return true
 		end
-		--scratchpad area
+		-- We make use of PICO-8 draw functions to check for overlap.
+		-- We clear an area in the corner of the screen and draw both sprites.
 		rectfill(0,0,16,8,0)
-		--draw both sprites to screen
 		spr(self.s,0,0,1,1,self.f)
 		spr(b.s,8,0,1,1,b.f)
-		--calculate differences.
+		-- Based on the relative positions of the actors, we check the pixels
 		x_dif,y_dif=b.x-self.x, b.y-self.y
 		for x=max(0,x_dif),min(7,7+x_dif) do
 			for y=max(0,y_dif),min(7,7+y_dif) do
 				a_pix, b_pix=pget(x,y), pget(8+x-x_dif,y-y_dif)
-				--if two pixels overlap...
+				-- If both pixels are coloured at a certain location, we
+				-- have an intersection.
 				if a_pix!=0 and b_pix!=0 then
 					return true
 				end
 			end
 		end
-		if b.slaves and r then
-			for a in all(b.slaves) do
-				if a.extends_hitbox and self:intersects(a, r) then return true end
-			end
+	end
+	-- If we didn't find a collision, and the object uses slaves, AND the
+	-- recursive property 'r' is set, we check the slaves too.
+	if b.slaves and r then
+		for a in all(b.slaves) do
+			if a.extends_hitbox and self:intersects(a, r) then return true end
 		end
 	end
 	return false
 end
 
+-- This method is called when an actor is hit by the player's whip.
+-- Some actors will re-implement this.
+-- The default behaviour means that slave objects defer to their master on it.
 function actor:hit(attacker)
 	if self.master then
 		self.master:hit(attacker)
 	end
 end
 
+-- This method is mostly around from when there used to be multiple palettes
+-- used for enemies, instead of one big one. It sets the palette for enemies.
 function actor:use_pal()
 	if self.pal_type == 1 then
 		self.pal = enemy_pal
 	end
 end
 
+-- This generates a particle actor used for the animation of something dying.
 function actor:death_particle()
 	add_actor(death_particle:new({x=self.x+rnd(self.width),y=self.y+rnd(self.height)}))
 end
 
+-- This method causes a boss (an actor which can display a healthbar) to
+-- gain more health in later levels, based on the 'progression' variable.
 function actor:level_up()
 	if self.max_health then
 		self.max_health+=progression
@@ -237,17 +292,25 @@ end
 
 --------------------------------------------------------------------------------
 
+-- The camera (or cam, to avoid the in-build function name) is a special actor.
+-- It controls the viewpoint of the game.
+-- Unlike most actors, this one *must* be updated last to prevent an unpleasant
+-- shaking effect.
+
 cam = actor:new({speed=0.5, always_update = true, x=896})
 
 function cam:update()
+	-- Only transition the screen on when the player is on the stairs.
 	if player.stairs then
 		self.speed=0.5
-		--only transition screen on stairs.
 		local y_prev = self.y
 		self:y_move()
 		if self.y!=y_prev then
+			-- 'blackout_time' causes the screen to go black as a transition.
 			blackout_time=40
 			self:jump_to()
+			-- Whenever the camera moves between screens, the game sets a
+			-- checkpoint (unless you're playing in hard mode).
 			if not hard_mode then
 				player:checkpoint()
 			end
@@ -260,12 +323,16 @@ function cam:update()
 	if self.x<=0 then
 		self.x=0
 	end
+	-- The camera needs to adhere to 'border' objects, which stop it from
+	-- moving past the screen edges.
 	for a in all(borders) do
 		if (a.y>=cam.y and a.y<cam.y+112) a:cupdate()
 		if (a.dead) del(borders, a)
 	end
 end
 
+-- Sets the camera's goal position. Normally, this puts the player in the
+-- centre of the screen.
 function cam:set_goal()
 	if self.special_goal then
 		self.special_goal = false
@@ -274,11 +341,13 @@ function cam:set_goal()
 	end
 end
 
+-- Moves the camera straight to where it should be.
 function cam:jump_to()
 	self:set_goal()
 	self.x=self.goal_x
 end
 
+-- Moves the camera between the two subscreens.
 function cam:y_move()
 	if player.y<=104 then
 		self.y=0
@@ -287,6 +356,7 @@ function cam:y_move()
 	end
 end
 
+-- Use the camera object to call the 'camera()' function used for drawing.
 function cam:set_position()
 	camera(self.x, self.y-16)
 	if not between_levels then
@@ -297,16 +367,17 @@ end
 
 --------------------------------------------------------------------------------
 
+-- Obviously, the 'player' actor is the player's avatar in the game.
+-- It's actually comprised of two actors, for the upper and lower body,
+-- since it spans two sprites.
+
 player = actor:new({s=0, height=14, dcc=0.5, max_spd=1, animation=0,
 					stair_timer=0, whip_animation=0, whip_cooldown = 0,
 					invul = 0, extra_invul=0, always_update = true,
 					legs_s=0})
 
 function player:update()
-	self.prev_x, self.prev_y, self.pal = self.x, self.y,player_pal
-	-- if self.invul<=0 and self.extra_invul==0 then
-	-- end
-	--movement inputs
+	self.prev_x, self.prev_y, self.pal = self.x, self.y, player_pal
 	if self.health<=0 then
 		self:death_particle()
 	end
@@ -316,47 +387,31 @@ function player:update()
 	if self.invul==0 and self.extra_invul==0 then
 		self.invis=false
 	end
+	-- The player behaves differently when it's on the stairs.
 	if not self.stairs then
-		--move on the ground
 		if self.invul == 0 then
-			--crouching is dummied out
-			-- if btn(3) and (self:on_ground() or self.ducking) and false then
-			-- 	-- if not self.ducking then
-			-- 	-- 	self.y+=2
-			-- 	-- end
-			-- 	-- self.ducking = true
-			-- 	-- -- self.spd=0
-			-- 	-- self.acc=0
-			-- else
-				if self.health>0 then
-					if btn(1) and not btn(0) then
-						self.acc=1
-						if self.whip_animation==0 then
-							self.f = false
-						end
-					elseif btn(0) and not btn(1) then
-						self.acc=-1
-						if self.whip_animation==0 then
-							self.f = true
-						end
-					else
-						self.acc=0
+			if self.health>0 then
+				-- Set the player's acceleration based on the arrow buttons.
+				if btn(1) and not btn(0) then
+					self.acc=1
+					if self.whip_animation==0 then
+						self.f = false
 					end
-				-- end
-
-				-- if self.ducking then
-				-- 	self.height=12
-				-- else
-					self.height=14
-					if self:is_in_wall() then
-						self.y-=2
+				elseif btn(0) and not btn(1) then
+					self.acc=-1
+					if self.whip_animation==0 then
+						self.f = true
 					end
-					if self:on_ground() and zp and not between_levels then
-						self.grav=-player_jump_height
-					end
+				else
+					self.acc=0
 				end
-			-- end
+				-- Jump with the Z button. Doesn't work on map screen.
+				if self:on_ground() and zp and not between_levels then
+					self.grav=-player_jump_height
+				end
+			end
 			self:momgrav()
+			-- When the player is still, reset its animation.
 			if abs(self.spd)<0.1 then
 				self.animation = 1.9
 			end
