@@ -2239,16 +2239,17 @@ function draw_hud()
 end
 
 function draw_level_select_gui()
+	--draw map
+	rectfill(0,0,127,63,0)
+	sspr(56,96,64,32,32,8)
 	--draw border
 	local cols = {0,8,0}
 	if not game_end then
 		for i = 1,3 do
 			rect(i-1,63+i,128-i,128-i,cols[i])
 		end
+		if (got_key) spr(56,119,56)
 	end
-	--draw map
-	rectfill(0,0,127,63,0)
-	sspr(56,96,64,32,32,8)
 	--string
 	centre_print(map_string,50,7)
 	--local p_m,num=nil,-1
@@ -2260,18 +2261,6 @@ function draw_level_select_gui()
 			spr(m[3]+1,m[1]+8,m[2])
 		end
 		num+=1
-		-- m1,m2=m[1],m[2]
-		-- if p_m and (num<progression or p_timer%0.2<0.1) then
-		-- 	-- p1,p2=p_m[1],p_m[2]
-		-- 	-- for i=0,1,0.2 do
-		-- 	-- 	pset(p1+i*(m1-p1),p2+i*(m2-p2))
-		-- 	-- end
-		-- 	line(m1,m2,p_m[1],p_m[2])
-		-- end
-		-- num+=1
-		-- --circfill(m1,m2,2,0)
-		-- circfill(m1,m2,1,8)
-		-- p_m=m
 	end
 	pal()
 end
@@ -2669,4 +2658,3 @@ __music__
 02 36424344
 04 37424344
 04 38424344
-
