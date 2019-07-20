@@ -1750,7 +1750,8 @@ function next_level_marker:update()
 	if self.num2 then
 		self.lv=nl_2
 	end
-	if abs(self.y-player.y)<16 and not player.stairs and player.x>cam.x+48 then
+	--and not player.stairs and player.x>cam.x+48 
+	if abs(self.y-player.y)<16then
 		map_markers[progression+2] = levels[self.lv].map_marker
 	end
 	if self:intersects(player) then
