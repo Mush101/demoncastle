@@ -1750,7 +1750,7 @@ function next_level_marker:update()
 	if self.num2 then
 		self.lv=nl_2
 	end
-	--and not player.stairs and player.x>cam.x+48 
+	--and not player.stairs and player.x>cam.x+48
 	if abs(self.y-player.y)<16then
 		map_markers[progression+2] = levels[self.lv].map_marker
 	end
@@ -2010,7 +2010,7 @@ function _update60()
 		if level_end_timer<=80 then
 			level_end_timer+=1
 		else
-			level_start, level_end, level_end_timer, got_level_item = true, false, 0, false
+			level_start, level_end, level_end_timer, got_level_item, darkness = true, false, 0, false, 5
 			if not game_end then
 				load_level(next_level)
 			else
