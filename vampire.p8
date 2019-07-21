@@ -1,8 +1,9 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
+--demon castle
+--by mush
 
---------------------------------------------------------------------------------
 
 -- Every object in this game is classed as an actor.
 
@@ -425,12 +426,11 @@ function player:update()
 			self:momgrav()
 		end
 	end
-	--stairs behaviour
+	-- This is how the player behaves on the stairs
 	if self.stairs then
 		if self.invul>0 then
 			self:flash_when_hit()
 		end
-		-- self.ducking = false
 		self.spd=0
 		local up, down = 1, 0
 		if self.stair_dir then
@@ -457,7 +457,8 @@ function player:update()
 				self.x+=2
 			end
 			self.animation+=1
-			--code duplication.
+			-- This is a small detail I like. The sounds of walking up the
+			-- stairs, and for walking down are slightly different.
 			if self.y%4==0 then
 				sfx(5)
 			else
@@ -481,6 +482,7 @@ function player:update()
 		self:dismount_stairs()
 	end
 
+	-- This is the code to start using the whip.
 	if xp and self.whip_animation == 0 and self.whip_cooldown == 0 and self.health>0 and not between_levels then
 		self.whip_animation = 0.1
 		sfx(4)
@@ -497,6 +499,7 @@ function player:update()
 
 	self.legs_s = self.s
 
+	-- The actual behaviour of the whip is controlled by the player actor.
 	if self.whip_cooldown>0 then
 		self.whip_cooldown-=1
 		self.s = 6
@@ -506,9 +509,6 @@ function player:update()
 	else
 		if self.whip_animation>0 then
 			self.whip_animation+=0.25
-			if self.whip_animation<2 then
-				--self.whip_animation+=whip_speed
-			end
 			if self.whip_animation>=4 then
 				self.whip_cooldown = 10
 				self.s = 6
@@ -518,7 +518,11 @@ function player:update()
 		end
 	end
 
-	--move between screens when the player moves off on stairs.
+	-- The offset feature allows for large levels to be set out over two
+	-- sets of screens. When the player moves off the top of the higher level,
+	-- or off the bottom of the lower screen, its position is adjusted by
+	-- the current level's offset value. This allows for tall levels, like the
+	-- tower level to be made over just two screens.
 	if self.stairs then
 		if self.y<-8 then
 			self.y += 224
@@ -548,10 +552,12 @@ function player:update()
 	self:update_slaves()
 end
 
+-- Sets a checkpoint at the current location, storing restorable properties.
 function player:checkpoint()
 	check_x, check_y, check_stairs, check_f, check_stair_dir = self.x, self.y, self.stairs, self.f, self.stair_dir
 end
 
+-- An extention of 'actor:on_ground()', which factors in moving platforms
 function player:on_ground()
 	for a in all(actors) do
 		if a.supporting_player then
@@ -561,6 +567,7 @@ function player:on_ground()
 	return actor.on_ground(self)
 end
 
+-- The process of getting onto stairs is surprisingly complicated.
 function player:mount_stairs_down()
 	local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+16)/8)
 	for add=-1,1 do
@@ -584,6 +591,7 @@ function player:mount_stairs_down()
 	end
 end
 
+-- Same for getting up the stairs.
 function player:mount_stairs_up()
 	local tile_x, tile_y = flr((self.x+4)/8), flr((self.y+10)/8)
 	for add=-1,1 do
@@ -607,6 +615,7 @@ function player:mount_stairs_up()
 	end
 end
 
+-- And who'd have thought, getting off stairs is also pretty complicated.
 function player:dismount_stairs()
 	if self.y%8 != 2 then return end
 	if self.y>=208 then return end
@@ -626,6 +635,8 @@ function player:dismount_stairs()
 	end
 end
 
+-- The player's legs are a separate actor, treated as a slave to the player
+
 player_legs = actor:new({s=16, height=6, extends_hitbox=true})
 
 function player_legs:update()
@@ -640,12 +651,13 @@ function player_legs:update()
 			self.s +=1
 		end
 	end
-	-- if not self.master:on_ground() and not self.master.stairs or self.master.ducking then
 	if not self.master:on_ground() and not self.master.stairs then
 		self.s = 20
 	end
 end
 
+-- The player behaves a bit differently to other actors when being hit.
+-- It's got to consider health, and running out of it.
 function player:hit(attacker)
 	if self.invul == 0 and self.extra_invul==0 and self.health>0 then
 		sfx(12)
@@ -662,6 +674,7 @@ function player:hit(attacker)
 	end
 end
 
+-- The player doesn't fly quite like enemies when it gets hit, either.
 function player:fly_when_hit()
 	if self.spd>0 then
 		self.spd = self.max_spd
@@ -671,6 +684,7 @@ function player:fly_when_hit()
 	self:flash_when_hit()
 end
 
+-- This function causes the player to flicker when hit.
 function player:flash_when_hit()
 	if self.invul>0 then
 		self.invul-=1
@@ -682,6 +696,11 @@ function player:flash_when_hit()
 end
 
 --------------------------------------------------------------------------------
+
+-- The whip actor exists as a slave to the player actor, so it only updates
+-- when the player does.
+-- It actually consists of multiple instances of the same object, which
+-- move in a spiral pattern to make the whip effect.
 
 whip = actor:new({s=32, dir=0, dist=2, dir_change=0, width=3, height=3})
 
@@ -736,6 +755,7 @@ function whip:update()
 	self:update_slaves()
 end
 
+--This function sets up the recursive heirarchy of the whip.
 function whip:setup(length)
 	self.length = length
 	if length>0 then
@@ -748,8 +768,11 @@ end
 
 --------------------------------------------------------------------------------
 
+-- This is a generic enemy object which defines functions used by all enemies.
+
 enemy = actor:new({enemy = true, health = 1, pal_type = 1, dcc=0, base_max_spd=0.25, f=true, invul=0})
 
+-- Causes the enemy to fly away when hit with the whip
 function enemy:fly_when_hit()
 	if self:on_ground() then
 		self.invul-=0.5
@@ -772,6 +795,7 @@ function enemy:fly_when_hit()
 	end
 end
 
+-- Called when the enemy is hit by actor 'attacker'
 function enemy:hit(attacker)
 	if self.health<=0 then
 		return
@@ -798,6 +822,7 @@ function enemy:hit(attacker)
 	end
 end
 
+-- Set the enemy to stop existing when it runs out of health.
 function enemy:die_when_dead()
 	if self.health<=0 then
 		self.dead=true
@@ -805,7 +830,8 @@ function enemy:die_when_dead()
 	return not self.dead
 end
 
---was an enemy function
+-- This used to be exclusive to enemies, but it's now used by fireballs and
+-- thrown axes, which aren't classed as enemies because they can't be killed.
 function actor:hit_player(anyway)
 	if anyway or (self.invul == 0 and self.health>0) then
 		if self:intersects(player, true) then
@@ -820,10 +846,15 @@ function actor:hit_player(anyway)
 	end
 end
 
+-- Use this enemy to display the boss health on screen
 function enemy:boss_health()
 	boss_health,boss_max_health = self.health,self.max_health
 end
 
+--------------------------------------------------------------------------------
+-- The following are all the rest of the standard objects in the game.
+-- I don't have enough characters to explain them all in comments and still
+-- have a runnable cart, so there won't be many comments on each.
 --------------------------------------------------------------------------------
 
 zombie = enemy:new({s=15, height=14, leg_spd = 0.05, death_sound=9})
@@ -837,13 +868,11 @@ function zombie:init()
 	self:update_slaves()
 end
 
---this code needs rewriting
 function zombie:update()
 	if self:offscreen() then
 		self:update_slaves()
 		return
 	end
-	--self.f = self.x>player.x
 	if self.invul>0 then
 		self:fly_when_hit()
 	else
@@ -890,20 +919,6 @@ end
 
 --------------------------------------------------------------------------------
 
--- running_zombie = zombie:new({s=14, leg_spd = 0.2, base_max_spd=1, health=1})
---
--- function running_zombie:use_pal()
--- 	self.pal = enemy_pal
--- end
---
--- function running_zombie:on_edge()
--- 	if self:on_ground() then
--- 		self.grav=-2
--- 	end
--- end
-
---------------------------------------------------------------------------------
-
 death_particle = actor:new({size=3, always_update = true})
 
 function death_particle:update()
@@ -923,7 +938,6 @@ end
 bat = enemy:new({s=26, flying=true, ignore_walls=true, max_grav=1, base_max_spd=1, hurt_sound=10, wing_timer=0})
 
 function bat:init()
-	-- self.f=true
 	self:use_pal()
 end
 
@@ -992,7 +1006,6 @@ function batboss:update()
 		end
 		self.x=min(self.x,cam.x+120)
 	end
-	-- self.x=max(self.x,176)
 	self:update_slaves()
 	if current_level==2 or current_level==6 then
 		self:boss_health()
@@ -1082,32 +1095,6 @@ end
 
 axe = fireball:new({s=41, timer=0, pal_type=1, spd=1, anim_dir=1})
 
--- function axe:update()
--- 	if self.invul<=0 then
--- 		if self:die_when_dead() then
--- 			self:animate()
--- 			self:use_pal()
--- 			if self:offscreen() then
--- 				self.dead = true
--- 			end
--- 			if self.di==nil then
--- 				self.di=self.f
--- 			end
--- 			if self.di then
--- 				self.x-=self.spd
--- 			else
--- 				self.x+=self.spd
--- 			end
--- 			if self:hit_player() then
--- 				self.dead = true
--- 			end
--- 		end
--- 	else
--- 		self:fly_when_hit()
--- 		self:gravity()
--- 	end
--- end
-
 function axe:animate()
 	self.timer+=1
 	if self.timer>6 then
@@ -1175,15 +1162,12 @@ function axe_knight:update()
 			self:fly_when_hit()
 		end
 		self:momentum()
-		--self:gravity()
 		self:update_slaves()
 	end
 	if current_level==3 then
 		self:boss_health()
 	end
 end
-
---------------------------------------------------------------------------------
 
 axe_knight_legs = enemy:new({s=24,timer=0,pal_type=1})
 
@@ -1196,8 +1180,6 @@ function axe_knight_legs:update()
 		self.timer,self.s=0,49-self.s
 	end
 end
-
---------------------------------------------------------------------------------
 
 axe_knight_hand = enemy:new()
 
@@ -1309,9 +1291,6 @@ end
 
 function slimeboss:update()
 	slime.update(self)
-	-- if self.x<=cam.x+1 then
-	-- 	self.x = cam.x+1
-	-- end
 	self.x = max(self.x, cam.x+1)
 	self.s+=197
 	self.f=false
@@ -1319,6 +1298,8 @@ function slimeboss:update()
 	self:boss_health()
 end
 
+-- The slimebelly actor turned out to be very useful, and is used generically
+-- for things like the final boss, too.
 slimebelly = enemy:new({extends_hitbox=true})
 
 function slimebelly:init(extra)
@@ -1363,7 +1344,6 @@ function summoner:update()
 			final_boss = demon:new():init()
 			add_actor(final_boss)
 			play_music(24)
-			--play_music(-1)
 		end
 	end
 	self.f=false
@@ -1427,6 +1407,7 @@ end
 
 --------------------------------------------------------------------------------
 
+-- The stones which appear during the ending sequence.
 ending_stone = actor:new({s=58, always_update=true})
 
 function ending_stone:update()
@@ -1435,7 +1416,6 @@ function ending_stone:update()
 		self.s=55
 		self:gravity()
 	else
-		--self.x, self.y=move_towards(cam.x+60+sin(timer)*p_width,self.x,2),move_towards(cam.y+36+cos(timer)*p_width,self.y,8) --save tokens here (replace cam.x/y with absolute values)
 		local w = p_width-3*sin(p_timer)
 		self.x, self.y=cam.x+60+sin(timer)*w,cam.y+34+cos(timer)*w
 	end
@@ -1475,7 +1455,6 @@ function platform:update()
 	end
 
 	self:update_slaves()
-
 end
 
 function platform:draw()
@@ -1496,34 +1475,6 @@ end
 
 --------------------------------------------------------------------------------
 
--- fall_platform = platform:new({pal_type=2, always_update=true, timer=0, flicker_timer=0, falling_timer=0})
---
--- function fall_platform:move()
--- 	self.change_x = 0
--- 	self.change_y = 0
--- 	self.flicker_timer = max(self.flicker_timer-1, 0)
--- 	self.invis = self.flicker_timer%2!=0
--- 	if self.supporting_player then
--- 		self.falling_timer+=1
--- 		if self.falling_timer>=10 then
--- 			self.falling = true
--- 		end
--- 		self.timer = 0
--- 	else
--- 		self.timer+=1
--- 		self.falling_timer=0
--- 	end
--- 	if self.falling then
--- 		self:gravity()
--- 		if self.timer>60 then
--- 			self.falling, self.flicker_timer = false, 20
--- 			self.x, self.y = self.origin_x, self.origin_y
--- 		end
--- 	end
--- end
-
---------------------------------------------------------------------------------
-
 pendulum = platform:new({xw=0, yw=0, speed = 0.003})
 
 function pendulum:init()
@@ -1538,7 +1489,6 @@ function pendulum:move()
 end
 
 function pendulum:draw()
-
 	for i=-1,1 do
 		line(self.origin_x+8+i, self:get_top(), self.x+8+i, self.y+8, 6-abs(i))
 	end
@@ -1554,6 +1504,7 @@ end
 
 --------------------------------------------------------------------------------
 
+-- These border actors prevent the camera from moving past them.
 cam_border_right = actor:new()
 
 function cam_border_right:init()
@@ -1589,6 +1540,7 @@ end
 
 --------------------------------------------------------------------------------
 
+-- The 'boss_cam' actor causes the camera to move to the boss arena.
 boss_cam = cam_border_left:new()
 
 function boss_cam:cupdate()
@@ -1602,12 +1554,14 @@ end
 
 --------------------------------------------------------------------------------
 
+-- This is a generic actor which is used a lot. Used as a slave, it creates
+-- a copy of its master object to its left.
 mirror = actor:new({extends_hitbox=true})
 
 function mirror:update()
 	self:goto_master()
 	self.x+=8
-	self.s, self.pal, self.invis = self.master.s, self.master.pal, self.master.invis --code duplication? slimebelly?
+	self.s, self.pal, self.invis = self.master.s, self.master.pal, self.master.invis
 end
 
 function mirror:flip()
@@ -1643,7 +1597,6 @@ function breakable_block:init()
 end
 
 function breakable_block:break_me()
-	--self.breaks = false
 	mset(self.x/8, self.y/8, 0)
 	self.dead = true
 	for i=0,1 do
@@ -1724,6 +1677,8 @@ function stone_sealing:collect()
 	got_level_item = true
 end
 
+-- When you've already collected them, the collectable items turn into chicken.
+-- Delicious.
 function stone_sealing:be_chicken()
 	if got_level_item then
 		self.dead = true
@@ -1742,6 +1697,7 @@ end
 
 --------------------------------------------------------------------------------
 
+-- The objects which start the next level on the map screen when touched.
 next_level_marker=actor:new()
 
 function next_level_marker:update()
@@ -1750,7 +1706,6 @@ function next_level_marker:update()
 	if self.num2 then
 		self.lv=nl_2
 	end
-	--and not player.stairs and player.x>cam.x+48
 	if abs(self.y-player.y)<16then
 		map_markers[progression+2] = levels[self.lv].map_marker
 	end
@@ -1762,6 +1717,7 @@ end
 
 --------------------------------------------------------------------------------
 
+-- This is the locked door on the bottom route, on the map screen.
 lock=actor:new()
 
 function lock:update()
@@ -1781,6 +1737,22 @@ end
 
 --------------------------------------------------------------------------------
 
+-- This is where the levels of the game are stored.
+-- Apart from few other properties, like 'start_x', most of the data is stored
+-- in the horrific-looking 'data' strings:
+--	- The first character is the music used, converted using 'char_to_int()'.
+--	- The next 7 characters are the colour palette used for enemies, converted
+-- 	  in the same way.
+--	- The rest of the string is the width and level data, generated by the
+--	  external Python file mapload2.py (mapload3 was a failed attempt)
+
+-- The game's first level (second in the list, because the between-level areas
+-- are first in the list) is an exception. To save characters for the compressed
+-- code limit, that data is loaded into the map to begin with, and the
+-- 'load_level()' function has instructions to not replace any map data on the
+-- first level. The data string for that level basically just includes the
+-- data for placing actors.
+
 levels =
 {
 	{data="000000001i?+??+??+??+??+Hh7wy?+3S?PERSC:2P?:3B?+1S?S?+1xh+1xh+1x:2h?:3AEARCS?+8:2?hy?w7?+2T?+1C?TC?+1AB?S?S?+1xh+1xh+1xh?+1C?+1CT?zQB?+5ywymy?+2zA+1DA+1D:jA?A+1?T?S?+1xh+1xh+1x:jh?ADA+1DAQA+2B?u+2:ju1+30+15lt+7?A+1B?+1T?NXUZNONON?t+6NONOMfvfvj+40j3J+6z?A+2?+42?xzBx?+2J+7NONO?L?L?0+5?3?+3zA+1?A+2B?+22?+1xA+1xB?+aNOM?L?L?+10?0+3B3zBzA+1:kA?A+3B?2ezAxA+1xA:kB?+aNO?L?L?+20+6s+5?s+4NONONO1+4?+9NOM8+3?+??+??+??+??+HA+5R?+1PA+4:2A?:3B?+3S?+3S?+1S?:2?+3zA+1QA+dR?+5PA+3?QAB?+1T?+3S?+1T?+1zANO1+cAER?+9PAE?A+1QAQB?+3T?+2z:jAQNONONOj+9?C?+8zB?+1C?1+40+15l1+6NONOh+1NONONO?+4BC?+1zB?/ef/?zAQABC?Oj+63j+3NONOy/A/?why/z/w:gNO:2N+5ADBzQAB/uv/zQA+1QA:jD?NONOABzB?3?+1zB/y/h+1y/P/6ywn/P/wMNO+5t+f?ONONOAQA+1B3zQ:nA/O/hywh+1nwhywNON+5J+f?NO?+1NOt+5NONONONONONONONO+5"},
@@ -1793,35 +1765,24 @@ levels =
 }
 
 function _init()
-	--almost all of the properties can be shoved in one long list. tokens!
-
-	--hard_mode = false
-
+	-- This is really hard to read, because putting all the variables in one
+	-- line saves tokens compared to putting them on separate lines.
+	-- Sorry about that.
 	hurt_pal, player_pal,base_pal=string_to_array("2982928"),string_to_array("1d2f"),string_to_array("567fabd")
 
-	--player.y=82
 	player:use_slaves()
 	player:add_slave(player_legs)
-	--player:use_pal()
-	--player:update_slaves()
-	--player_sword:use_slaves()
-	--player:add_slave(player_sword)
-	--player_sword:add_slave(player_sword_tip)
-
 	player.whip = whip:new()
 	player:add_slave(player.whip)
 	player.whip:setup(10)
 
-	--next_start_x, next_start_y = 4, 58
-
 	terminal_velocity, grav_acc, player_jump_height, player.health, player_max_health, health_timer, boss_health, boss_max_health, got_stones, e_timer, e_stones, blackout_time, darker_pal, darkness, e_add, level_start_timer, level_end_timer, level_start, difficulty_menu, progression, between_levels, p_width, p_timer,map_markers, deaths,minutes, seconds = 4, 0.15, 2.5, 6, 6, 0, 0,0, 0, 0.25, {}, 0, {string_to_array("001521562443d52e"),string_to_array("0001101512250112"),string_to_array("0000000101110001")}, 0, 0.01,0, -20, true, true, 0, false, 0,0, {{41,24,195}}, 0,0,0
-	--boss_max_health = 6
 
-	--draw_bounding_boxes = false
-	--old darkness: "000520562493152e"
 	player:update()
 end
 
+-- Converts a string of characters to a numerical array.
+-- Saves tons of tokens instead of defining the arrays inline.
 function string_to_array(s)
 	a = {}
 	for i=1,#s+1 do
@@ -1830,17 +1791,17 @@ function string_to_array(s)
 	return a
 end
 
+-- A list of all the game's actors.
+-- By writing them out like this, I can call for a certain actor during level
+-- loading using 'entity_dict[1]', for example, instead of needing a ton of
+-- lengthy if statements.
 entity_dict = {zombie, bat, cam_border_right, cam_border_left, platform:new({yw=24}), platform:new({xw=24}), platform:new({yw=-24}), pendulum, chicken, breakable_block, shooter, shooter:new({base_f=false}), axe_knight, batboss, boss_cam, heart_crystal, stone_sealing, key, medusa_spawner, next_level_marker, next_level_marker:new({num2=true}), slime, slimeboss, lock, summoner, breakable_block:new({b_bit_s=33})}
 
+-- Load a level from the horrific data strings. Basically reverses the process
+-- of mapload2.py.
 function load_level(level, respawning)
 	cls()
-	--clear_level
 	actors = {player, cam}
-	-- for i=0,127 do
-	-- 	for j=0,27 do
-	-- 		mset(i,j,0)
-	-- 	end
-	-- end
 	between_levels, p_width = level==1, 0
 	if level==6 then
 		back_entry=true
@@ -1855,7 +1816,6 @@ function load_level(level, respawning)
 
 	if current_level==7 and back_entry then
 		start_x, start_y=496, 186
-		--540
 	elseif current_level==5 and lower_route then
 		start_y=34
 	end
@@ -1922,13 +1882,10 @@ function load_level(level, respawning)
 	if between_levels then
 		cam.x=flr(player.x/136)*136
 	end
-
-	-- sort_actors()
-	-- for a in all(actors) do
-	-- 	a:update()
-	-- end
 end
 
+-- A useful function. It turns a character into an integer.
+-- Used for converting string data.
 function char_to_int(c)
 	for i=0,63 do
 		if char_at("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?",i+1) == c then
@@ -1937,11 +1894,13 @@ function char_to_int(c)
 	end
 end
 
+-- Does the same as the previous, but uses two characters for a bigger integer.
 function two_char_to_int(string)
 	local num1, num2 = char_to_int(char_at(string,1)), char_to_int(char_at(string,2))
 	return num2+num1*32
 end
 
+-- Get a character at a position in a string.
 function char_at(s,i)
 	return sub(s,i,i)
 end
@@ -1949,15 +1908,17 @@ end
 --------------------------------------------------------------------------------
 
 function _update60()
+	-- X and Z buttons pressed.
 	xp,zp=btn(5) and not pbx,btn(4) and not pbz
 	pbx,pbz=btn(5),btn(4)
+
+	-- Mess with the map markers
 	if (not level_end) map_markers[progression+2]=nil
 	p_timer=(p_timer+0.01)%1
 
 	if death_time then
 		death_time-=1
 		if death_time<=0 then
-			--respawning
 			death_time=nil
 			load_level(current_level, true)
 			level_start=true
@@ -1965,6 +1926,7 @@ function _update60()
 		end
 	end
 
+	-- Main menu
 	if difficulty_menu then
 		if btnp(3) or btnp(2) then
 			hard_mode = not hard_mode
@@ -1975,12 +1937,14 @@ function _update60()
 			if hard_mode then
 				player.health, player_max_health=4,4
 			end
-			load_level(2) --start in first level
+			load_level(2)
 			sfx(3)
 			darkness, blackout_time=5, 20
 		end
 		return
 	end
+
+	-- Timer
 	if not game_end then
 		seconds+=1/60
 		if seconds>=60 then
@@ -1988,10 +1952,13 @@ function _update60()
 			seconds=0
 		end
 	end
+
 	if blackout_time>0 then
 		blackout_time-=1
 		return
 	end
+
+	-- After collecting 'heart_crystal'
 	if health_go_up then
 		if health_timer>=10 then
 			if player.health>=player_max_health then
@@ -2007,6 +1974,8 @@ function _update60()
 		health_timer+=1
 		return
 	end
+
+	-- Fade the screen to black.
 	if level_end then
 		if level_end_timer<=80 then
 			level_end_timer+=1
@@ -2020,6 +1989,7 @@ function _update60()
 				if (good_end) map_string="you sealed the demon away"
 			end
 		end
+		-- Actors still update in the ending.
 		if (not ending_sequence) return
 	elseif game_end then
 		darkness-=0.1
@@ -2030,6 +2000,8 @@ function _update60()
 		end
 		return
 	end
+
+	-- Fade the level in from black
 	if level_start then
 		if level_start_timer<=20 then
 		 	level_start_timer+=1
@@ -2040,14 +2012,9 @@ function _update60()
 		end
 		return
 	end
-	--end of the game
+
+	-- Do the ending animations
 	if ending_sequence then
-		-- if e_timer<0.01 and got_stones>0 then
-		-- 	local es = ending_stone:new({x=player.x,y=player.y,num=got_stones})
-		-- 	add(e_stones, es)
-		-- 	add_actor(es)
-		-- 	got_stones-=1
-		-- end
 		e_timer=(e_timer+e_add)%1
 		if not stones_out then
 			for i=1,got_stones do
@@ -2067,7 +2034,6 @@ function _update60()
 				if p_width<16 or portal_failed then
 					final_boss.y-=2
 					final_boss.s=210
-					--final_boss.timer+=0.01
 					final_boss:update_slaves()
 					p_width+=2
 					portal_failed=true
@@ -2077,13 +2043,15 @@ function _update60()
 		if p_width<=12 or p_width>128 then
 			level_end, game_end=true,true
 		end
-		--return
 	end
-	--sort_actors
+
+	-- Move the player and camera to the front.
 	del(actors, player)
 	del(actors,cam)
 	add_actor(player)
 	add_actor(cam)
+
+	-- Update all actors
 	for a in all(actors) do
 		if a.always_update or (a.y>=cam.y and a.y<cam.y+112) then
 			a:update()
@@ -2097,6 +2065,7 @@ function _update60()
 	end
 end
 
+-- Changes the music track, if different to current one.
 function play_music(num)
 	if playing_music!=num then
 		music(num)
@@ -2109,7 +2078,7 @@ function add_actor(a)
 end
 
 function is_solid(x,y)
-	--ignore tiles above the camera.
+	-- Ignores tiles above the camera.
 	return get_flag_at(x,max(y, cam.y),0)
 end
 
@@ -2123,6 +2092,7 @@ function get_flag(x,y,flag)
 	return fget(mget(x,y),flag)
 end
 
+-- Moves towards a value from a current one by a set amount. Saves tokens.
 function move_towards(goal, current, speed)
 	if goal+speed<current then
 		return current-speed
@@ -2136,11 +2106,10 @@ end
 --------------------------------------------------------------------------------
 
 function _draw()
-	--if darkness!=0 and prev_darkness==darkness and not game_end then return end
-	--prev_darkness=darkness
 	cls()
 	if (darkness>=4) return
 	if game_end and not level_end then
+		-- Code for drawing the end screen
 		draw_level_select_gui()
 		centre_print("deaths: "..deaths, 72,7)
 		local extra=""
@@ -2165,7 +2134,6 @@ function _draw()
 				if (hard_mode) xd=4 yd=10
 				spr(180,40+xd,72+yd)
 				spr(181,79-xd,72+yd)
-				-- print("mush101.itch.io", 68,122,5)
 				centre_print("mush101.itch.io", 118,5)
 				return
 			end
@@ -2173,7 +2141,6 @@ function _draw()
 			for a in all(actors) do
 				a:draw()
 			end
-			--player:draw()
 			map(0,0,0,0,128,32,0b1000)
 			camera()
 			clip()
@@ -2189,24 +2156,17 @@ function _draw()
 	if (darkness>=1) darker()
 end
 
+-- Draw the final boss's big circle.
 function draw_portal()
 	if (p_width<=0) return
 	camera()
 	local w = p_width-3*sin(p_timer)
 	circfill(63,36,w+1,1)
 	circfill(63,36,w,0)
-	-- rectfill(63-p_width,0,64+p_width,95,0)
-	-- for i=0,16 do
-	-- 	for j=0,95 do
-	-- 		if sin(p_timer+j/128)*8+8>i then
-	-- 			pset(i+p_width+64,j,0)
-	-- 			pset(63-p_width-i,95-j,0)
-	-- 		end
-	-- 	end
-	-- end
 	cam:set_position()
 end
 
+-- Draw the stuff at the bottom of the screen
 function draw_hud()
 	line(0,112,127,112,5)
 	print("player", 1, 114, 7)
@@ -2223,7 +2183,6 @@ function draw_hud()
 	for i=0,boss_health-1 do
 		spr(62, 120-i*5, 120)
 	end
-	--draw_stat()
 	local s = {}
 	if got_key then
 		s = {56}
@@ -2238,11 +2197,10 @@ function draw_hud()
 	end
 end
 
+-- Draw GUI used between levels.
 function draw_level_select_gui()
-	--draw map
 	rectfill(0,0,127,63,0)
 	sspr(56,96,64,32,32,8)
-	--draw border
 	local cols = {0,8,0}
 	if not game_end then
 		for i = 1,3 do
@@ -2250,9 +2208,7 @@ function draw_level_select_gui()
 		end
 		if (got_key) spr(56,119,56)
 	end
-	--string
 	centre_print(map_string,50,7)
-	--local p_m,num=nil,-1
 	num=-1
 	pal(3,0)
 	for m in all(map_markers) do
@@ -2269,6 +2225,7 @@ function centre_print(str, y, col)
 	print(str,64-2*#str,y,col)
 end
 
+-- Darken the screen by the current darkness level.
 function darker()
 	for i= 0x6000, 0x7fff do
 		local two = peek(i)
