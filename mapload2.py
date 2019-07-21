@@ -2,6 +2,9 @@ import json
 import sys
 import math
 
+# This Python script is responsible for converting the map data created in the Tiled editor into a version which can
+# be interpreted by the game itself.
+# The map data is exported as a JSON file, which is interpreted by this script.
 
 def num_to_char(num):
     s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?"
@@ -123,27 +126,3 @@ else:
         if chain_length > 0:
             out_str += "+" + num_to_one_char(chain_length)
         print(out_str)
-
-    #     entity_list = sorted(entity_list, key=lambda x: x[1])
-    #
-    #     for e in entity_list:
-    #         out_str += num_to_one_char(e[0])
-    #
-    #     out_str += "|"
-    #
-    #     prev_tile = -1
-    #     chain_length = 0
-    #     for i in range(0, len(new_tiles)):
-    #         this_tile = new_tiles[i]
-    #         if this_tile == prev_tile and chain_length < 127:
-    #             chain_length += 1
-    #         else:
-    #             if chain_length > 0:
-    #                 out_str += get_chain_output(chain_length)
-    #                 chain_length = 0
-    #             out_str += num_to_char(this_tile)
-    #             prev_tile = this_tile
-    #
-    #     if chain_length > 0:
-    #         out_str += get_chain_output(chain_length)
-    #     print(out_str)
