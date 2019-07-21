@@ -669,7 +669,7 @@ function player:hit(attacker)
 		if attacker.x>self.x then
 			self.spd, self.f=-0.5, false
 		else
-			self.spd, self.f=0.5, false
+			self.spd, self.f=0.5, true
 		end
 	end
 end
@@ -2614,4 +2614,3 @@ __music__
 02 36424344
 04 37424344
 04 38424344
-
